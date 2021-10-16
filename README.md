@@ -1,6 +1,6 @@
 Smart Tv Channel List Best Version
 
-<img src="https://github.com/Belfagor2005/S.T.V.C.L./blob/main/usr/lib/enigma2/python/Plugins/Extensions/stvcl/icon.png">
+<img src="https://raw.githubusercontent.com/Belfagor2005/S.T.V.C.L-/main/usr/lib/enigma2/python/Plugins/Extensions/stvcl/logo.png">
 
 Enigma2 project
 Only Free Channels ( no Pay Tv ) 
