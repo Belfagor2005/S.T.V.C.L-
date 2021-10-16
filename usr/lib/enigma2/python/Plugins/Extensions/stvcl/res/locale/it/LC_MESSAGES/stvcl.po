@@ -1,0 +1,287 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: stvcl\n"
+"Report-Msgid-Bugs-To: Lululla <ekekaz@gmail.com>\n"
+"POT-Creation-Date: 2021-10-15 19:37+0200\n"
+"PO-Revision-Date: 2021-10-15 19:40+0200\n"
+"Last-Translator: Lululla <ekekaz@gmail.com>\n"
+"Language-Team: lululla\n"
+"Language: it_IT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7\n"
+"X-Poedit-Basepath: ../../../..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: iso-8859-1\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: getpics.py:269
+msgid "..:: S.T.V.C.L. ::.."
+msgstr ""
+
+#: plugin.py:220
+msgid "IPTV(4097)"
+msgstr ""
+
+#: plugin.py:221
+msgid "Dvb(1)"
+msgstr ""
+
+#: plugin.py:222
+msgid "eServiceUri(8193)"
+msgstr ""
+
+#: plugin.py:226
+msgid "Gstreamer(5001)"
+msgstr ""
+
+#: plugin.py:228
+msgid "Exteplayer3(5002)"
+msgstr ""
+
+#: plugin.py:428
+msgid "Smart Tv Channel List"
+msgstr ""
+
+#: plugin.py:437
+msgid "Exit"
+msgstr "Uscire"
+
+#: plugin.py:509 plugin.py:900 plugin.py:923
+msgid "Download Failed!!!"
+msgstr ""
+
+#: plugin.py:534 plugin.py:947
+msgid "DOWNLOAD ERROR"
+msgstr ""
+
+#: plugin.py:562 plugin.py:665
+#, python-format
+msgid "Folder path %s"
+msgstr "Percorso cartella %s"
+
+#: plugin.py:563 plugin.py:666 plugin.py:1304 plugin.py:1421
+msgid "Back"
+msgstr "Indietro"
+
+#: plugin.py:579
+msgid "Check in your Config Plugin - Path Movie"
+msgstr "Controlla nel Menu di configurazione - Path Movie"
+
+#: plugin.py:663
+#, python-format
+msgid "Service Reference used %s"
+msgstr "Service Reference utilizzato %s"
+
+#: plugin.py:667
+msgid "Convert ExtePlayer3"
+msgstr "Converti ExtePlayer3"
+
+#: plugin.py:668
+msgid "Convert Gstreamer"
+msgstr "Converti Gstreamer"
+
+#: plugin.py:669
+msgid "Search"
+msgstr "Cerca"
+
+#: plugin.py:712
+msgid "Do you want to Convert Bouquet IPTV?"
+msgstr "Vuoi convertire Bouquet IPTV?"
+
+#: plugin.py:721
+msgid "Do you want to Convert Bouquet GSTREAMER?"
+msgstr "Vuoi convertire Bouquet GSTREAMER?"
+
+#: plugin.py:780
+msgid "Check out the favorites list ..."
+msgstr "Dai un'occhiata all'elenco dei preferiti ..."
+
+#: plugin.py:792
+msgid "Shuffle Favorite List in Progress"
+msgstr "Riordino Liste favorite in corso"
+
+#: plugin.py:792
+msgid "Wait please ..."
+msgstr "Attendere prego ..."
+
+#: plugin.py:796
+msgid "Conversion Failed!!!"
+msgstr ""
+
+#: plugin.py:813
+msgid "Filter this category..."
+msgstr "Filtra questa categoria..."
+
+#: plugin.py:868
+msgid "You are already downloading!!!"
+msgstr "Stai già scaricando !!!"
+
+#: plugin.py:872
+msgid "DOWNLOAD VIDEO?"
+msgstr ""
+
+#: plugin.py:875
+msgid "Only VOD Movie allowed or not .ext Filtered!!!"
+msgstr "Solo film VOD consentito o nessun Filtro!!!"
+
+#: plugin.py:1056
+msgid "Please enter the parental control pin code"
+msgstr "Inserisci il codice PIN del controllo genitori"
+
+#: plugin.py:1056
+msgid "Enter pin code"
+msgstr "Inserisci il codice PIN"
+
+#: plugin.py:1061
+msgid "The pin code you entered is wrong."
+msgstr "Il codice PIN che hai inserito è sbagliato."
+
+#: plugin.py:1088
+msgid "Install Streamlink first"
+msgstr ""
+
+#: plugin.py:1305
+msgid "Ok"
+msgstr ""
+
+#: plugin.py:1329
+msgid "Add Stream IPTV"
+msgstr "Aggiungi Stream IPTV"
+
+#: plugin.py:1335
+msgid "Select the Bouquet and press OK to add"
+msgstr "Selezionare il bouquet e premere OK per aggiungere"
+
+#: plugin.py:1370
+msgid "Enter Name"
+msgstr "Inserire Nome"
+
+#: plugin.py:1415
+msgid "stvcl Config"
+msgstr ""
+
+#: plugin.py:1422
+msgid "Save"
+msgstr "Salva"
+
+#: plugin.py:1423
+msgid "Empty Pic Cache"
+msgstr "Svuota la cache delle immagini"
+
+#: plugin.py:1459
+msgid "All cache fold are empty!"
+msgstr "Tutte la cache è vuota!!"
+
+#: plugin.py:1467 plugin.py:1491
+msgid "IPTV bouquets location "
+msgstr "Posizione dei bouquet IPTV"
+
+#: plugin.py:1468 plugin.py:1494
+msgid "Player folder List <.m3u>:"
+msgstr "Elenco cartelle del lettore <.m3u>:"
+
+#: plugin.py:1469 plugin.py:1497
+msgid "Services Player Reference type"
+msgstr ""
+
+#: plugin.py:1470 plugin.py:1500
+msgid "Show thumpics?"
+msgstr "Mostra thumpics?"
+
+#: plugin.py:1472 plugin.py:1503
+msgid "Download thumpics?"
+msgstr "Scarica Poster"
+
+#: plugin.py:1473 plugin.py:1506
+msgid "Folder Cache for Thumbpics:"
+msgstr "Cache delle cartelle per Thumbpics:"
+
+#: plugin.py:1474 plugin.py:1509
+msgid "Link in Extensions Menu:"
+msgstr ""
+
+#: plugin.py:1475 plugin.py:1512
+msgid "Link in Main Menu:"
+msgstr ""
+
+#: plugin.py:1492
+msgid "Configure position of the bouquets of the converted lists"
+msgstr "Configura la posizione dei Bouquet delle liste convertite"
+
+#: plugin.py:1495
+msgid "Folder path containing the .m3u files"
+msgstr "Percorso della cartella contenente i file .m3u"
+
+#: plugin.py:1498
+msgid "Configure Service Player Reference"
+msgstr "Configura i Service  Reference per il Player"
+
+#: plugin.py:1501
+msgid "Show Thumbpics ? Enigma restart required"
+msgstr "Mostra miniature ? Necessario il riavvio di Enigma"
+
+#: plugin.py:1504
+msgid "Download thumpics in Player M3U (is very Slow)?"
+msgstr ""
+
+#: plugin.py:1507
+msgid "Configure position folder for temporary Thumbpics"
+msgstr "Configura la cartella di posizione per Thumbpics temporanei"
+
+#: plugin.py:1510
+msgid "Show Plugin in Extensions Menu"
+msgstr "Mostra Plugin in Menu Estensioni"
+
+#: plugin.py:1513
+msgid "Show Plugin in Main Menu"
+msgstr "Mostra Plugin in Menu Estensioni"
+
+#: plugin.py:1553
+msgid "Choose Directory:"
+msgstr "Scegli Cartella"
+
+#: plugin.py:1554
+msgid "Choose Directory"
+msgstr "Scegli Cartella"
+
+#: plugin.py:1577
+msgid "M3u list folder not detected!"
+msgstr "Cartella dell'elenco M3u non rilevata!"
+
+#: plugin.py:1585
+msgid "Settings saved correctly!"
+msgstr "Impostazioni salvate correttamente!"
+
+#: plugin.py:1609
+msgid "Really close without saving the settings?"
+msgstr "Uscire senza salvare le impostazioni?"
+
+#: plugin.py:1650
+msgid "Question"
+msgstr "Question"
+
+#: plugin.py:1651
+msgid "Information"
+msgstr "Information"
+
+#: plugin.py:1652
+msgid "Warning"
+msgstr "Warning"
+
+#: plugin.py:1653
+msgid "Error"
+msgstr "Error"
+
+#: plugin.py:1653
+msgid "Message"
+msgstr "Message"
+
+#: plugin.py:1658 plugin.py:1660
+msgid "Yes"
+msgstr "Yes"
+
+#: plugin.py:1658 plugin.py:1660
+msgid "No"
+msgstr "No"
