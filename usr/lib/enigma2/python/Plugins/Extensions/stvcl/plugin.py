@@ -583,6 +583,8 @@ class OpenScript(Screen):
         urlm3u = checkStr(url.strip())
         if six.PY3:
             urlm3u.encode()
+        # if six.PY3:
+            # urlm3u = six.ensure_str(urlm3u)            
         try:
             fileTitle = re.sub(r'[\<\>\:\"\/\\\|\?\*\[\]]', '_', namem3u)
             fileTitle = re.sub(r' ', '_', fileTitle)
