@@ -580,11 +580,11 @@ class OpenScript(Screen):
     def downlist(self, sel, url):
         global in_tmp
         namem3u = str(sel)
-        urlm3u = checkStr(url.strip())
-        if six.PY3:
-            urlm3u.encode()
+        # urlm3u = checkStr(url.strip())
         # if six.PY3:
-            # urlm3u = six.ensure_str(urlm3u)            
+            # urlm3u.encode()
+        if six.PY3:
+            urlm3u = six.ensure_str(url)            
         try:
             fileTitle = re.sub(r'[\<\>\:\"\/\\\|\?\*\[\]]', '_', namem3u)
             fileTitle = re.sub(r' ', '_', fileTitle)
@@ -603,7 +603,7 @@ class OpenScript(Screen):
             self.session.open(ListM3u, namem3u, urlm3u)
         except Exception as e:
             print('errore e : ', e)
-            self.mbox = self.session.open(openMessageBox, _('DOWNLOAD ERROR'), openMessageBox.TYPE_INFO, timeout=5)
+            # self.mbox = self.session.open(openMessageBox, _('DOWNLOAD ERROR'), openMessageBox.TYPE_INFO, timeout=5)
 
     def scsetup(self):
         self.session.open(OpenConfig)
@@ -932,31 +932,34 @@ class ChannelList(Screen):
     def download_m3u(self, result):
         if result:
             global in_tmp
-            if self.downloading == True:
-                idx = self["list"].getSelectionIndex()
-                namem3u = self.names[idx]
-                urlm3u = self.urls[idx]
-                path = urlparse(urlm3u).path
-                ext = splitext(path)[1]
-                fileTitle = re.sub(r'[\<\>\:\"\/\\\|\?\*\[\]]', '_', namem3u)
-                fileTitle = re.sub(r' ', '_', fileTitle)
-                fileTitle = re.sub(r'_+', '_', fileTitle)
-                fileTitle = fileTitle.replace("(", "_").replace(")", "_").replace("#", "").replace("+", "_")
-                fileTitle = fileTitle.replace("\'", "_").replace("'", "_").replace("!", "_").replace("&", "_")
-                fileTitle = fileTitle.lower() + ext
-                in_tmp = Path_Movies + fileTitle
-                if os.path.isfile(in_tmp):
-                    os.remove(in_tmp)
-                # urlretrieve(urlm3u, in_tmp)
-                # sleep(3)
-                self.download = downloadWithProgress(urlm3u, in_tmp)
-                self.download.addProgress(self.downloadProgress)
-                self.download.start().addCallback(self.check).addErrback(self.showError)
-            else:
-                self.downloading = False
-                self.session.open(openMessageBox, _('Download Failed!!!'), openMessageBox.TYPE_INFO, timeout=5)
-                pass
-            return
+            try:
+                if self.downloading == True:
+                    idx = self["list"].getSelectionIndex()
+                    namem3u = self.names[idx]
+                    urlm3u = self.urls[idx]
+                    path = urlparse(urlm3u).path
+                    ext = splitext(path)[1]
+                    fileTitle = re.sub(r'[\<\>\:\"\/\\\|\?\*\[\]]', '_', namem3u)
+                    fileTitle = re.sub(r' ', '_', fileTitle)
+                    fileTitle = re.sub(r'_+', '_', fileTitle)
+                    fileTitle = fileTitle.replace("(", "_").replace(")", "_").replace("#", "").replace("+", "_")
+                    fileTitle = fileTitle.replace("\'", "_").replace("'", "_").replace("!", "_").replace("&", "_")
+                    fileTitle = fileTitle.lower() + ext
+                    in_tmp = Path_Movies + fileTitle
+                    if os.path.isfile(in_tmp):
+                        os.remove(in_tmp)
+                    # urlretrieve(urlm3u, in_tmp)
+                    # sleep(3)
+                    self.download = downloadWithProgress(urlm3u, in_tmp)
+                    self.download.addProgress(self.downloadProgress)
+                    self.download.start().addCallback(self.check).addErrback(self.showError)
+                else:
+                    self.downloading = False
+                    self.session.open(openMessageBox, _('Download Failed!!!'), openMessageBox.TYPE_INFO, timeout=5)
+                    pass
+                return
+            except Exception as e:
+                print('error m3u', e)
 
     def downloadProgress(self, recvbytes, totalbytes):
         self["progress"].show()
@@ -1006,7 +1009,7 @@ class ChannelList(Screen):
 
         except Exception as e:
             print('errore e : ', e)
-            self.mbox = self.session.open(openMessageBox, _('DOWNLOAD ERROR'), openMessageBox.TYPE_INFO, timeout=5)
+            # self.mbox = self.session.open(openMessageBox, _('DOWNLOAD ERROR'), openMessageBox.TYPE_INFO, timeout=5)
         return
 
     def playList(self):
