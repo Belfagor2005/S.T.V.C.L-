@@ -8,7 +8,7 @@
 	<!-- Widget -->
 	<widget name="statusbar" position="220,155" size="1030,50" font="Regular;30" halign="center" foregroundColor="yellow" backgroundColor="#202020" transparent="0" zPosition="5" />
 	<!-- Menu List -->	
-	<widget name="menu" position="220,215" size="1030,700" scrollbarMode="showOnDemand" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" 
+	<widget name="menu" position="220,215" itemHeight="50" size="1030,700" scrollbarMode="showOnDemand" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" 
 		foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049" 
 		selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sliderb.png" />
 	<!-- Colors 1220 -->

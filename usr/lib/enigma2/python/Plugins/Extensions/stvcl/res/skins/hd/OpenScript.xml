@@ -7,7 +7,7 @@
 	<widget name="Maintainer2" position="340,35" size="266,20" font="Regular;16" halign="left" foregroundColor="yellow" backgroundColor="#000000" transparent="1" zPosition="5" />
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/key_menu.png" scale="strech" position="650,60" size="53,23" zPosition="3" />
 	<!-- Menu List -->
-	<widget name="list" position="146,103" size="553,433" font="Regular;20" itemHeight="33" scrollbarMode="showOnDemand" enableWrapAround="1" transparent="1" zPosition="10" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#000b2049" backgroundColorSelected="#0b2049" selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/sliderb.png" />
+	<widget name="list" position="146,103" size="553,433" font="Regular;20" scrollbarMode="showOnDemand" enableWrapAround="1" transparent="1" zPosition="10" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#000b2049" backgroundColorSelected="#0b2049" selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/sliderb.png" />
 	<widget name="progress" position="336,571" size="200,33" foregroundColor="#2a70a4" backgroundColor="#10000000" transparent="1" zPosition="5" />
 	<widget source="progresstext" render="Label" font="Regular;13" position="335,570" size="200,33" backgroundColor="#202020" transparent="1" halign="center" zPosition="6" />
 	<!-- Colors -->

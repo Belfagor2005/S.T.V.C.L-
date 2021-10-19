@@ -352,7 +352,7 @@ def m3ulistEntry(download):
         res.append(MultiContentEntryText(pos=(60, 0), size=(1200, 50), font=7, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     else:
         res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 6), size=(34, 25), png=loadPNG(png)))
-        res.append(MultiContentEntryText(pos=(60, 0), size=(1000, 50), font=2, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT))# | RT_VALIGN_CENTER
+        res.append(MultiContentEntryText(pos=(60, 0), size=(1000, 50), font=2, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     return res
 
 def m3ulist(data, list):
@@ -471,7 +471,7 @@ class tvList(MenuList):
         if HD.width() > 1280:
             self.l.setItemHeight(50)
         else:
-            self.l.setItemHeight(40)
+            self.l.setItemHeight(50)
 
 def tvListEntry(name,png):
     res = [name]
@@ -591,7 +591,7 @@ class OpenScript(Screen):
             fileTitle = re.sub(r'_+', '_', fileTitle)
             fileTitle = fileTitle.replace("(", "_").replace(")", "_").replace("#", "").replace("+", "_").replace("\'", "_").replace("'", "_").replace("!", "_").replace("&", "_")
             fileTitle = fileTitle.lower() #+ ext
-            in_tmp = str(Path_Movies) + str(fileTitle)
+            in_tmp = str(Path_Movies) + str(fileTitle) + '.m3u'
             if os.path.isfile(in_tmp):
                 os.remove(in_tmp)
             print('in tmp' , in_tmp)
@@ -649,6 +649,7 @@ class ListM3u(Screen):
             self.mbox = self.session.open(openMessageBox, _('Check in your Config Plugin - Path Movie'), openMessageBox.TYPE_INFO, timeout=5)
             self.scsetup()
         self.onFirstExecBegin.append(self.openList)
+        self.onLayoutFinish.append(self.openList2)        
         self.onLayoutFinish.append(self.passing)
 
     def passing(self):
@@ -692,7 +693,7 @@ class ListM3u(Screen):
         for root, dirs, files in os.walk(path):
             for name in files:
                 for x in AA:
-                    if not x in name:
+                    if x in name:
                         continue
                     self.names.append(name)
                     self.urls.append(root +'/'+name)
@@ -703,7 +704,7 @@ class ListM3u(Screen):
         idx = self["list"].getSelectionIndex()
         sel = self.names[idx]
         urlm3u = self.urls[idx]
-        if idx == -1 or None:
+        if idx == -1 or None or '':
             return
         else:
             self.session.open(ChannelList, sel, urlm3u)
@@ -768,7 +769,7 @@ class ChannelList(Screen):
     def message1(self):
         global servicx
         idx = self['list'].getSelectionIndex()
-        if idx == -1 or None:
+        if idx == -1 or None or '':
             return
         else:
             servicx = 'iptv'
@@ -777,7 +778,7 @@ class ChannelList(Screen):
     def message2(self):
         global servicx
         idx = self['list'].getSelectionIndex()
-        if idx == -1 or None:
+        if idx == -1 or None or '':
             return
         else:
             servicx = 'gst'
@@ -787,7 +788,7 @@ class ChannelList(Screen):
             global in_tmp, namebouquett
             print('in folder tmp : ', in_tmp)
             idx = self["list"].getSelectionIndex()
-            if idx == -1 or None:
+            if idx == -1 or None or '':
                 return
             self.convert = True
             name = self.name + ' ' + self.names[idx]
@@ -917,7 +918,7 @@ class ChannelList(Screen):
         idx = self["list"].getSelectionIndex()
         namem3u = self.names[idx]
         urlm3u = self.urls[idx]
-        if idx == -1 or None:
+        if idx == -1 or None or '':
             return
         if self.downloading == True:
             self.session.open(openMessageBox, _('You are already downloading!!!'), openMessageBox.TYPE_INFO, timeout=5)
@@ -995,12 +996,12 @@ class ChannelList(Screen):
             fileTitle = re.sub(r'_+', '_', fileTitle)
             fileTitle = fileTitle.replace("(", "_").replace(")", "_").replace("#", "").replace("+", "_").replace("\'", "_").replace("'", "_").replace("!", "_").replace("&", "_")
             fileTitle = fileTitle.lower() #+ ext
-            in_tmp = Path_Movies + fileTitle
+            in_tmp = Path_Movies + fileTitle + '.m3u'
             if os.path.isfile(in_tmp):
                 os.remove(in_tmp)
             print('path tmp : ', in_tmp)
             urlretrieve(urlm3u, in_tmp)
-            sleep(3)
+            sleep(5)
             self.playList()
             # self.download = downloadWithProgress(urlm3u, in_tmp)
             # self.download.addProgress(self.downloadProgress)
@@ -1098,7 +1099,7 @@ class ChannelList(Screen):
 
     def runChannel(self):
         idx = self['list'].getSelectionIndex()
-        if idx == -1 or None:
+        if idx == -1 or None or '':
             return
         else:
             self.pin = True
@@ -1151,7 +1152,7 @@ class ChannelList(Screen):
 
     def AdjUrlFavo(self):
         idx = self['list'].getSelectionIndex()
-        if idx == -1 or None:
+        if idx == -1 or None or '':
             return
         else:
             name = self.names[idx]
