@@ -1,19 +1,20 @@
 <!-- Skin M3uPlayer 16/08/2020 -->
 <screen name="M3uPlay" position="0,0" size="1920,1080" title="..::stvcl List Channel::.." backgroundColor="transparent" flags="wfNoBorder">
 	<ePixmap position="0,0" size="1920,1080" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/main2.png" alphatest="blend" zPosition="1" />
-	<ePixmap position="220,35" size="279,50" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/tvs.png" alphatest="blend" zPosition="5" />
-	<widget name="title" position="220,89" size="900,40" font="Regular;30" halign="left" valign="center" foregroundColor="#002a79b8" backgroundColor="black" transparent="1" zPosition="5" />
+	<ePixmap position="220,30" size="279,50" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/tvs.png" alphatest="blend" zPosition="5" />
+	<widget name="title" position="220,85" size="749,40" font="Regular;30" halign="left" valign="center" foregroundColor="#002a79b8" backgroundColor="black" transparent="1" zPosition="5" />
 	<ePixmap position="220,130" size="1030,8" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sep.png" zPosition="5" />
-	<widget name="Maintainer2" position="515,53" size="400,30" font="Regular;24" halign="left" foregroundColor="yellow" backgroundColor="#000000" transparent="1" zPosition="5" />
+	<widget name="Maintainer2" position="511,42" size="400,40" font="Regular;24" halign="left" foregroundColor="yellow" backgroundColor="#000000" transparent="1" zPosition="5" />
 	<!-- Menu List -->
 	<widget name="list" position="220,155" size="1030,638" scrollbarMode="showOnDemand" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049" selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sliderb.png" />
 	<!-- Widget -->
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_menu.png" scale="strech" position="626,1000" size="80,35" zPosition="6" />	
-	<widget name="path" position="219,804" size="1030,53" font="Regular;30" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />	
+	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_menu.png" scale="strech" position="601,998" size="80,35" zPosition="6" />
+	<widget name="path" position="219,809" size="825,53" font="Regular;30" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />	
+	<widget name="progress" position="502,936" size="300,50" foregroundColor="#2a70a4" backgroundColor="#10000000" transparent="1" zPosition="5" />
+	<widget source="progresstext" render="Label" font="Regular;20" position="502,937" size="300,50" backgroundColor="#202020" transparent="1" halign="center" zPosition="6" />	
 	<widget name="service" position="219,861" size="1030,46" font="Regular;30" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />
-	<widget name="live" position="784,804" size="462,50" font="Regular;30" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />
-	<widget name="progress" position="585,940" size="300,50" foregroundColor="#2a70a4" backgroundColor="#10000000" transparent="1" zPosition="5" />
-	<widget source="progresstext" render="Label" font="Regular;20" position="585,940" size="300,50" backgroundColor="#202020" transparent="1" halign="center" zPosition="6" />
+	<widget name="live" position="884,809" size="359,50" font="Regular;30" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />
+
 	<!-- Colors 1220 -->
 	<ePixmap position="220,910" size="1030,8" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sep.png" zPosition="5" />
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_red.png" position="220,945" size="30,30" alphatest="on" zPosition="5" />
