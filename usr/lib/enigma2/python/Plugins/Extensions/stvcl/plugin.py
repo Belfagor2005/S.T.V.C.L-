@@ -3,7 +3,7 @@
 #--------------------#
 #  coded by Lululla	 #
 #	skin by MMark	 #
-#	  11/09/2021	 #
+#	  20/10/2021	 #
 #--------------------#
 #Info http://t.me/tivustream
 from __future__ import print_function
@@ -491,11 +491,11 @@ class OpenScript(Screen):
     def downlist(self, sel, url):
         global in_tmp
         namem3u = str(sel)
-        # urlm3u = checkStr(url.strip())
-        # if six.PY3:
-            # urlm3u.encode()
+        urlm3u = checkStr(url.strip())
         if six.PY3:
-            urlm3u = six.ensure_str(url)            
+            urlm3u.encode()
+        # if six.PY3:
+            # urlm3u = six.ensure_str(url)            
         try:
             fileTitle = re.sub(r'[\<\>\:\"\/\\\|\?\*\[\]]', '_', namem3u)
             fileTitle = re.sub(r' ', '_', fileTitle)
@@ -560,7 +560,7 @@ class ListM3u(Screen):
             self.mbox = self.session.open(openMessageBox, _('Check in your Config Plugin - Path Movie'), openMessageBox.TYPE_INFO, timeout=5)
             self.scsetup()
         self.onFirstExecBegin.append(self.openList)
-        self.onLayoutFinish.append(self.openList2)        
+        # self.onLayoutFinish.append(self.openList2)        
         self.onLayoutFinish.append(self.passing)
 
     def passing(self):
