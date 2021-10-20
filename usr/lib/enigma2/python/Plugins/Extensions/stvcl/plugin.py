@@ -300,6 +300,7 @@ except:
 config.plugins.stvcl.bouquettop             = ConfigSelection(default='Bottom', choices=['Bottom', 'Top'])
 config.plugins.stvcl.services               = ConfigSelection(default='4097', choices=modechoices)
 config.plugins.stvcl.cachefold              = ConfigDirectory(default='/media/hdd/')
+config.plugins.stvcl.filter                = ConfigYesNo(default=False)
 config.plugins.stvcl.strtext                = ConfigYesNo(default=True)
 config.plugins.stvcl.strtmain               = ConfigYesNo(default=True)
 config.plugins.stvcl.thumb                  = ConfigYesNo(default=False)
@@ -945,10 +946,11 @@ class ChannelList(Screen):
                     for pic, name, url in match:
                             url = url.replace(' ', '%20')
                             url = url.replace('\\n', '')
-                            regexcat = '(.*?).m3u8'
-                            match = re.compile(regexcat, re.DOTALL).findall(url)
-                            for url in match:
-                                url = url + '.m3u8'
+                            if config.plugins.stvcl.filter.value:
+                                regexcat = '(.*?).m3u8'
+                                match = re.compile(regexcat, re.DOTALL).findall(url)
+                                for url in match:
+                                    url = url + '.m3u8'
                             pic = pic
                             item = name + "###" + url + "###" + pic
                             print('url-name Items sort: ', item)
@@ -969,10 +971,12 @@ class ChannelList(Screen):
                             url = url.replace(' ', '%20')
                             url = url.replace('\\n', '')
                             # # url = url.replace('https', 'http')
-                            regexcat = '(.*?).m3u8'
-                            match = re.compile(regexcat, re.DOTALL).findall(url)
-                            for url in match:
-                                url = url + '.m3u8'
+                            
+                            if config.plugins.stvcl.filter.value:
+                                regexcat = '(.*?).m3u8'
+                                match = re.compile(regexcat, re.DOTALL).findall(url)
+                                for url in match:
+                                    url = url + '.m3u8'
                             pic = pic
                             item = name + "###" + url + "###" + pic
                             print('url-name Items sort: ', item)
@@ -1495,6 +1499,7 @@ class OpenConfig(Screen, ConfigListScreen):
             self.list.append(getConfigListEntry(_('IPTV bouquets location '), config.plugins.stvcl.bouquettop, _("Configure position of the bouquets of the converted lists")))
             self.list.append(getConfigListEntry(_('Player folder List <.m3u>:'), config.plugins.stvcl.pthm3uf, _("Folder path containing the .m3u files")))
             self.list.append(getConfigListEntry(_('Services Player Reference type'), config.plugins.stvcl.services, _("Configure Service Player Reference")))
+            self.list.append(getConfigListEntry(_('Filter M3U link regex type'), config.plugins.stvcl.filter, _("Set On for line link m3u full")))
             self.list.append(getConfigListEntry(_('Show thumpics?'), config.plugins.stvcl.thumb,  _("Show Thumbpics ? Enigma restart required")))
             if config.plugins.stvcl.thumb.value == True:
                 self.list.append(getConfigListEntry(_('Download thumpics?'), config.plugins.stvcl.thumbpic, _("Download thumpics in Player M3U (is very Slow)?")))
@@ -1513,6 +1518,9 @@ class OpenConfig(Screen, ConfigListScreen):
             if entry == _('Player folder List <.m3u>:'):
                 self['description'].setText(_("Folder path containing the .m3u files"))
                 return
+            if entry == _('Filter M3U link regex type'):
+                self['description'].setText(_("Set On for line link m3u full"))
+                return                
             if entry == _('Services Player Reference type'):
                 self['description'].setText(_("Configure Service Player Reference"))
                 return
