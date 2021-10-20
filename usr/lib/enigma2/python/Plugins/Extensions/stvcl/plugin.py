@@ -1446,8 +1446,9 @@ class OpenConfig(Screen, ConfigListScreen):
             Screen.__init__(self, session)
             self.setup_title = _("stvcl Config")
             self.onChangedEntry = [ ]
+            self.list = []            
             self.session = session
-            info = '***'
+            info = '***YOUR SETUP***'
             self['title'] = Label(_(title_plug))
             self['Maintainer2'] = Label('%s' % Maintainer2)
             self['key_red'] = Button(_('Back'))
@@ -1458,7 +1459,6 @@ class OpenConfig(Screen, ConfigListScreen):
             # self["key_blue"].hide()
             self['text'] = Label(info)
             self["description"] = Label(_(''))
-            self.cbUpdate = False
             self['actions'] = ActionMap(["SetupActions", "ColorActions", "VirtualKeyboardActions"  ], {
                 'cancel': self.extnok,
                 "red": self.extnok,
@@ -1468,7 +1468,7 @@ class OpenConfig(Screen, ConfigListScreen):
                 'showVirtualKeyboard': self.KeyText,
                 'ok': self.Ok_edit,
             }, -2)
-            self.list = []
+
             ConfigListScreen.__init__(self, self.list, session = self.session, on_change = self.changedEntry)
             self.createSetup()
             # self.onLayoutFinish.append(self.checkUpdate)
@@ -1492,15 +1492,15 @@ class OpenConfig(Screen, ConfigListScreen):
         def createSetup(self):
             self.editListEntry = None
             self.list = []
-            self.list.append(getConfigListEntry(_('IPTV bouquets location '), config.plugins.stvcl.bouquettop))
-            self.list.append(getConfigListEntry(_('Player folder List <.m3u>:'), config.plugins.stvcl.pthm3uf))
-            self.list.append(getConfigListEntry(_('Services Player Reference type'), config.plugins.stvcl.services))
-            self.list.append(getConfigListEntry(_('Show thumpics?'), config.plugins.stvcl.thumb))
+            self.list.append(getConfigListEntry(_('IPTV bouquets location '), config.plugins.stvcl.bouquettop, _("Configure position of the bouquets of the converted lists")))
+            self.list.append(getConfigListEntry(_('Player folder List <.m3u>:'), config.plugins.stvcl.pthm3uf, _("Folder path containing the .m3u files")))
+            self.list.append(getConfigListEntry(_('Services Player Reference type'), config.plugins.stvcl.services, _("Configure Service Player Reference")))
+            self.list.append(getConfigListEntry(_('Show thumpics?'), config.plugins.stvcl.thumb,  _("Show Thumbpics ? Enigma restart required")))
             if config.plugins.stvcl.thumb.value == True:
-                self.list.append(getConfigListEntry(_('Download thumpics?'), config.plugins.stvcl.thumbpic))
-            self.list.append(getConfigListEntry(_('Folder Cache for Thumbpics:'), config.plugins.stvcl.cachefold))
-            self.list.append(getConfigListEntry(_('Link in Extensions Menu:'), config.plugins.stvcl.strtext))
-            self.list.append(getConfigListEntry(_('Link in Main Menu:'), config.plugins.stvcl.strtmain))
+                self.list.append(getConfigListEntry(_('Download thumpics?'), config.plugins.stvcl.thumbpic, _("Download thumpics in Player M3U (is very Slow)?")))
+            self.list.append(getConfigListEntry(_('Folder Cache for Thumbpics:'), config.plugins.stvcl.cachefold, _("Configure position folder for temporary Thumbpics")))
+            self.list.append(getConfigListEntry(_('Link in Extensions Menu:'), config.plugins.stvcl.strtext, _("Show Plugin in Extensions Menu")))
+            self.list.append(getConfigListEntry(_('Link in Main Menu:'), config.plugins.stvcl.strtmain, _("Show Plugin in Main Menu")))
             self['config'].list = self.list
             self["config"].setList(self.list)
             self.setInfo()

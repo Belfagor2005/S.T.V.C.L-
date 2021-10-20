@@ -7,7 +7,9 @@
 	<widget name="QuestionPixmap" pixmap="skin_default/icons/input_question.png" position="20,25" size="80,80" />
 	<widget name="InfoPixmap" pixmap="skin_default/icons/input_info.png" position="20,25" size="80,80" />
 	<widget name="WarningPixmap" pixmap="skin_default/icons/input_error.png" position="20,25" size="80,80" />
-	<widget name="list" position="20,60" size="940,350" itemHeight="50" transparent="1" foregroundColor="#a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#0b2049" backgroundColorSelected="#0b2049" selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sliderb.png" />
+	<widget name="list" position="20,60" size="940,350" itemHeight="50" transparent="1" foregroundColor="#a0a0a0"
+		foregroundColorSelected="#ffffff" backgroundColor="#0b2049" backgroundColorSelected="#0b2049"
+		selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sliderb.png" />
 		<applet type="onLayoutFinish">
 # this should be factored out into some helper code, but currently demonstrates applets.
 from enigma import eSize, ePoint
