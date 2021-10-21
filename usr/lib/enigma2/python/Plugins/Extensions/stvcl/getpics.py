@@ -35,6 +35,7 @@ from enigma import eTimer, eActionMap, getDesktop
 from Components.Pixmap import Pixmap, MovingPixmap
 from Components.Sources.StaticText import StaticText
 from six.moves.urllib.error import HTTPError, URLError
+from Tools.Directories import SCOPE_PLUGINS, resolveFilename
 from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
 from enigma import iServiceInformation, iPlayableService, eServiceReference
 from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarMoviePlayerSummarySupport, \

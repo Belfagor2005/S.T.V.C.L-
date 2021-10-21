@@ -44,8 +44,7 @@ from Screens.Screen import Screen
 from Screens.Standby import TryQuitMainloop, Standby
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 from ServiceReference import ServiceReference
-from Tools.Directories import SCOPE_PLUGINS
-from Tools.Directories import resolveFilename
+from Tools.Directories import SCOPE_PLUGINS, resolveFilename
 from Tools.Downloader import downloadWithProgress
 from Tools.LoadPixmap import LoadPixmap
 from enigma import *
