@@ -172,12 +172,13 @@ currversion = '1.0'
 Version = currversion + ' - 15.10.2021'
 title_plug = '..:: S.T.V.C.L. V.%s ::..' % Version
 name_plug = 'Smart Tv Channels List'
-plugin_fold = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/'
+plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
+# plugin_fold = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/'
 # Credits = 'http://t.me/tivustream'
 Maintainer2 = 'Maintener @Lululla'
 dir_enigma2 = '/etc/enigma2/'
 service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 134) || (type == 195)'
-res_plugin_fold=plugin_fold + 'res/'
+res_plugin_fold=plugin_fold + '/res/'
 
 #================
 def RequestAgent():
@@ -185,7 +186,7 @@ def RequestAgent():
     return RandomAgent
 
 def add_skin_font():
-    font_path = plugin_fold + 'res/fonts/'
+    font_path = plugin_fold + '/res/fonts/'
     # addFont(font_path + 'verdana_r.ttf', 'OpenFont1', 100, 1)
     addFont(font_path + 'verdana_r.ttf', 'OpenFont2', 100, 1)
 
@@ -252,8 +253,8 @@ def isStreamlinkAvailable():
         return os.path.isdir(eEnv.resolve('/usr/lib/python2.7/site-packages/streamlink'))
 
 modechoices = [
-                ("4097", _("IPTV(4097)")),
-                ("1", _("Dvb(1)")),
+                ("4097", _("ServiceMp3(4097)")),
+                ("1", _("Hardware(1)")),
                 ]
 
 if os.path.exists("/usr/bin/gstplayer"):
@@ -323,7 +324,8 @@ def m3ulistEntry(download):
     col = 16777215
     backcol = 0
     blue = 4282611429
-    png = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/setting2.png'
+    png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting2.png'))
+    # png = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/setting2.png'
     if HD.width() > 1280:
         res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
         res.append(MultiContentEntryText(pos=(60, 0), size=(1200, 50), font=7, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
@@ -362,7 +364,8 @@ class tvList(MenuList):
 
 def tvListEntry(name,png):
     res = [name]
-    png = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/setting.png'
+    # png = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/setting.png'
+    png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting.png'))
     if HD.width() > 1280:
             res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
             res.append(MultiContentEntryText(pos=(60, 0), size=(1200, 50), font=7, text=name, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
@@ -432,7 +435,8 @@ class OpenScript(Screen):
             del self.menu_list[0]
         list = []
         idx = 0
-        png = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/setting.png'
+        # png = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/setting.png'
+        png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting.png'))
         for x in Panel_list:
             list.append(tvListEntry(x, png))
             self.menu_list.append(x)
@@ -794,7 +798,7 @@ class ChannelList(Screen):
             self.names = []
             self.urls = []
             self.pics = []
-            pic = plugin_fold + "res/pics/default.png"
+            pic = plugin_fold + "/res/pics/default.png"
             search = result
             try:
                 f1 = open(in_tmp, "r+")
@@ -936,7 +940,8 @@ class ChannelList(Screen):
         self.urls = []
         self.pics = []
         items = []
-        pic = plugin_fold + "res/pics/default.png"
+        # pic = plugin_fold + "/res/pics/default.png"
+        pic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
         try:
             if os.path.isfile(in_tmp) and os.stat(in_tmp).st_size > 0:
                 print('ChannelList is_tmp exist in playlist')
@@ -1227,12 +1232,14 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
         self.onClose.append(self.cancel)
 
     def showIMDB(self):
-        if os.path.exists("/usr/lib/enigma2/python/Plugins/Extensions/TMBD"):
+        TMDB = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('TMDB'))
+        IMDb = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('IMDb'))
+        if os.path.exists(TMDB):
             from Plugins.Extensions.TMBD.plugin import TMBD
             text_clear = self.name
             text = charRemove(text_clear)
             self.session.open(TMBD, text, False)
-        elif os.path.exists("/usr/lib/enigma2/python/Plugins/Extensions/IMDb"):
+        elif os.path.exists(IMDb):
             from Plugins.Extensions.IMDb.plugin import IMDB
             text_clear = self.name
             text = charRemove(text_clear)

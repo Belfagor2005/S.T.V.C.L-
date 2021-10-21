@@ -40,19 +40,28 @@ from enigma import iServiceInformation, iPlayableService, eServiceReference
 from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarMoviePlayerSummarySupport, \
     InfoBarSubtitleSupport, InfoBarSummarySupport, InfoBarServiceErrorPopupSupport, InfoBarNotifications
 global defpic, dblank, skin_path, tmpfold, picfold
-plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/'
-defpic = plugin_path + "res/pics/defaultL.png"
+# plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/'
+plugin_path    = os.path.dirname(sys.modules[__name__].__file__)
+defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
+# defpic = plugin_path + "res/pics/defaultL.png"
 skin_path = plugin_path
-res_plugin_path = plugin_path + 'res/'
+# res_plugin_path = plugin_path + 'res/'
+res_plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/")
 HD = getDesktop(0).size()
 if HD.width() > 1280:
-    skin_path = res_plugin_path + 'skins/fhd/'
-    defpic = res_plugin_path + "pics/defaultL.png"
-    dblank = res_plugin_path + "pics/blankL.png"
+    skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/skins/fhd/")
+    defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
+    dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blankL.png'))
+    # skin_path = res_plugin_path + 'skins/fhd/'
+    # defpic = res_plugin_path + "pics/defaultL.png"
+    # dblank = res_plugin_path + "pics/blankL.png"
 else:
-    skin_path = res_plugin_path + 'skins/hd/'
-    defpic = res_plugin_path + "pics/default.png"
-    dblank = res_plugin_path + "pics/blank.png"
+    skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/skins/hd/")
+    defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
+    dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blank.png'))
+    # skin_path = res_plugin_path + 'skins/hd/'
+    # defpic = res_plugin_path + "pics/default.png"
+    # dblank = res_plugin_path + "pics/blank.png"
 if os.path.exists('/var/lib/dpkg/status'):
     skin_path = skin_path + 'dreamOs/'
 
@@ -508,7 +517,6 @@ class TvInfoBarShowHide():
         self.onShow.append(self.__onShow)
         self.onHide.append(self.__onHide)
 
-
     def serviceStarted(self):
         if self.execing:
             if config.usage.show_infobar_on_zap.value:
@@ -580,7 +588,6 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
     STATE_IDLE = 0
     STATE_PLAYING = 1
     STATE_PAUSED = 2
-
     screen_timeout = 5000
     def __init__(self, session, name, url):
         global SREF, streml
@@ -701,7 +708,6 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
         self.servicetype = str(next(nextStreamType))
         print('servicetype2: ', self.servicetype)
         self.openPlay(self.servicetype, url)
-
 
     def keyNumberGlobal(self, number):
         self['text'].number(number)
