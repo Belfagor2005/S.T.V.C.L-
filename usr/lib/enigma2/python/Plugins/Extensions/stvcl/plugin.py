@@ -3,7 +3,7 @@
 #--------------------#
 #  coded by Lululla	 #
 #	skin by MMark	 #
-#	  20/10/2021	 #
+#	  21/10/2021	 #
 #--------------------#
 #Info http://t.me/tivustream
 from __future__ import print_function
@@ -55,11 +55,11 @@ from enigma import eTimer
 from enigma import getDesktop, ePicLoad, gPixmapPtr
 from enigma import loadPNG, gFont
 from os.path import splitext
+from random import choice
 from sys import version_info
+from time import sleep
 from twisted.web.client import downloadPage, getPage, error
 from xml.dom import Node, minidom
-from random import choice
-from time import sleep
 import base64
 import glob
 import os
@@ -100,30 +100,6 @@ if sys.version_info >= (2, 7, 9):
 		sslContext = ssl._create_unverified_context()
 	except:
 		sslContext = None
-try:
-    from OpenSSL import SSL
-    from twisted.internet import ssl
-    from twisted.internet._sslverify import ClientTLSOptions
-    sslverify = True
-except:
-    sslverify = False
-
-if sslverify:
-    class SNIFactory(ssl.ClientContextFactory):
-        def __init__(self, hostname=None):
-            self.hostname = hostname
-
-        def getContext(self):
-            ctx = self._contextFactory(self.method)
-            if self.hostname:
-                ClientTLSOptions(self.hostname, ctx)
-            return ctx
-
-def ssl_urlopen(url):
-	if sslContext:
-		return urlopen(url, context=sslContext)
-	else:
-		return urlopen(url)
 
 def checkStr(txt):
     if six.PY3:
@@ -138,7 +114,7 @@ try:
     from enigma import eDVBDB
 except ImportError:
     eDVBDB = None
-    
+
 ListAgent = [
           'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.15 (KHTML, like Gecko) Chrome/24.0.1295.0 Safari/537.15',
           'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.14 (KHTML, like Gecko) Chrome/24.0.1292.0 Safari/537.14',
@@ -207,7 +183,7 @@ res_plugin_fold=plugin_fold + 'res/'
 def RequestAgent():
     RandomAgent = choice(ListAgent)
     return RandomAgent
-    
+
 def add_skin_font():
     font_path = plugin_fold + 'res/fonts/'
     # addFont(font_path + 'verdana_r.ttf', 'OpenFont1', 100, 1)
@@ -259,7 +235,7 @@ def make_request(url):
         print('link2: ', link)
         return link
     except:
-        e = URLError #, e:
+        e = URLError
         print('We failed to open "%s".' % url)
         if hasattr(e, 'code'):
             print('We failed with error code - %s.' % e.code)
@@ -398,9 +374,18 @@ def tvListEntry(name,png):
 Panel_list = [
  ('SamsungTVPlus'),
  ('PBS'),
- ('Plex'),
+ # ('Plex'),
  ('PlutoTV'),
- ('Stirr')
+ ('Stirr'),
+ ('Adelaide'),
+ ('Brisbane'),
+ ('Canberra'),
+ ('Darwin'),
+ ('Hobart'),
+ ('Melbourne'),
+ ('Perth'),
+ ('Sydney')
+
  ]
 
 class OpenScript(Screen):
@@ -420,7 +405,7 @@ class OpenScript(Screen):
         self.downloading = False
         self['title'] = Label(_(title_plug))
         self['Maintainer2'] = Label('%s' % Maintainer2)
-        self['path'] = Label(_('Folder path %s') % Path_Movies)        
+        self['path'] = Label(_('Folder path %s') % Path_Movies)
         self['key_red'] = Button(_('Exit'))
         self['key_green'] = Button('')
         self['key_yellow'] = Button('')
@@ -459,16 +444,34 @@ class OpenScript(Screen):
 
     def keyNumberGlobalCB(self, idx):
         sel = self.menu_list[idx]
+        url = ''
         if sel == ("SamsungTVPlus"):
             url = 'http://i.mjh.nz/SamsungTVPlus/'
         elif sel == ("PBS"):
             url = 'http://i.mjh.nz/PBS/'
-        elif sel == ("Plex"):
-            url = 'http://i.mjh.nz/Plex/'
+        # elif sel == ("Plex"):
+            # url = 'http://i.mjh.nz/Plex/'
         elif sel == ("PlutoTV"):
             url = 'http://i.mjh.nz/PlutoTV/'
         elif sel == ("Stirr"):
             url = 'http://i.mjh.nz/Stirr/'
+        elif sel == ('Adelaide'):
+            url = 'http://i.mjh.nz/au/Adelaide/'
+        elif sel == ('Brisbane'):
+            url = 'http://i.mjh.nz/au/Brisbane/'
+        elif sel == ('Canberra'):
+            url = 'http://i.mjh.nz/au/Canberra/'
+        elif sel == ('Darwin'):
+            url = 'http://i.mjh.nz/au/Darwin/'
+        elif sel == ('Hobart'):
+            url = 'http://i.mjh.nz/au/Hobart/'
+        elif sel == ('Melbourne'):
+            url = 'http://i.mjh.nz/au/Melbourne/'
+        elif sel == ('Perth'):
+            url = 'http://i.mjh.nz/au/Perth/'
+        elif sel == ('Sydney'):
+            url = 'http://i.mjh.nz/au/Sydney/'
+
         else:
             return
         self.downlist(sel, url)
@@ -496,7 +499,9 @@ class OpenScript(Screen):
         if six.PY3:
             urlm3u.encode()
         # if six.PY3:
-            # urlm3u = six.ensure_str(url)            
+            # urlm3u = six.ensure_str(urlm3u)
+        print('urlmm33uu ', urlm3u)
+
         try:
             fileTitle = re.sub(r'[\<\>\:\"\/\\\|\?\*\[\]]', '_', namem3u)
             fileTitle = re.sub(r' ', '_', fileTitle)
@@ -511,7 +516,7 @@ class OpenScript(Screen):
             # # self.download.addProgress(self.downloadProgress)
             # # self.download.start().addCallback(self.check).addErrback(self.showError)
             urlretrieve(urlm3u, in_tmp)
-            sleep(3)
+            sleep(4)
             self.session.open(ListM3u, namem3u, urlm3u)
         except Exception as e:
             print('errore e : ', e)
@@ -521,7 +526,7 @@ class OpenScript(Screen):
         self.session.open(OpenConfig)
 
 class ListM3u(Screen):
-    def __init__(self, session, name, url):
+    def __init__(self, session, namem3u, url):
         self.session = session
         skin = skin_fold + '/ListM3u.xml'
         f = open(skin, 'r')
@@ -533,7 +538,7 @@ class ListM3u(Screen):
         global srefInit
         self.initialservice = self.session.nav.getCurrentlyPlayingServiceReference()
         srefInit = self.initialservice
-        self['title'] = Label(title_plug + ' ' + name)
+        self['title'] = Label(title_plug + ' ' + namem3u)
         self['Maintainer2'] = Label('%s' % Maintainer2)
         self['progress'] = ProgressBar()
         self['progresstext'] = StaticText()
@@ -541,7 +546,7 @@ class ListM3u(Screen):
         self.downloading = False
         self.convert = False
         self.url = url
-        self.name = name
+        self.name = namem3u
         self['path'] = Label(_('Folder path %s') % Path_Movies)
         self['key_red'] = Button(_('Back'))
         self['key_green'] = Button('')
@@ -560,8 +565,10 @@ class ListM3u(Screen):
         if not os.path.exists(Path_Movies):
             self.mbox = self.session.open(openMessageBox, _('Check in your Config Plugin - Path Movie'), openMessageBox.TYPE_INFO, timeout=5)
             self.scsetup()
+
         self.onFirstExecBegin.append(self.openList)
-        # self.onLayoutFinish.append(self.openList2)        
+        sleep(3)
+        # self.onLayoutFinish.append(self.openList2)
         self.onLayoutFinish.append(self.passing)
 
     def passing(self):
@@ -577,13 +584,15 @@ class ListM3u(Screen):
         if six.PY3:
             content = six.ensure_str(content)
         print('content: ',content)
-        regexvideo = '<a href="(.*?)">.*?-(.*?)-(.*?) '
+        #<a href="br.xml.gz">br.xml.gz</a>  21-Oct-2021 07:05   108884
+        #<a href="raw-radio.m3u8">raw-radio.m3u8</a>    22-Oct-2021 06:08   9639
+        regexvideo = '<a href="(.*?)">.*?</a>.*?-(.*?)-(.*?) '
         match = re.compile(regexvideo, re.DOTALL).findall(content)
         print('ListM3u match = ', match)
         items = []
         for url, mm, aa in match:
             if '.m3u8' in url:
-                name = url.replace('.m3u8', '').upper()
+                name = url.replace('.m3u8', '')
                 name = name + ' ' + mm + '-' + aa
                 url = self.url + url
                 item = name + "###" + url
@@ -674,7 +683,6 @@ class ChannelList(Screen):
         # if 'http' in self.url:
         self.onLayoutFinish.append(self.downlist)
         # self.onFirstExecBegin.append(self.downlist)
-        sleep(3)
         print('ChannelList sleep 4 - 1')
         # self.onLayoutFinish.append(self.playList)
 
@@ -715,9 +723,7 @@ class ChannelList(Screen):
                     in_bouquets = 0
                     with open('/etc/enigma2/%s' % bqtname, 'w') as outfile:
                         outfile.write('#NAME %s\r\n' % namebouquett.capitalize())
-
                         if servicx == 'iptv':
-
                             for line in open(in_tmp):
                                 if line.startswith('http://') or line.startswith('https'):
                                     outfile.write('#SERVICE 4097:0:1:1:0:0:0:0:0:0:%s' % line.replace(':', '%3a'))
@@ -748,7 +754,6 @@ class ChannelList(Screen):
                                             desk_tmp = '%s\r\n' % line.split('[')[-1].split(']')[0]
                                         else:
                                             desk_tmp = '%s\r\n' % line.split('<')[1].split('>')[1]
-
                         outfile.close()
                     self.mbox = self.session.open(openMessageBox, _('Check out the favorites list ...'), openMessageBox.TYPE_INFO, timeout=5)
                     if os.path.isfile('/etc/enigma2/bouquets.tv'):
@@ -764,7 +769,6 @@ class ChannelList(Screen):
                                     outfile.close()
                     self.mbox = self.session.open(openMessageBox, _('Shuffle Favorite List in Progress') + '\n' + _('Wait please ...'), openMessageBox.TYPE_INFO, timeout=5)
                     ReloadBouquet()
-
                 else:
                     self.session.open(openMessageBox, _('Conversion Failed!!!'), openMessageBox.TYPE_INFO, timeout=5)
                     return
@@ -900,7 +904,7 @@ class ChannelList(Screen):
         namem3u = self.name
         urlm3u = self.url
         if six.PY3:
-            urlm3u = six.ensure_str(urlm3u) 
+            urlm3u = six.ensure_str(urlm3u)
         print('urlmm33uu ', urlm3u)
         try:
             fileTitle = re.sub(r'[\<\>\:\"\/\\\|\?\*\[\]]', '_', namem3u)
@@ -944,9 +948,10 @@ class ChannelList(Screen):
                     regexcat = 'EXTINF.*?tvg-logo="(.*?)".*?,(.*?)\\n(.*?)\\n'
                     match = re.compile(regexcat, re.DOTALL).findall(fpage)
                     for pic, name, url in match:
+                        if url.startswith('http'):
                             url = url.replace(' ', '%20')
                             url = url.replace('\\n', '')
-                            if config.plugins.stvcl.filter.value:
+                            if 'samsung' in self.url.lower() or config.plugins.stvcl.filter.value == True:
                                 regexcat = '(.*?).m3u8'
                                 match = re.compile(regexcat, re.DOTALL).findall(url)
                                 for url in match:
@@ -960,7 +965,7 @@ class ChannelList(Screen):
                         name = item.split('###')[0]
                         url = item.split('###')[1]
                         pic = item.split('###')[2]
-                        ############
+
                         self.names.append(checkStr(name))
                         self.urls.append(checkStr(url))
                         self.pics.append(checkStr(pic))
@@ -968,11 +973,10 @@ class ChannelList(Screen):
                     regexcat = '#EXTINF.*?,(.*?)\\n(.*?)\\n'
                     match = re.compile(regexcat, re.DOTALL).findall(fpage)
                     for name, url in match:
+                        if url.startswith('http'):
                             url = url.replace(' ', '%20')
                             url = url.replace('\\n', '')
-                            # # url = url.replace('https', 'http')
-                            
-                            if config.plugins.stvcl.filter.value:
+                            if 'samsung' in self.url.lower() or config.plugins.stvcl.filter.value == True:
                                 regexcat = '(.*?).m3u8'
                                 match = re.compile(regexcat, re.DOTALL).findall(url)
                                 for url in match:
@@ -986,11 +990,11 @@ class ChannelList(Screen):
                         name = item.split('###')[0]
                         url = item.split('###')[1]
                         pic = item.split('###')[2]
-                        ############
+
                         self.names.append(checkStr(name))
                         self.urls.append(checkStr(url))
                         self.pics.append(checkStr(pic))
-#####################################################################################
+                #####
                 if config.plugins.stvcl.thumb.value == True:
                     self["live"].setText("WAIT PLEASE....")
                     self.gridmaint = eTimer()
@@ -1000,7 +1004,7 @@ class ChannelList(Screen):
                         self.gridmaint_conn = self.gridmaint.timeout.connect(self.gridpic)
                     self.gridmaint.start(4000, True)
                     # self.session.open(GridMain, self.names, self.urls, self.pics)
-#####################################################################################
+                #####
                 else:
                     m3ulist(self.names, self['list'])
                 self["live"].setText('N.' + str(len(self.names)) + " Stream")
@@ -1128,11 +1132,11 @@ class TvInfoBarShowHide():
     def doTimerHide(self):
         self.hideTimer.stop()
         if self.__state == self.STATE_SHOWN:
-            self.hide() 
-            
+            self.hide()
+
     def OkPressed(self):
         self.toggleShow()
-        
+
     def toggleShow(self):
         if self.skipToggleShow:
             self.skipToggleShow = False
@@ -1144,7 +1148,7 @@ class TvInfoBarShowHide():
         else:
             self.hide()
             self.startHideTimer()
-            
+
     def lockShow(self):
         try:
             self.__locked += 1
@@ -1187,7 +1191,7 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
                 InfoBarSubtitleSupport, \
                 InfoBarNotifications, \
                 TvInfoBarShowHide:
-            x.__init__(self)                
+            x.__init__(self)
         try:
             self.init_aspect = int(self.getAspect())
         except:
@@ -1450,7 +1454,7 @@ class OpenConfig(Screen, ConfigListScreen):
             Screen.__init__(self, session)
             self.setup_title = _("stvcl Config")
             self.onChangedEntry = [ ]
-            self.list = []            
+            self.list = []
             self.session = session
             info = '***YOUR SETUP***'
             self['title'] = Label(_(title_plug))
@@ -1484,10 +1488,7 @@ class OpenConfig(Screen, ConfigListScreen):
             self.setTitle(self.setup_title)
 
         def cachedel(self):
-            # fold = tvstrvl
             fold = config.plugins.stvcl.cachefold.value + "stvcl"
-            # tmpfold = config.plugins.stvcl.cachefold.value + "stvcl/tmp"
-            # picfold = config.plugins.stvcl.cachefold.value + "stvcl/pic"
             cmd = "rm -rf " + tvstrvl + "/*"
             if os.path.exists(fold):
                 os.system(cmd)
@@ -1520,7 +1521,7 @@ class OpenConfig(Screen, ConfigListScreen):
                 return
             if entry == _('Filter M3U link regex type'):
                 self['description'].setText(_("Set On for line link m3u full"))
-                return                
+                return
             if entry == _('Services Player Reference type'):
                 self['description'].setText(_("Configure Service Player Reference"))
                 return

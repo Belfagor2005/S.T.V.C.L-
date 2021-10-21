@@ -5,7 +5,7 @@ Info http://t.me/tivustream
 ****************************************
 *        coded by Lululla              *
 *           thank's Pcd                *
-*             09/10/2021               *
+*             21/10/2021               *
 *       skin by MMark                  *
 ****************************************
 '''
@@ -39,7 +39,6 @@ from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
 from enigma import iServiceInformation, iPlayableService, eServiceReference
 from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarMoviePlayerSummarySupport, \
     InfoBarSubtitleSupport, InfoBarSummarySupport, InfoBarServiceErrorPopupSupport, InfoBarNotifications
-
 global defpic, dblank, skin_path, tmpfold, picfold
 plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/'
 defpic = plugin_path + "res/pics/defaultL.png"
@@ -56,23 +55,7 @@ else:
     dblank = res_plugin_path + "pics/blank.png"
 if os.path.exists('/var/lib/dpkg/status'):
     skin_path = skin_path + 'dreamOs/'
-try:
-    from OpenSSL import SSL
-    from twisted.internet import ssl
-    from twisted.internet._sslverify import ClientTLSOptions
-    sslverify = True
-except:
-    sslverify = False
-if sslverify:
-    class SNIFactory(ssl.ClientContextFactory):
-        def __init__(self, hostname=None):
-            self.hostname = hostname
 
-        def getContext(self):
-            ctx = self._contextFactory(self.method)
-            if self.hostname:
-                ClientTLSOptions(self.hostname, ctx)
-            return ctx
 
 def checkStr(txt):
     if six.PY3:
