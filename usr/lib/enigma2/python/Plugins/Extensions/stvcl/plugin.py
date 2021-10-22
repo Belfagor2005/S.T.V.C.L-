@@ -3,7 +3,7 @@
 #--------------------#
 #  coded by Lululla	 #
 #	skin by MMark	 #
-#	  21/10/2021	 #
+#	  22/10/2021	 #
 #--------------------#
 #Info http://t.me/tivustream
 from __future__ import print_function
@@ -167,12 +167,11 @@ ListAgent = [
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/534.55.3 (KHTML, like Gecko) Version/5.1.3 Safari/534.53.10',
           'Mozilla/5.0 (iPad; CPU OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko ) Version/5.1 Mobile/9B176 Safari/7534.48.3'
           ]
-currversion = '1.0'
+currversion = '1.1'
 Version = currversion + ' - 15.10.2021'
 title_plug = '..:: S.T.V.C.L. V.%s ::..' % Version
 name_plug = 'Smart Tv Channels List'
 plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
-# plugin_fold = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/'
 # Credits = 'http://t.me/tivustream'
 Maintainer2 = 'Maintener @Lululla'
 dir_enigma2 = '/etc/enigma2/'
@@ -285,7 +284,7 @@ tvstrvl = config.plugins.stvcl.cachefold.value + "stvcl"
 tmpfold = config.plugins.stvcl.cachefold.value + "stvcl/tmp"
 picfold = config.plugins.stvcl.cachefold.value + "stvcl/pic"
 global Path_Movies
-Path_Movies             = str(config.plugins.stvcl.pthm3uf.value) #+ "/"
+Path_Movies = str(config.plugins.stvcl.pthm3uf.value) #+ "/"
 if Path_Movies.endswith("\/\/"):
     Path_Movies = Path_Movies[:-1]
 print('patch movies: ', Path_Movies)
@@ -324,7 +323,6 @@ def m3ulistEntry(download):
     backcol = 0
     blue = 4282611429
     png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting2.png'))
-    # png = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/setting2.png'
     if HD.width() > 1280:
         res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
         res.append(MultiContentEntryText(pos=(60, 0), size=(1200, 50), font=7, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
@@ -363,7 +361,6 @@ class tvList(MenuList):
 
 def tvListEntry(name,png):
     res = [name]
-    # png = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/setting.png'
     png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting.png'))
     if HD.width() > 1280:
             res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
@@ -434,7 +431,6 @@ class OpenScript(Screen):
             del self.menu_list[0]
         list = []
         idx = 0
-        # png = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/setting.png'
         png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting.png'))
         for x in Panel_list:
             list.append(tvListEntry(x, png))
@@ -474,7 +470,6 @@ class OpenScript(Screen):
             url = 'http://i.mjh.nz/au/Perth/'
         elif sel == ('Sydney'):
             url = 'http://i.mjh.nz/au/Sydney/'
-
         else:
             return
         self.downlist(sel, url)
@@ -523,7 +518,6 @@ class OpenScript(Screen):
             self.session.open(ListM3u, namem3u, urlm3u)
         except Exception as e:
             print('errore e : ', e)
-            # self.mbox = self.session.open(openMessageBox, _('DOWNLOAD ERROR'), openMessageBox.TYPE_INFO, timeout=5)
 
     def scsetup(self):
         self.session.open(OpenConfig)
@@ -920,7 +914,7 @@ class ChannelList(Screen):
                 os.remove(in_tmp)
             print('path tmp : ', in_tmp)
             urlretrieve(urlm3u, in_tmp)
-            sleep(5)
+            sleep(7)
             self.playList()
             # self.download = downloadWithProgress(urlm3u, in_tmp)
             # self.download.addProgress(self.downloadProgress)
@@ -939,7 +933,6 @@ class ChannelList(Screen):
         self.urls = []
         self.pics = []
         items = []
-        # pic = plugin_fold + "/res/pics/default.png"
         pic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
         try:
             if os.path.isfile(in_tmp) and os.stat(in_tmp).st_size > 0:
@@ -1006,7 +999,7 @@ class ChannelList(Screen):
                         self.gridmaint.callback.append(self.gridpic)
                     except:
                         self.gridmaint_conn = self.gridmaint.timeout.connect(self.gridpic)
-                    self.gridmaint.start(4000, True)
+                    self.gridmaint.start(2000, True)
                     # self.session.open(GridMain, self.names, self.urls, self.pics)
                 #####
                 else:
