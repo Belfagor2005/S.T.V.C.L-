@@ -178,6 +178,7 @@ def getpics(names, pics, tmpfold, picfold):
             url = ""
         url = url.replace(" ", "%20")
         url = url.replace("ExQ", "=")
+        url = url.replace("AxNxD", "&")
         print("In getpics url =", url)
         ext = str(os.path.splitext(url)[-1])
         picf = picfold + "/" + name + ext
@@ -545,11 +546,11 @@ class TvInfoBarShowHide():
     def doTimerHide(self):
         self.hideTimer.stop()
         if self.__state == self.STATE_SHOWN:
-            self.hide() 
-            
+            self.hide()
+
     def OkPressed(self):
         self.toggleShow()
-        
+
     def toggleShow(self):
         if self.skipToggleShow:
             self.skipToggleShow = False
@@ -561,7 +562,7 @@ class TvInfoBarShowHide():
         else:
             self.hide()
             self.startHideTimer()
-            
+
     def lockShow(self):
         try:
             self.__locked += 1
@@ -604,7 +605,7 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
                 InfoBarSubtitleSupport, \
                 InfoBarNotifications, \
                 TvInfoBarShowHide:
-            x.__init__(self)                
+            x.__init__(self)
         try:
             self.init_aspect = int(self.getAspect())
         except:
