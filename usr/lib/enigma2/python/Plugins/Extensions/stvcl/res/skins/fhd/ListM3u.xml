@@ -1,5 +1,5 @@
 <!-- Skin ListM3u 20/10/2021 -->
-<screen name="ListM3u" position="0,0" size="1920,1080" title="..::stvcl List Channel::.." backgroundColor="transparent" flags="wfNoBorder">
+<screen name="ListM3u" position="0,0" size="1920,1080" title="..::stvcl List Channel::.." backgroundColor="#10101010" flags="wfNoBorder">
 	<ePixmap position="0,0" size="1920,1080" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/main1.png" zPosition="1" />
 	<ePixmap position="220,30" size="279,50" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/tvs.png" alphatest="blend" zPosition="5" />
 	<widget name="title" position="220,85" size="749,40" font="Regular;30" halign="left" valign="center" foregroundColor="#002a79b8" backgroundColor="black" transparent="1" zPosition="5" />

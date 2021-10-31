@@ -38,34 +38,25 @@ from six.moves.urllib.error import HTTPError, URLError
 from Tools.Directories import SCOPE_PLUGINS, resolveFilename
 from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
 from enigma import iServiceInformation, iPlayableService, eServiceReference
-from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarMoviePlayerSummarySupport, \
-    InfoBarSubtitleSupport, InfoBarSummarySupport, InfoBarServiceErrorPopupSupport, InfoBarNotifications
+from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarNotifications, \
+    InfoBarSubtitleSupport, InfoBarSummarySupport, InfoBarServiceErrorPopupSupport, InfoBarMoviePlayerSummarySupport
 global defpic, dblank, skin_path, tmpfold, picfold
-# plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/'
-plugin_path    = os.path.dirname(sys.modules[__name__].__file__)
+plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/'
+# plugin_path    = os.path.dirname(sys.modules[__name__].__file__)
 defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
-# defpic = plugin_path + "res/pics/defaultL.png"
 skin_path = plugin_path
-# res_plugin_path = plugin_path + 'res/'
 res_plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/")
 HD = getDesktop(0).size()
 if HD.width() > 1280:
     skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/skins/fhd/")
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
     dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blankL.png'))
-    # skin_path = res_plugin_path + 'skins/fhd/'
-    # defpic = res_plugin_path + "pics/defaultL.png"
-    # dblank = res_plugin_path + "pics/blankL.png"
 else:
     skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/skins/hd/")
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
     dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blank.png'))
-    # skin_path = res_plugin_path + 'skins/hd/'
-    # defpic = res_plugin_path + "pics/default.png"
-    # dblank = res_plugin_path + "pics/blank.png"
 if os.path.exists('/var/lib/dpkg/status'):
     skin_path = skin_path + 'dreamOs/'
-
 
 def checkStr(txt):
     if six.PY3:
@@ -178,7 +169,6 @@ def getpics(names, pics, tmpfold, picfold):
             url = ""
         url = url.replace(" ", "%20")
         url = url.replace("ExQ", "=")
-        url = url.replace("AxNxD", "&")
         print("In getpics url =", url)
         ext = str(os.path.splitext(url)[-1])
         picf = picfold + "/" + name + ext
@@ -546,11 +536,11 @@ class TvInfoBarShowHide():
     def doTimerHide(self):
         self.hideTimer.stop()
         if self.__state == self.STATE_SHOWN:
-            self.hide()
-
+            self.hide() 
+            
     def OkPressed(self):
         self.toggleShow()
-
+        
     def toggleShow(self):
         if self.skipToggleShow:
             self.skipToggleShow = False
@@ -562,7 +552,7 @@ class TvInfoBarShowHide():
         else:
             self.hide()
             self.startHideTimer()
-
+            
     def lockShow(self):
         try:
             self.__locked += 1
@@ -605,7 +595,7 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
                 InfoBarSubtitleSupport, \
                 InfoBarNotifications, \
                 TvInfoBarShowHide:
-            x.__init__(self)
+            x.__init__(self)                
         try:
             self.init_aspect = int(self.getAspect())
         except:

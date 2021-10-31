@@ -1,5 +1,5 @@
 <!-- Skin M3uPlayer 16/08/2020 -->
-<screen name="Channel" position="0,0" size="1280,720" title="..::stvcl List Channel::.." backgroundColor="transparent" flags="wfNoBorder">
+<screen name="Channel" position="0,0" size="1280,720" title="..::stvcl List Channel::.." backgroundColor="#10101010" flags="wfNoBorder">
 	<ePixmap position="0,0" size="1280,720" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/main2.png" zPosition="1" />
 	<ePixmap position="146,26" size="186,33" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/tvs.png" zPosition="5" />
 	<widget name="title" position="146,60" size="551,26" font="Regular;20" halign="left" valign="center" foregroundColor="#002a79b8" backgroundColor="black" transparent="1" zPosition="5" />
@@ -15,6 +15,10 @@
 	<widget source="progresstext" render="Label" font="Regular;13" position="335,571" size="200,33" backgroundColor="#202020" transparent="1" halign="center" zPosition="6" />	
 	<widget name="service" position="150,575" size="686,30" font="Regular;20" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />
 	<widget name="live" position="647,538" size="189,33" font="Regular;20" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />	
+
+	<eLabel position="890,30" size="311,425" backgroundColor="#80000000" cornerRadius="20" zPosition="1" />	
+	<widget name="poster" position="911,40" size="267,400" backgroundColor="#30000000" transparent="1" borderWidth="2" borderColor="#00ffffff" alphatest="blend" zPosition="4" />
+	
 	<!-- Colors 1220 -->
 	<ePixmap position="146,606" size="686,5" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/sep.png" zPosition="5" />
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/key_red.png" position="146,630" size="20,20" alphatest="on" zPosition="5" />

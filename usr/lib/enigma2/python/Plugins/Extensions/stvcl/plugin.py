@@ -167,8 +167,8 @@ ListAgent = [
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/534.55.3 (KHTML, like Gecko) Version/5.1.3 Safari/534.53.10',
           'Mozilla/5.0 (iPad; CPU OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko ) Version/5.1 Mobile/9B176 Safari/7534.48.3'
           ]
-currversion = '1.1'
-Version = currversion + ' - 15.10.2021'
+currversion = '1.2'
+Version = currversion + ' - 01.11.2021'
 title_plug = '..:: S.T.V.C.L. V.%s ::..' % Version
 name_plug = 'Smart Tv Channels List'
 plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
@@ -177,7 +177,7 @@ Maintainer2 = 'Maintener @Lululla'
 dir_enigma2 = '/etc/enigma2/'
 service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 134) || (type == 195)'
 res_plugin_fold=plugin_fold + '/res/'
-
+defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
 #================
 def RequestAgent():
     RandomAgent = choice(ListAgent)
@@ -244,6 +244,25 @@ def make_request(url):
         return
     return
 
+try:
+    from OpenSSL import SSL
+    from twisted.internet import ssl
+    from twisted.internet._sslverify import ClientTLSOptions
+    sslverify = True
+except:
+    sslverify = False
+
+if sslverify:
+    class SNIFactory(ssl.ClientContextFactory):
+        def __init__(self, hostname=None):
+            self.hostname = hostname
+
+        def getContext(self):
+            ctx = self._contextFactory(self.method)
+            if self.hostname:
+                ClientTLSOptions(self.hostname, ctx)
+            return ctx
+
 def isExtEplayer3Available():
         return os.path.isfile(eEnv.resolve('$bindir/exteplayer3'))
 
@@ -296,12 +315,15 @@ if not os.path.exists(tmpfold):
 if not os.path.exists(picfold):
     os.system("mkdir " + picfold)
 
+   
 global skin_fold
 HD = getDesktop(0).size()
 if HD.width() > 1280:
     skin_fold=res_plugin_fold + 'skins/fhd/'
+    defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
 else:
     skin_fold=res_plugin_fold + 'skins/hd/'
+    defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
 if os.path.exists('/var/lib/dpkg/status'):
     skin_fold=skin_fold + 'dreamOs/'
 
@@ -639,13 +661,17 @@ class ChannelList(Screen):
         # f.close()
         Screen.__init__(self, session)
         self.list = []
+        self.picload = ePicLoad()
+        self.scale = AVSwitch().getFramebufferScale()         
         self['list'] = tvList([])
+        self.setTitle(title_plug + ' ' + name)
         self['title'] = Label(title_plug + ' ' + name)
         self['Maintainer2'] = Label('%s' % Maintainer2)
         service = config.plugins.stvcl.services.value
         self['service'] = Label(_('Service Reference used %s') % service)
         self['live'] = Label('')
         self['path'] = Label(_('Folder path %s') % Path_Movies)
+        self['poster'] = Pixmap()
         self['key_red'] = Button(_('Back'))
         self['key_green'] = Button(_('Convert ExtePlayer3'))
         self['key_yellow'] = Button(_('Convert Gstreamer'))
@@ -666,23 +692,33 @@ class ChannelList(Screen):
         search_ok = False
         self.name = name
         self.url = url
-        self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions', 'TimerEditActions', 'InfobarInstantRecord'], {'red': self.cancel,
+        self['setupActions'] = ActionMap(['SetupActions', 'DirectionActions', 'ColorActions', 'MenuActions', 'TimerEditActions', 'InfobarInstantRecord'], {'red': self.cancel,
          # 'green': self.runRec,
          'menu': self.AdjUrlFavo,
          'green': self.message2,
          'yellow': self.message1,
          'cancel': self.cancel,
+         'up': self.up,
+         'down': self.down,
+         'left': self.left,
+         'right': self.right,         
          "blue": self.search_m3u,
          "rec": self.runRec,
          "instantRecord": self.runRec,
          "ShortRecord": self.runRec,
          'ok': self.runChannel}, -2)
         # if 'http' in self.url:
+        self.currentList = 'list'
+        
         self.onLayoutFinish.append(self.downlist)
         # self.onFirstExecBegin.append(self.downlist)
         print('ChannelList sleep 4 - 1')
-        # self.onLayoutFinish.append(self.playList)
+        self.onLayoutFinish.append(self.__layoutFinished)
 
+    def __layoutFinished(self):
+        # self.setTitle(self.setup_title)
+        self.load_poster()
+        
     def message1(self):
         global servicx
         idx = self['list'].getSelectionIndex()
@@ -926,6 +962,9 @@ class ChannelList(Screen):
             # self.mbox = self.session.open(openMessageBox, _('DOWNLOAD ERROR'), openMessageBox.TYPE_INFO, timeout=5)
         return
 
+
+#EXTINF:-1 tvg-id="ITAJ4500019R9" tvg-chno="4002" tvg-logo="https://tvpmlogopeu.samsungcloud.tv/platform/image/sourcelogo/vc/70/02/32/ITAJ4500019R9_20210923T010508.png" group-title="Film",Commedia - Rakuten TV
+#https://b88478e868cf4297904debbdc3ad1c23.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/Samsung-it_RakutenComedyMovies/playlist.m3u8?ads.wurl_channel=444&ads.wurl_name=RakutenComedyMovies&ads.psid=%7BPSID%7D&ads.targetopt=%7BTARGETOPT%7D&ads.app_domain=%7BAPP_DOMAIN%7D&ads.app_name=%7BAPP_NAME%7D&ads.coppa=0&ads.consent=%7BTC_STRING%7D
     def playList(self):
         global search_ok
         search_ok = False
@@ -940,7 +979,8 @@ class ChannelList(Screen):
                 f1 = open(in_tmp, 'r+')
                 fpage = f1.read()
                 # fpage.seek(0)
-                if "#EXTM3U" and 'tvg-logo' in fpage:
+                # if "#EXTM3U" and 'tvg-logo' in fpage:
+                if 'tvg-logo' in fpage:
                     print('tvg-logo in fpage: True')
                     regexcat = 'EXTINF.*?tvg-logo="(.*?)".*?,(.*?)\\n(.*?)\\n'
                     match = re.compile(regexcat, re.DOTALL).findall(fpage)
@@ -1005,7 +1045,8 @@ class ChannelList(Screen):
                 else:
                     m3ulist(self.names, self['list'])
                 self["live"].setText('N.' + str(len(self.names)) + " Stream")
-
+                self.load_poster()
+                
         except Exception as ex:
             print('error exception: ', ex)
 
@@ -1078,7 +1119,95 @@ class ChannelList(Screen):
             for url in match:
                 url = url + '.m3u8'
             self.session.open(AddIpvStream, name, url)
+            
+    def up(self):
+        self[self.currentList].up()
+        self.load_poster()
 
+    def down(self):
+        self[self.currentList].down()
+        self.load_poster()
+
+    def left(self):
+        self[self.currentList].pageUp()
+        self.load_poster()
+
+    def right(self):
+        self[self.currentList].pageDown()
+        self.load_poster()
+
+    def load_poster(self):
+        idx = self['list'].getSelectionIndex()
+        pixmaps = defpic     
+        pic = self.pics[idx]
+        if pic.startswith('http'):
+            pixmaps = pic
+        if six.PY3:
+            pixmaps = six.ensure_binary(pixmaps)
+        print('pic xxxxxxxxxxxxx', pic)    
+        
+        
+        path = urlparse(pixmaps).path
+        ext = splitext(path)[1]
+        pictmp = '/tmp/posterx' + str(ext)
+        if fileExists(pictmp):
+            pictmp = '/tmp/posterst' + str(ext)
+        else:
+            import hashlib
+            m = hashlib.md5()
+            m.update(pixmaps)
+            pictmp = m.hexdigest()
+        try:
+            if pixmaps.startswith(b"https") and sslverify:
+                parsed_uri = urlparse(pixmaps)
+                domain = parsed_uri.hostname
+                sniFactory = SNIFactory(domain)
+                # if six.PY3:
+                    # pixmaps = pixmaps.encode()
+                print('uurrll: ', pixmaps)
+                downloadPage(pixmaps, pictmp, sniFactory, timeout=5).addCallback(self.downloadPic, pictmp).addErrback(self.downloadError)
+            else:
+                downloadPage(pixmaps, pictmp).addCallback(self.downloadPic, pictmp).addErrback(self.downloadError)
+        except Exception as ex:
+            print(ex)
+            print("Error: can't find file or read data")
+        return
+
+    def downloadError(self, raw):
+        try:
+            if fileExists(pictmp):
+                self.poster_resize(pictmp)
+        except Exception as ex:
+            print(ex)
+            print('exe downloadError')
+
+    def downloadPic(self, data, pictmp):
+        if fileExists(pictmp):
+            self.poster_resize(pictmp)
+        else:
+            print('logo not found')
+
+    def poster_resize(self, png):
+        self["poster"].show()
+        pixmaps = png
+        if os.path.exists(pixmaps):
+            size = self['poster'].instance.size()
+            self.picload = ePicLoad()
+            self.scale = AVSwitch().getFramebufferScale()
+            self.picload.setPara([size.width(), size.height(), self.scale[0], self.scale[1], 0, 1, '#00000000'])
+            if os.path.exists('/var/lib/dpkg/status'):
+                self.picload.startDecode(pixmaps, False)
+            else:
+                self.picload.startDecode(pixmaps, 0, 0, False)
+            ptr = self.picload.getData()
+            if ptr != None:
+                self['poster'].instance.setPixmap(ptr)
+                self['poster'].show()
+            else:
+                print('no cover.. error')
+            return                
+                
+                
 class TvInfoBarShowHide():
     """ InfoBar show/hide control, accepts toggleShow and hide actions, might start
     fancy animations. """
@@ -1805,6 +1934,12 @@ def checks():
 
 def main(session, **kwargs):
     if checks:
+        try:
+           from Plugins.Extensions.stvcl.Update import upd_done
+           upd_done()
+        except:       
+               pass
+               
         add_skin_font()
         session.open(OpenScript)
     else:

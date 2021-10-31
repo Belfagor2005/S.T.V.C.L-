@@ -1,5 +1,5 @@
 <!-- Skin Config 15/08/2020 -->
-<screen name="Config" position="0,0" size="1280,720" title="..::stvcl List Channel::.." backgroundColor="transparent" flags="wfNoBorder">
+<screen name="Config" position="0,0" size="1280,720" title="..::stvcl List Channel::.." backgroundColor="#10101010" flags="wfNoBorder">
 	<ePixmap position="0,0" size="1280,720" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/main2.png" zPosition="1" />
 	<ePixmap position="146,26" size="186,33" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/tvs.png" zPosition="5" />
 	<widget name="title" position="146,60" size="551,26" font="Regular;20" halign="left" valign="center" foregroundColor="#002a79b8" backgroundColor="black" transparent="1" zPosition="5" />
