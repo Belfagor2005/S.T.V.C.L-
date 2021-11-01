@@ -3,7 +3,7 @@
 #--------------------#
 #  coded by Lululla	 #
 #	skin by MMark	 #
-#	  22/10/2021	 #
+#	  02/11/2021	 #
 #--------------------#
 #Info http://t.me/tivustream
 from __future__ import print_function
@@ -12,7 +12,8 @@ from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.ConfigList import *
-from Components.HTMLComponent import *
+# from Components.HTMLComponent import *
+from Components.HTMLComponent import HTMLComponent
 from Components.Input import Input
 from Components.Label import Label
 from Components.MenuList import MenuList
@@ -1177,6 +1178,8 @@ class ChannelList(Screen):
         try:
             if fileExists(pictmp):
                 self.poster_resize(pictmp)
+            else:
+                self.poster_resize(defpic)                
         except Exception as ex:
             print(ex)
             print('exe downloadError')
