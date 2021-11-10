@@ -57,7 +57,12 @@ else:
     dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blank.png'))
 if os.path.exists('/var/lib/dpkg/status'):
     skin_path = skin_path + 'dreamOs/'
-
+    
+try:
+    from PIL import Image
+except:
+    import Image
+    
 def checkStr(txt):
     if six.PY3:
         if isinstance(txt, type(bytes())):
@@ -212,10 +217,7 @@ def getpics(names, pics, tmpfold, picfold):
             print("In getpics not fileExists(tpicf) cmd=", cmd)
             os.system(cmd)
         try:
-            try:
-                from PIL import Image
-            except:
-                import Image
+
             if HD.width() > 1280:
                 nw = 220
             else:
@@ -245,6 +247,31 @@ def getpics(names, pics, tmpfold, picfold):
     os.system(cmd1)
     return pix
 
+
+pos = []
+if HD.width() > 1000:
+    pos.append([35,80])
+    pos.append([395,80])
+    pos.append([755,80])
+    pos.append([1115,80])
+    pos.append([1475,80])
+    pos.append([35,530])
+    pos.append([395,530])
+    pos.append([755,530])
+    pos.append([1115,530])
+    pos.append([1475,530])
+else:
+    pos.append([20,50])
+    pos.append([260,50])
+    pos.append([500,50])
+    pos.append([740,50])
+    pos.append([980,50])
+    pos.append([20,350])
+    pos.append([260,350])
+    pos.append([500,350])
+    pos.append([740,350])
+    pos.append([980,350])
+            
 class GridMain(Screen):
     def __init__(self, session, names, urls, pics = []):
         skin = skin_path + '/GridMain.xml'
@@ -253,35 +280,15 @@ class GridMain(Screen):
         f.close()
         Screen.__init__(self, session)
         self['title'] = Label(_('..:: S.T.V.C.L. ::..' ))
-        tmpfold = config.plugins.stvcl.cachefold.value + "/stvcl/tmp"
-        picfold = config.plugins.stvcl.cachefold.value + "/stvcl/pic"
+        tmpfold = config.plugins.stvcl.cachefold.value + "stvcl/tmp"
+        picfold = config.plugins.stvcl.cachefold.value + "stvcl/pic"
         pics = getpics(names, pics, tmpfold, picfold)
         sleep(3)
         list = []
-        self.pos = []
-        if HD.width() > 1280:
-            self.pos.append([35,80])
-            self.pos.append([395,80])
-            self.pos.append([755,80])
-            self.pos.append([1115,80])
-            self.pos.append([1475,80])
-            self.pos.append([35,530])
-            self.pos.append([395,530])
-            self.pos.append([755,530])
-            self.pos.append([1115,530])
-            self.pos.append([1475,530])
-        else:
-            self.pos.append([20,50])
-            self.pos.append([260,50])
-            self.pos.append([500,50])
-            self.pos.append([740,50])
-            self.pos.append([980,50])
-            self.pos.append([20,350])
-            self.pos.append([260,350])
-            self.pos.append([500,350])
-            self.pos.append([740,350])
-            self.pos.append([980,350])
-
+           
+        self.pos = [] 
+        self.pos = pos                
+        print(" self.pos =", self.pos)
         self.name = "stvcl"
         self.pics = pics
         self.urls = urls
@@ -290,43 +297,20 @@ class GridMain(Screen):
         list = names
         self["info"] = Label()
         self["menu"] = List(list)
-        # for x in list:
-               # pass#print  "x in list =", x
-        ip = 0
         self["frame"] = MovingPixmap()
-        self["label1"] = StaticText()
-        self["label2"] = StaticText()
-        self["label3"] = StaticText()
-        self["label4"] = StaticText()
-        self["label5"] = StaticText()
-        self["label6"] = StaticText()
-        self["label7"] = StaticText()
-        self["label8"] = StaticText()
-        self["label9"] = StaticText()
-        self["label10"] = StaticText()
-        self["label11"] = StaticText()
-        self["label12"] = StaticText()
-        self["label13"] = StaticText()
-        self["label14"] = StaticText()
-        self["label15"] = StaticText()
-        self["label16"] = StaticText()
-        self["pixmap1"] = Pixmap()
-        self["pixmap2"] = Pixmap()
-        self["pixmap3"] = Pixmap()
-        self["pixmap4"] = Pixmap()
-        self["pixmap5"] = Pixmap()
-        self["pixmap6"] = Pixmap()
-        self["pixmap7"] = Pixmap()
-        self["pixmap8"] = Pixmap()
-        self["pixmap9"] = Pixmap()
-        self["pixmap10"] = Pixmap()
-        self["pixmap11"] = Pixmap()
-        self["pixmap12"] = Pixmap()
-        self["pixmap13"] = Pixmap()
-        self["pixmap14"] = Pixmap()
-        self["pixmap15"] = Pixmap()
-        self["pixmap16"] = Pixmap()
         i = 0
+        while i<16:
+              self["label" + str(i+1)] = StaticText()
+              self["pixmap" + str(i+1)] = Pixmap()
+              i = i+1
+        i = 0  
+        ip = 0
+        self.index = 0
+        ln = len(self.names1)
+        self.npage = int(float(ln/10)) + 1
+        self.ipage = 1
+        self.icount = 0
+        
         self["actions"] = NumberActionMap(["OkCancelActions", "MenuActions", "DirectionActions", "NumberActions"],
                 {
                 "ok": self.okClicked,
@@ -336,11 +320,7 @@ class GridMain(Screen):
                 "up": self.key_up,
                 "down": self.key_down,
                 })
-        self.index = 0
-        ln = len(self.names1)
-        self.npage = int(float(ln/10)) + 1
-        self.ipage = 1
-        self.icount = 0
+
         global srefInit
         self.initialservice = self.session.nav.getCurrentlyPlayingServiceReference()
         srefInit = self.initialservice

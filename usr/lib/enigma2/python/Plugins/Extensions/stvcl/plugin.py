@@ -115,6 +115,8 @@ try:
 except ImportError:
     eDVBDB = None
 
+global Path_Movies, defpic, skin_fold
+
 ListAgent = [
           'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.15 (KHTML, like Gecko) Chrome/24.0.1295.0 Safari/537.15',
           'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.14 (KHTML, like Gecko) Chrome/24.0.1292.0 Safari/537.14',
@@ -169,7 +171,7 @@ ListAgent = [
           'Mozilla/5.0 (iPad; CPU OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko ) Version/5.1 Mobile/9B176 Safari/7534.48.3'
           ]
 currversion = '1.2'
-Version = currversion + ' - 01.11.2021'
+Version = currversion + ' - 10.11.2021'
 title_plug = '..:: S.T.V.C.L. V.%s ::..' % Version
 name_plug = 'Smart Tv Channels List'
 plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
@@ -303,7 +305,7 @@ config.plugins.stvcl.thumbpic               = ConfigYesNo(default=False)
 tvstrvl = config.plugins.stvcl.cachefold.value + "stvcl"
 tmpfold = config.plugins.stvcl.cachefold.value + "stvcl/tmp"
 picfold = config.plugins.stvcl.cachefold.value + "stvcl/pic"
-global Path_Movies
+
 Path_Movies = str(config.plugins.stvcl.pthm3uf.value) #+ "/"
 if Path_Movies.endswith("\/\/"):
     Path_Movies = Path_Movies[:-1]
@@ -316,8 +318,6 @@ if not os.path.exists(tmpfold):
 if not os.path.exists(picfold):
     os.system("mkdir " + picfold)
 
-   
-global skin_fold
 HD = getDesktop(0).size()
 if HD.width() > 1280:
     skin_fold=res_plugin_fold + 'skins/fhd/'
@@ -394,21 +394,159 @@ def tvListEntry(name,png):
     return res
 
 Panel_list = [
- ('SamsungTVPlus'),
- ('PBS'),
- # ('Plex'),
- ('PlutoTV'),
- ('Stirr'),
- ('Adelaide'),
- ('Brisbane'),
- ('Canberra'),
- ('Darwin'),
- ('Hobart'),
- ('Melbourne'),
- ('Perth'),
- ('Sydney')
-
+ ('SMTVCL')
  ]
+# Panel_list = [
+ # ('SamsungTVPlus'),
+ # ('PBS'),
+ # # ('Plex'),
+ # ('PlutoTV'),
+ # ('Stirr'),
+ # ('Adelaide'),
+ # ('Brisbane'),
+ # ('Canberra'),
+ # ('Darwin'),
+ # ('Hobart'),
+ # ('Melbourne'),
+ # ('Perth'),
+ # ('Sydney')
+ # ]
+
+# class OpenScript(Screen):
+    # def __init__(self, session):
+        # self.session = session
+        # skin = skin_fold + '/OpenScript.xml'
+        # f = open(skin, 'r')
+        # self.skin = f.read()
+        # # f.close()
+        # Screen.__init__(self, session)
+        # self.setup_title = _('Smart Tv Channel List')
+        # self['list'] = tvList([])
+        # self.icount = 0
+        # self['progress'] = ProgressBar()
+        # self['progresstext'] = StaticText()
+        # self["progress"].hide()
+        # self.downloading = False
+        # self['title'] = Label(_(title_plug))
+        # self['Maintainer2'] = Label('%s' % Maintainer2)
+        # self['path'] = Label(_('Folder path %s') % Path_Movies)
+        # self['key_red'] = Button(_('Exit'))
+        # self['key_green'] = Button('')
+        # self['key_yellow'] = Button('')
+        # self["key_blue"] = Button('')
+        # self["key_green"].hide()
+        # self["key_yellow"].hide()
+        # self["key_blue"].hide()
+        # self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions', 'TimerEditActions'],
+         # {'ok': self.okRun,
+         # 'menu': self.scsetup,
+         # 'red': self.close,
+         # # 'green': self.messagereload,
+         # 'info': self.close,
+         # # 'yellow': self.messagedellist,
+         # # 'blue': self.ChannelList,
+         # 'back': self.close,
+         # 'cancel': self.close}, -1)
+        # # self.onFirstExecBegin.append(self.updateMenuList)
+        # self.onLayoutFinish.append(self.updateMenuList)
+
+    # def updateMenuList(self):
+        # self.menu_list = []
+        # for x in self.menu_list:
+            # del self.menu_list[0]
+        # list = []
+        # idx = 0
+        # png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting.png'))
+        # for x in Panel_list:
+            # list.append(tvListEntry(x, png))
+            # self.menu_list.append(x)
+            # idx += 1
+        # self['list'].setList(list)
+
+    # def okRun(self):
+        # self.keyNumberGlobalCB(self['list'].getSelectedIndex())
+
+    # def keyNumberGlobalCB(self, idx):
+        # sel = self.menu_list[idx]
+        # url = ''
+        # if sel == ("SamsungTVPlus"):
+            # url = 'http://i.mjh.nz/SamsungTVPlus/'
+        # elif sel == ("PBS"):
+            # url = 'http://i.mjh.nz/PBS/'
+        # # elif sel == ("Plex"):
+            # # url = 'http://i.mjh.nz/Plex/'
+        # elif sel == ("PlutoTV"):
+            # url = 'http://i.mjh.nz/PlutoTV/'
+        # elif sel == ("Stirr"):
+            # url = 'http://i.mjh.nz/Stirr/'
+        # elif sel == ('Adelaide'):
+            # url = 'http://i.mjh.nz/au/Adelaide/'
+        # elif sel == ('Brisbane'):
+            # url = 'http://i.mjh.nz/au/Brisbane/'
+        # elif sel == ('Canberra'):
+            # url = 'http://i.mjh.nz/au/Canberra/'
+        # elif sel == ('Darwin'):
+            # url = 'http://i.mjh.nz/au/Darwin/'
+        # elif sel == ('Hobart'):
+            # url = 'http://i.mjh.nz/au/Hobart/'
+        # elif sel == ('Melbourne'):
+            # url = 'http://i.mjh.nz/au/Melbourne/'
+        # elif sel == ('Perth'):
+            # url = 'http://i.mjh.nz/au/Perth/'
+        # elif sel == ('Sydney'):
+            # url = 'http://i.mjh.nz/au/Sydney/'
+        # else:
+            # return
+        # self.downlist(sel, url)
+
+    # def downloadProgress(self, recvbytes, totalbytes):
+        # self["progress"].show()
+        # self['progress'].value = int(100 * recvbytes / float(totalbytes))
+        # self['progresstext'].text = '%d of %d kBytes (%.2f%%)' % (recvbytes / 1024, totalbytes / 1024, 100 * recvbytes / float(totalbytes))
+
+    # def check(self, fplug):
+        # self.downloading = False
+        # self['progresstext'].text = ''
+        # self.progclear = 0
+        # self['progress'].setValue(self.progclear)
+        # self["progress"].hide()
+
+    # def showError(self, error):
+        # self.downloading = False
+        # self.session.open(openMessageBox, _('Download Failed!!!'), openMessageBox.TYPE_INFO, timeout=5)
+
+    # def downlist(self, sel, url):
+        # global in_tmp
+        # namem3u = str(sel)
+        # urlm3u = checkStr(url.strip())
+        # if six.PY3:
+            # urlm3u.encode()
+        # # if six.PY3:
+            # # urlm3u = six.ensure_str(urlm3u)
+        # print('urlmm33uu ', urlm3u)
+
+        # try:
+            # fileTitle = re.sub(r'[\<\>\:\"\/\\\|\?\*\[\]]', '_', namem3u)
+            # fileTitle = re.sub(r' ', '_', fileTitle)
+            # fileTitle = re.sub(r'_+', '_', fileTitle)
+            # fileTitle = fileTitle.replace("(", "_").replace(")", "_").replace("#", "").replace("+", "_").replace("\'", "_").replace("'", "_").replace("!", "_").replace("&", "_")
+            # fileTitle = fileTitle.lower() #+ ext
+            # in_tmp = str(Path_Movies) + str(fileTitle) + '.m3u'
+            # if os.path.isfile(in_tmp):
+                # os.remove(in_tmp)
+            # print('in tmp' , in_tmp)
+            # # # self.download = downloadWithProgress(urlm3u, in_tmp)
+            # # # self.download.addProgress(self.downloadProgress)
+            # # # self.download.start().addCallback(self.check).addErrback(self.showError)
+            # urlretrieve(urlm3u, in_tmp)
+            # sleep(4)
+            # self.session.open(ListM3u, namem3u, urlm3u)
+        # except Exception as e:
+            # print('errore e : ', e)
+
+    # def scsetup(self):
+        # self.session.open(OpenConfig)
+
 
 class OpenScript(Screen):
     def __init__(self, session):
@@ -467,32 +605,8 @@ class OpenScript(Screen):
     def keyNumberGlobalCB(self, idx):
         sel = self.menu_list[idx]
         url = ''
-        if sel == ("SamsungTVPlus"):
-            url = 'http://i.mjh.nz/SamsungTVPlus/'
-        elif sel == ("PBS"):
-            url = 'http://i.mjh.nz/PBS/'
-        # elif sel == ("Plex"):
-            # url = 'http://i.mjh.nz/Plex/'
-        elif sel == ("PlutoTV"):
-            url = 'http://i.mjh.nz/PlutoTV/'
-        elif sel == ("Stirr"):
-            url = 'http://i.mjh.nz/Stirr/'
-        elif sel == ('Adelaide'):
-            url = 'http://i.mjh.nz/au/Adelaide/'
-        elif sel == ('Brisbane'):
-            url = 'http://i.mjh.nz/au/Brisbane/'
-        elif sel == ('Canberra'):
-            url = 'http://i.mjh.nz/au/Canberra/'
-        elif sel == ('Darwin'):
-            url = 'http://i.mjh.nz/au/Darwin/'
-        elif sel == ('Hobart'):
-            url = 'http://i.mjh.nz/au/Hobart/'
-        elif sel == ('Melbourne'):
-            url = 'http://i.mjh.nz/au/Melbourne/'
-        elif sel == ('Perth'):
-            url = 'http://i.mjh.nz/au/Perth/'
-        elif sel == ('Sydney'):
-            url = 'http://i.mjh.nz/au/Sydney/'
+        if sel == ("SMTVCL"):
+            url = 'http://i.mjh.nz/'
         else:
             return
         self.downlist(sel, url)
@@ -522,7 +636,6 @@ class OpenScript(Screen):
         # if six.PY3:
             # urlm3u = six.ensure_str(urlm3u)
         print('urlmm33uu ', urlm3u)
-
         try:
             fileTitle = re.sub(r'[\<\>\:\"\/\\\|\?\*\[\]]', '_', namem3u)
             fileTitle = re.sub(r' ', '_', fileTitle)
@@ -538,12 +651,122 @@ class OpenScript(Screen):
             # # self.download.start().addCallback(self.check).addErrback(self.showError)
             urlretrieve(urlm3u, in_tmp)
             sleep(4)
-            self.session.open(ListM3u, namem3u, urlm3u)
+            self.session.open(ListM3u1, namem3u, urlm3u)
         except Exception as e:
             print('errore e : ', e)
 
     def scsetup(self):
         self.session.open(OpenConfig)
+
+
+
+class ListM3u1(Screen):
+    def __init__(self, session, namem3u, url):
+        self.session = session
+        skin = skin_fold + '/ListM3u.xml'
+        f = open(skin, 'r')
+        self.skin = f.read()
+        # f.close()
+        Screen.__init__(self, session)
+        self.list = []
+        self['list'] = tvList([])
+        global srefInit
+        self.initialservice = self.session.nav.getCurrentlyPlayingServiceReference()
+        srefInit = self.initialservice
+        self['title'] = Label(title_plug + ' ' + namem3u)
+        self['Maintainer2'] = Label('%s' % Maintainer2)
+        self['progress'] = ProgressBar()
+        self['progresstext'] = StaticText()
+        self["progress"].hide()
+        self.downloading = False
+        self.convert = False
+        self.url = url
+        self.name = namem3u
+        self['path'] = Label(_('Folder path %s') % Path_Movies)
+        self['key_red'] = Button(_('Back'))
+        self['key_green'] = Button('')
+        self['key_yellow'] = Button('')
+        self["key_blue"] = Button('')
+        self["key_green"].hide()
+        self["key_yellow"].hide()
+        self["key_blue"].hide()
+        self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions', 'TimerEditActions'],
+        {
+         # 'green': self.message2,
+         # 'yellow': self.message1,
+         # 'blue': self.message1,
+         'cancel': self.cancel,
+         'ok': self.runList}, -2)
+        if not os.path.exists(Path_Movies):
+            self.mbox = self.session.open(openMessageBox, _('Check in your Config Plugin - Path Movie'), openMessageBox.TYPE_INFO, timeout=5)
+            self.scsetup()
+
+        self.onFirstExecBegin.append(self.openList)
+        sleep(3)
+        # self.onLayoutFinish.append(self.openList2)
+        self.onLayoutFinish.append(self.passing)
+
+    def passing(self):
+        pass
+
+    def scsetup(self):
+        self.session.openWithCallback(self.close, OpenConfig)
+
+    def openList(self):
+        self.names = []
+        self.urls = []
+        content = make_request(self.url)
+        if six.PY3:
+            content = six.ensure_str(content)
+        print('content: ',content)
+        #<a href="br.xml.gz">br.xml.gz</a>  21-Oct-2021 07:05   108884
+        #<a href="raw-radio.m3u8">raw-radio.m3u8</a>    22-Oct-2021 06:08   9639
+        regexvideo = '<a href="(.*?)">'
+        match = re.compile(regexvideo, re.DOTALL).findall(content)
+        print('ListM3u match = ', match)
+        items = []
+        for url in match:
+            if '..' in url:
+                continue
+            name = url.replace('/', '')
+            url = self.url + url + '/'
+            # item = name + "###" + url
+            # print('ListM3u url-name Items sort: ', item)
+            # items.append(item)
+        # items.sort()
+        # for item in items:
+            # name = item.split('###')[0]
+            # url = item.split('###')[1]
+            self.names.append(checkStr(name))
+            self.urls.append(checkStr(url))
+        m3ulist(self.names, self['list'])
+
+    # def openList2(self):
+        # self.names = []
+        # self.urls = []
+        # path = Path_Movies
+        # AA = ['.m3u8']
+        # for root, dirs, files in os.walk(path):
+            # for name in files:
+                # for x in AA:
+                    # if x in name:
+                        # continue
+                    # self.names.append(name)
+                    # self.urls.append(root +'/'+name)
+        # pass
+        # m3ulist(self.names, self['list'])
+
+    def runList(self):
+        idx = self["list"].getSelectionIndex()
+        sel = self.names[idx]
+        urlm3u = self.urls[idx]
+        if idx == -1 or None or '':
+            return
+        else:
+            self.session.open(ListM3u, sel, urlm3u)
+
+    def cancel(self):
+        self.close()
 
 class ListM3u(Screen):
     def __init__(self, session, namem3u, url):
@@ -626,20 +849,20 @@ class ListM3u(Screen):
             self.urls.append(checkStr(url))
         m3ulist(self.names, self['list'])
 
-    def openList2(self):
-        self.names = []
-        self.urls = []
-        path = Path_Movies
-        AA = ['.m3u8']
-        for root, dirs, files in os.walk(path):
-            for name in files:
-                for x in AA:
-                    if x in name:
-                        continue
-                    self.names.append(name)
-                    self.urls.append(root +'/'+name)
-        pass
-        m3ulist(self.names, self['list'])
+    # def openList2(self):
+        # self.names = []
+        # self.urls = []
+        # path = Path_Movies
+        # AA = ['.m3u8']
+        # for root, dirs, files in os.walk(path):
+            # for name in files:
+                # for x in AA:
+                    # if x in name:
+                        # continue
+                    # self.names.append(name)
+                    # self.urls.append(root +'/'+name)
+        # pass
+        # m3ulist(self.names, self['list'])
 
     def runList(self):
         idx = self["list"].getSelectionIndex()
@@ -718,7 +941,8 @@ class ChannelList(Screen):
 
     def __layoutFinished(self):
         # self.setTitle(self.setup_title)
-        self.load_poster()
+        if config.plugins.stvcl.thumb.value == False: 
+            self.load_poster()
         
     def message1(self):
         global servicx
@@ -981,8 +1205,11 @@ class ChannelList(Screen):
                 fpage = f1.read()
                 # fpage.seek(0)
                 # if "#EXTM3U" and 'tvg-logo' in fpage:
-                if 'tvg-logo' in fpage:
+                if 'tvg-logo="http' in fpage:
                     print('tvg-logo in fpage: True')
+                    
+                    #EXTINF:-1 tvg-id="externallinearfeed-04-21-2020-213519853-04-21-2020" tvg-logo="https://3gz8cg829c.execute-api.us-west-2.amazonaws.com/prod/image-renderer/16x9/full/600/center/90/5086119a-3424-4a9d-afc9-07cdcd962d4b-large16x9_STIRR_0721_EPG_MavTV_1920x1080.png?1625778769447?cb=c4ca4238a0b923820dcc509a6f75849b",MavTv
+
                     regexcat = 'EXTINF.*?tvg-logo="(.*?)".*?,(.*?)\\n(.*?)\\n'
                     match = re.compile(regexcat, re.DOTALL).findall(fpage)
                     for pic, name, url in match:
@@ -994,7 +1221,12 @@ class ChannelList(Screen):
                                 match = re.compile(regexcat, re.DOTALL).findall(url)
                                 for url in match:
                                     url = url + '.m3u8'
-                            pic = pic
+                            # if pic.startswith('http'):
+                            if pic.endswith('.png') or pic.endswith('.jpg'):
+                                pic = pic
+                            else:
+                                pic = pic + '.png'
+                                
                             item = name + "###" + url + "###" + pic
                             print('url-name Items sort: ', item)
                             items.append(item)
@@ -1034,19 +1266,20 @@ class ChannelList(Screen):
                         self.pics.append(checkStr(pic))
                 #####
                 if config.plugins.stvcl.thumb.value == True:
-                    self["live"].setText("WAIT PLEASE....")
+                    self["live"].setText('N.' + str(len(self.names)) + " Stream")
                     self.gridmaint = eTimer()
                     try:
                         self.gridmaint.callback.append(self.gridpic)
                     except:
                         self.gridmaint_conn = self.gridmaint.timeout.connect(self.gridpic)
-                    self.gridmaint.start(2000, True)
+                    self.gridmaint.start(5000, True)
                     # self.session.open(GridMain, self.names, self.urls, self.pics)
                 #####
                 else:
                     m3ulist(self.names, self['list'])
-                self["live"].setText('N.' + str(len(self.names)) + " Stream")
-                self.load_poster()
+                    self.load_poster()                    
+                    self["live"].setText('N.' + str(len(self.names)) + " Stream")
+
                 
         except Exception as ex:
             print('error exception: ', ex)
@@ -1137,48 +1370,73 @@ class ChannelList(Screen):
         self[self.currentList].pageDown()
         self.load_poster()
 
+    # def load_poster(self):
+        # idx = self['list'].getSelectionIndex()
+        
+        # pixmaps = self.pics[idx]        
+        # if pixmaps.startswith('http'):
+            # pixmaps = self.pics[idx]  
+        # else:
+            # pixmaps = defpic 
+        # # if six.PY3:
+            # # pixmaps = six.ensure_binary(pixmaps)
+        # print('pic xxxxxxxxxxxxx', pixmaps)    
+        
+        # path = urlparse(pixmaps).path
+        # ext = splitext(path)[1]
+        # pictmp = '/tmp/posterst' + str(ext)
+        # if fileExists(pictmp):
+            # pictmp = '/tmp/posterst' + str(ext)
     def load_poster(self):
         idx = self['list'].getSelectionIndex()
+        pic = self.pics[idx] 
         pixmaps = defpic     
-        pic = self.pics[idx]
-        if pic.startswith('http'):
-            pixmaps = pic
-        if six.PY3:
-            pixmaps = six.ensure_binary(pixmaps)
-        print('pic xxxxxxxxxxxxx', pic)    
-        
-        
-        path = urlparse(pixmaps).path
-        ext = splitext(path)[1]
-        pictmp = '/tmp/posterx' + str(ext)
-        if fileExists(pictmp):
-            pictmp = '/tmp/posterst' + str(ext)
-        else:
-            import hashlib
-            m = hashlib.md5()
-            m.update(pixmaps)
-            pictmp = m.hexdigest()
-        try:
-            if pixmaps.startswith(b"https") and sslverify:
-                parsed_uri = urlparse(pixmaps)
-                domain = parsed_uri.hostname
-                sniFactory = SNIFactory(domain)
-                # if six.PY3:
-                    # pixmaps = pixmaps.encode()
-                print('uurrll: ', pixmaps)
-                downloadPage(pixmaps, pictmp, sniFactory, timeout=5).addCallback(self.downloadPic, pictmp).addErrback(self.downloadError)
-            else:
-                downloadPage(pixmaps, pictmp).addCallback(self.downloadPic, pictmp).addErrback(self.downloadError)
-        except Exception as ex:
-            print(ex)
-            print("Error: can't find file or read data")
+        if pic.find('http') == -1:
+            self.poster_resize(defpic)
+            return
+        else:   
+            if pic.startswith('http'):
+                pixmaps = str(pic)
+                if six.PY3:
+                    pixmaps = six.ensure_binary(pixmaps)
+                print('pic xxxxxxxxxxxxx', pixmaps)    
+                
+            
+                path = urlparse(pixmaps).path
+                ext = splitext(path)[1]
+                pictmp = '/tmp/posterst' + str(ext)
+                if fileExists(pictmp):
+                    pictmp = '/tmp/posterst' + str(ext)
+                    
+            # else:
+                # import hashlib
+                # m = hashlib.md5()
+                # m.update(pixmaps)
+                # pictmp = m.hexdigest()
+                try:
+                    if pixmaps.startswith(b"https") and sslverify:
+                        parsed_uri = urlparse(pixmaps)
+                        domain = parsed_uri.hostname
+                        sniFactory = SNIFactory(domain)
+                        if six.PY3:
+                            pixmaps = six.ensure_binary(pixmaps)
+                    
+                        # if six.PY3:
+                            # pixmaps = pixmaps.encode()
+                        print('uurrll: ', pixmaps)
+                        downloadPage(pixmaps, pictmp, sniFactory, timeout=5).addCallback(self.downloadPic, pictmp).addErrback(self.downloadError)
+                    else:
+                        downloadPage(pixmaps, pictmp).addCallback(self.downloadPic, pictmp).addErrback(self.downloadError)
+                except Exception as ex:
+                    print(ex)
+                    print("Error: can't find file or read data")
         return
 
     def downloadError(self, raw):
         try:
-            if fileExists(pictmp):
-                self.poster_resize(pictmp)
-            else:
+            # if fileExists(pictmp):
+                # self.poster_resize(pictmp)
+            # else:
                 self.poster_resize(defpic)                
         except Exception as ex:
             print(ex)
@@ -1186,9 +1444,11 @@ class ChannelList(Screen):
 
     def downloadPic(self, data, pictmp):
         if fileExists(pictmp):
-            self.poster_resize(pictmp)
-        else:
-            print('logo not found')
+            try:
+                self.poster_resize(pictmp)
+            except Exception as ex:
+                print("* error ** %s" % ex)
+                pass
 
     def poster_resize(self, png):
         self["poster"].show()

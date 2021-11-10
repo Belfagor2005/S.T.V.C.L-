@@ -1,4 +1,4 @@
-<screen name="GridMainFHD" position="center,center" size="1920,1080" backgroundColor="#FF000000" flags="wfNoBorder">
+<screen name="GridMainFHD" position="center,center" size="1920,1080" flags="wfNoBorder">
 	<ePixmap position="0,0" zPosition="-2" size="1920,1080" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/fulltop.png" />
 	<!-- 	
 	<eLabel position="55,0" size="1780,1080" backgroundColor="#60000000" zPosition="-3" name=" " />

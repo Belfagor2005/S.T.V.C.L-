@@ -15,12 +15,9 @@
 	<widget name="service" position="150,575" size="686,30" font="Regular;20" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />
 	<widget name="live" position="647,538" size="189,33" font="Regular;20" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />
 
+	<eLabel position="920,30" size="311,425" backgroundColor="#10101010" cornerRadius="20" zPosition="1" />	
+	<widget name="poster" position="946,40" size="267,400" backgroundColor="#30000000" transparent="0" borderWidth="2" borderColor="#00ffffff" alphatest="blend" zPosition="4" />
 
-	<eLabel position="890,30" size="311,425" backgroundColor="#80000000" cornerRadius="20" zPosition="1" />	
-	<widget name="poster" position="911,40" size="267,400" backgroundColor="#30000000" transparent="1" borderWidth="2" borderColor="#00ffffff" alphatest="blend" zPosition="4" />
-	
-	
-	
 	<!-- Colors 1220 -->
 	<ePixmap position="146,606" size="686,5" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/sep.png" zPosition="5" />
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/key_red.png" position="146,630" size="20,20" alphatest="on" zPosition="5" />
@@ -32,4 +29,3 @@
 	<widget name="key_yellow" position="603,626" size="200,26" font="Regular;20" halign="right" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1" />
 	<widget name="key_blue" position="603,666" size="200,26" font="Regular;20" halign="right" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1" />
 </screen>
-

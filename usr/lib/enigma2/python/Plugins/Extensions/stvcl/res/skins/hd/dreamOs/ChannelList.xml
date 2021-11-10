@@ -6,8 +6,7 @@
 	<ePixmap position="146,86" size="686,5" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/sep.png" zPosition="5" />
 	<widget name="Maintainer2" position="340,35" size="266,20" font="Regular;16" halign="left" foregroundColor="yellow" backgroundColor="#000000" transparent="1" zPosition="5" />
 	<!-- Menu List -->
-	<widget name="list" position="146,103" size="686,420" scrollbarMode="showOnDemand" transparent="1" zPosition="5" backgroundColor="#20000000"  foregroundColor="#00a0a0a0" 
-		foregroundColorSelected="#ffffff" backgroundColorSelected="#0b2049" selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/sliderb.png" />
+	<widget name="list" position="146,103" size="686,420" scrollbarMode="showOnDemand" transparent="1" zPosition="5" backgroundColor="#20000000" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColorSelected="#0b2049" selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/sliderb.png" />
 	<!-- widget -->	
 	<widget name="path" position="144,546" size="552,35" font="Regular;20" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />		
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/key_menu.png" scale="strech" position="391,648" size="53,23" zPosition="6" />	
@@ -16,8 +15,8 @@
 	<widget name="service" position="150,575" size="686,30" font="Regular;20" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />
 	<widget name="live" position="647,538" size="189,33" font="Regular;20" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />	
 
-	<eLabel position="890,30" size="311,425" backgroundColor="#80000000" cornerRadius="20" zPosition="1" />	
-	<widget name="poster" position="911,40" size="267,400" backgroundColor="#30000000" transparent="1" borderWidth="2" borderColor="#00ffffff" alphatest="blend" zPosition="4" />
+	<eLabel position="920,30" size="311,425" backgroundColor="#10101010" cornerRadius="20" zPosition="1" />	
+	<widget name="poster" position="946,40" size="267,400" backgroundColor="#30000000" transparent="0" borderWidth="2" borderColor="#00ffffff" alphatest="blend" zPosition="4" />
 	
 	<!-- Colors 1220 -->
 	<ePixmap position="146,606" size="686,5" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/sep.png" zPosition="5" />
