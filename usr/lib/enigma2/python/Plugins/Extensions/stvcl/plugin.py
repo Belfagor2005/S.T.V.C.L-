@@ -3,7 +3,7 @@
 #--------------------#
 #  coded by Lululla	 #
 #	skin by MMark	 #
-#	  02/11/2021	 #
+#	  19/11/2021	 #
 #--------------------#
 #Info http://t.me/tivustream
 from __future__ import print_function
@@ -12,7 +12,6 @@ from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.ConfigList import *
-# from Components.HTMLComponent import *
 from Components.HTMLComponent import HTMLComponent
 from Components.Input import Input
 from Components.Label import Label
@@ -52,10 +51,9 @@ from enigma import *
 from enigma import RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_HALIGN_CENTER, RT_VALIGN_CENTER
 from enigma import eSize, eListbox, eListboxPythonMultiContent, eServiceCenter, eServiceReference, iPlayableService
 from enigma import eTimer
-from enigma import getDesktop, ePicLoad, gPixmapPtr
+from enigma import ePicLoad, gPixmapPtr
 from enigma import loadPNG, gFont
 from os.path import splitext
-from random import choice
 from sys import version_info
 from time import sleep
 from twisted.web.client import downloadPage, getPage, error
@@ -63,7 +61,6 @@ from xml.dom import Node, minidom
 import base64
 import glob
 import os
-import random
 import re
 import shutil
 import six
@@ -81,6 +78,7 @@ from six.moves.urllib.request import urlretrieve
 import six.moves.urllib.request
 from Plugins.Extensions.stvcl.getpics import GridMain
 from Plugins.Extensions.stvcl.getpics import getpics
+from Plugins.Extensions.stvcl.Utils import *
 try:
     import io
 except:
@@ -101,75 +99,8 @@ if sys.version_info >= (2, 7, 9):
 	except:
 		sslContext = None
 
-def checkStr(txt):
-    if six.PY3:
-        if isinstance(txt, type(bytes())):
-            txt = txt.decode('utf-8')
-    else:
-        if isinstance(txt, type(six.text_type())):
-            txt = txt.encode('utf-8')
-    return txt
-
-try:
-    from enigma import eDVBDB
-except ImportError:
-    eDVBDB = None
-
 global Path_Movies, defpic, skin_fold
 
-ListAgent = [
-          'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.15 (KHTML, like Gecko) Chrome/24.0.1295.0 Safari/537.15',
-          'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.14 (KHTML, like Gecko) Chrome/24.0.1292.0 Safari/537.14',
-          'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13',
-          'Mozilla/5.0 (Windows NT 6.2) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13',
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13',
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13',
-          'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1284.0 Safari/537.13',
-          'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.8 (KHTML, like Gecko) Chrome/17.0.940.0 Safari/535.8',
-          'Mozilla/6.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1',
-          'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1',
-          'Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1',
-          'Mozilla/5.0 (Windows NT 6.1; rv:15.0) Gecko/20120716 Firefox/15.0a2',
-          'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.16) Gecko/20120427 Firefox/15.0a1',
-          'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:15.0) Gecko/20120427 Firefox/15.0a1',
-          'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:15.0) Gecko/20120910144328 Firefox/15.0.2',
-          'Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:15.0) Gecko/20100101 Firefox/15.0.1',
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:9.0a2) Gecko/20111101 Firefox/9.0a2',
-          'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:6.0a2) Gecko/20110613 Firefox/6.0a2',
-          'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:6.0a2) Gecko/20110612 Firefox/6.0a2',
-          'Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0',
-          'Mozilla/5.0 (compatible; MSIE 10.6; Windows NT 6.1; Trident/5.0; InfoPath.2; SLCC1; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; .NET CLR 2.0.50727) 3gpp-gba UNTRUSTED/1.0',
-          'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)',
-          'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)',
-          'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/5.0)',
-          'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/4.0; InfoPath.2; SV1; .NET CLR 2.0.50727; WOW64)',
-          'Mozilla/4.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/5.0)',
-          'Mozilla/5.0 (compatible; MSIE 10.0; Macintosh; Intel Mac OS X 10_7_3; Trident/6.0)',
-          'Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0;  it-IT)',
-          'Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)'
-          'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0; chromeframe/13.0.782.215)',
-          'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0; chromeframe/11.0.696.57)',
-          'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0) chromeframe/10.0.648.205',
-          'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/4.0; GTB7.4; InfoPath.1; SV1; .NET CLR 2.8.52393; WOW64; en-US)',
-          'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0; Trident/5.0; chromeframe/11.0.696.57)',
-          'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0; Trident/4.0; GTB7.4; InfoPath.3; SV1; .NET CLR 3.1.76908; WOW64; en-US)',
-          'Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; GTB7.4; InfoPath.2; SV1; .NET CLR 3.3.69573; WOW64; en-US)',
-          'Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0; WOW64; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET CLR 1.0.3705; .NET CLR 1.1.4322)',
-          'Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0; InfoPath.1; SV1; .NET CLR 3.8.36217; WOW64; en-US)',
-          'Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727)',
-          'Mozilla/5.0 (Windows; U; MSIE 7.0; Windows NT 6.0; it-IT)',
-          'Mozilla/5.0 (Windows; U; MSIE 7.0; Windows NT 6.0; en-US)',
-          'Opera/12.80 (Windows NT 5.1; U; en) Presto/2.10.289 Version/12.02',
-          'Opera/9.80 (Windows NT 6.1; U; es-ES) Presto/2.9.181 Version/12.00',
-          'Opera/9.80 (Windows NT 5.1; U; zh-sg) Presto/2.9.181 Version/12.00',
-          'Opera/12.0(Windows NT 5.2;U;en)Presto/22.9.168 Version/12.00',
-          'Opera/12.0(Windows NT 5.1;U;en)Presto/22.9.168 Version/12.00',
-          'Mozilla/5.0 (Windows NT 5.1) Gecko/20100101 Firefox/14.0 Opera/12.0',
-          'Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5355d Safari/8536.25',
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/537.13+ (KHTML, like Gecko) Version/5.1.7 Safari/534.57.2',
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/534.55.3 (KHTML, like Gecko) Version/5.1.3 Safari/534.53.10',
-          'Mozilla/5.0 (iPad; CPU OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko ) Version/5.1 Mobile/9B176 Safari/7534.48.3'
-          ]
 currversion = '1.2'
 Version = currversion + ' - 10.11.2021'
 title_plug = '..:: S.T.V.C.L. V.%s ::..' % Version
@@ -182,45 +113,10 @@ service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 
 res_plugin_fold=plugin_fold + '/res/'
 defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
 #================
-def RequestAgent():
-    RandomAgent = choice(ListAgent)
-    return RandomAgent
-
 def add_skin_font():
     font_path = plugin_fold + '/res/fonts/'
     # addFont(font_path + 'verdana_r.ttf', 'OpenFont1', 100, 1)
     addFont(font_path + 'verdana_r.ttf', 'OpenFont2', 100, 1)
-
-def checkInternet():
-    try:
-        socket.setdefaulttimeout(0.5)
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(("8.8.8.8", 53))
-        return True
-    except:
-        return False
-
-def ReloadBouquet():
-    if eDVBDB:
-        eDVBDB.getInstance().reloadBouquets()
-    else:
-        os.system('wget -qO - http://127.0.0.1/web/servicelistreload?mode=2 > /dev/null 2>&1 &')
-
-def OnclearMem():
-    try:
-        os.system("sync")
-        os.system("echo 1 > /proc/sys/vm/drop_caches")
-        os.system("echo 2 > /proc/sys/vm/drop_caches")
-        os.system("echo 3 > /proc/sys/vm/drop_caches")
-    except:
-        pass
-
-def trace_error():
-    import traceback
-    try:
-        traceback.print_exc(file=sys.stdout)
-        traceback.print_exc(file=open('/tmp/KeyAdderError.log', 'a'))
-    except:
-        pass
 
 def make_request(url):
     try:
@@ -265,12 +161,6 @@ if sslverify:
             if self.hostname:
                 ClientTLSOptions(self.hostname, ctx)
             return ctx
-
-def isExtEplayer3Available():
-        return os.path.isfile(eEnv.resolve('$bindir/exteplayer3'))
-
-def isStreamlinkAvailable():
-        return os.path.isdir(eEnv.resolve('/usr/lib/python2.7/site-packages/streamlink'))
 
 modechoices = [
                 ("4097", _("ServiceMp3(4097)")),
@@ -318,8 +208,7 @@ if not os.path.exists(tmpfold):
 if not os.path.exists(picfold):
     os.system("mkdir " + picfold)
 
-HD = getDesktop(0).size()
-if HD.width() > 1280:
+if isFHD():
     skin_fold=res_plugin_fold + 'skins/fhd/'
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
 else:
@@ -327,15 +216,6 @@ else:
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
 if os.path.exists('/var/lib/dpkg/status'):
     skin_fold=skin_fold + 'dreamOs/'
-
-def remove_line(filename, what):
-    if os.path.isfile(filename):
-        file_read = open(filename).readlines()
-        file_write = open(filename, 'w')
-        for line in file_read:
-            if what not in line:
-                file_write.write(line)
-        file_write.close()
 
 def m3ulistEntry(download):
     res = [download]
@@ -346,7 +226,7 @@ def m3ulistEntry(download):
     backcol = 0
     blue = 4282611429
     png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting2.png'))
-    if HD.width() > 1280:
+    if isFHD():
         res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
         res.append(MultiContentEntryText(pos=(60, 0), size=(1200, 50), font=7, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     else:
@@ -364,7 +244,6 @@ def m3ulist(data, list):
     list.setList(mlist)
 
 class tvList(MenuList):
-
     def __init__(self, list):
         MenuList.__init__(self, list, False, eListboxPythonMultiContent)
         self.l.setFont(0, gFont('OpenFont2', 20))
@@ -377,7 +256,7 @@ class tvList(MenuList):
         self.l.setFont(7, gFont('OpenFont2', 34))
         self.l.setFont(8, gFont('OpenFont2', 36))
         self.l.setFont(9, gFont('OpenFont2', 40))
-        if HD.width() > 1280:
+        if isFHD():
             self.l.setItemHeight(50)
         else:
             self.l.setItemHeight(50)
@@ -385,7 +264,7 @@ class tvList(MenuList):
 def tvListEntry(name,png):
     res = [name]
     png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting.png'))
-    if HD.width() > 1280:
+    if isFHD():
             res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
             res.append(MultiContentEntryText(pos=(60, 0), size=(1200, 50), font=7, text=name, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     else:
@@ -396,157 +275,6 @@ def tvListEntry(name,png):
 Panel_list = [
  ('SMTVCL')
  ]
-# Panel_list = [
- # ('SamsungTVPlus'),
- # ('PBS'),
- # # ('Plex'),
- # ('PlutoTV'),
- # ('Stirr'),
- # ('Adelaide'),
- # ('Brisbane'),
- # ('Canberra'),
- # ('Darwin'),
- # ('Hobart'),
- # ('Melbourne'),
- # ('Perth'),
- # ('Sydney')
- # ]
-
-# class OpenScript(Screen):
-    # def __init__(self, session):
-        # self.session = session
-        # skin = skin_fold + '/OpenScript.xml'
-        # f = open(skin, 'r')
-        # self.skin = f.read()
-        # # f.close()
-        # Screen.__init__(self, session)
-        # self.setup_title = _('Smart Tv Channel List')
-        # self['list'] = tvList([])
-        # self.icount = 0
-        # self['progress'] = ProgressBar()
-        # self['progresstext'] = StaticText()
-        # self["progress"].hide()
-        # self.downloading = False
-        # self['title'] = Label(_(title_plug))
-        # self['Maintainer2'] = Label('%s' % Maintainer2)
-        # self['path'] = Label(_('Folder path %s') % Path_Movies)
-        # self['key_red'] = Button(_('Exit'))
-        # self['key_green'] = Button('')
-        # self['key_yellow'] = Button('')
-        # self["key_blue"] = Button('')
-        # self["key_green"].hide()
-        # self["key_yellow"].hide()
-        # self["key_blue"].hide()
-        # self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions', 'TimerEditActions'],
-         # {'ok': self.okRun,
-         # 'menu': self.scsetup,
-         # 'red': self.close,
-         # # 'green': self.messagereload,
-         # 'info': self.close,
-         # # 'yellow': self.messagedellist,
-         # # 'blue': self.ChannelList,
-         # 'back': self.close,
-         # 'cancel': self.close}, -1)
-        # # self.onFirstExecBegin.append(self.updateMenuList)
-        # self.onLayoutFinish.append(self.updateMenuList)
-
-    # def updateMenuList(self):
-        # self.menu_list = []
-        # for x in self.menu_list:
-            # del self.menu_list[0]
-        # list = []
-        # idx = 0
-        # png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting.png'))
-        # for x in Panel_list:
-            # list.append(tvListEntry(x, png))
-            # self.menu_list.append(x)
-            # idx += 1
-        # self['list'].setList(list)
-
-    # def okRun(self):
-        # self.keyNumberGlobalCB(self['list'].getSelectedIndex())
-
-    # def keyNumberGlobalCB(self, idx):
-        # sel = self.menu_list[idx]
-        # url = ''
-        # if sel == ("SamsungTVPlus"):
-            # url = 'http://i.mjh.nz/SamsungTVPlus/'
-        # elif sel == ("PBS"):
-            # url = 'http://i.mjh.nz/PBS/'
-        # # elif sel == ("Plex"):
-            # # url = 'http://i.mjh.nz/Plex/'
-        # elif sel == ("PlutoTV"):
-            # url = 'http://i.mjh.nz/PlutoTV/'
-        # elif sel == ("Stirr"):
-            # url = 'http://i.mjh.nz/Stirr/'
-        # elif sel == ('Adelaide'):
-            # url = 'http://i.mjh.nz/au/Adelaide/'
-        # elif sel == ('Brisbane'):
-            # url = 'http://i.mjh.nz/au/Brisbane/'
-        # elif sel == ('Canberra'):
-            # url = 'http://i.mjh.nz/au/Canberra/'
-        # elif sel == ('Darwin'):
-            # url = 'http://i.mjh.nz/au/Darwin/'
-        # elif sel == ('Hobart'):
-            # url = 'http://i.mjh.nz/au/Hobart/'
-        # elif sel == ('Melbourne'):
-            # url = 'http://i.mjh.nz/au/Melbourne/'
-        # elif sel == ('Perth'):
-            # url = 'http://i.mjh.nz/au/Perth/'
-        # elif sel == ('Sydney'):
-            # url = 'http://i.mjh.nz/au/Sydney/'
-        # else:
-            # return
-        # self.downlist(sel, url)
-
-    # def downloadProgress(self, recvbytes, totalbytes):
-        # self["progress"].show()
-        # self['progress'].value = int(100 * recvbytes / float(totalbytes))
-        # self['progresstext'].text = '%d of %d kBytes (%.2f%%)' % (recvbytes / 1024, totalbytes / 1024, 100 * recvbytes / float(totalbytes))
-
-    # def check(self, fplug):
-        # self.downloading = False
-        # self['progresstext'].text = ''
-        # self.progclear = 0
-        # self['progress'].setValue(self.progclear)
-        # self["progress"].hide()
-
-    # def showError(self, error):
-        # self.downloading = False
-        # self.session.open(openMessageBox, _('Download Failed!!!'), openMessageBox.TYPE_INFO, timeout=5)
-
-    # def downlist(self, sel, url):
-        # global in_tmp
-        # namem3u = str(sel)
-        # urlm3u = checkStr(url.strip())
-        # if six.PY3:
-            # urlm3u.encode()
-        # # if six.PY3:
-            # # urlm3u = six.ensure_str(urlm3u)
-        # print('urlmm33uu ', urlm3u)
-
-        # try:
-            # fileTitle = re.sub(r'[\<\>\:\"\/\\\|\?\*\[\]]', '_', namem3u)
-            # fileTitle = re.sub(r' ', '_', fileTitle)
-            # fileTitle = re.sub(r'_+', '_', fileTitle)
-            # fileTitle = fileTitle.replace("(", "_").replace(")", "_").replace("#", "").replace("+", "_").replace("\'", "_").replace("'", "_").replace("!", "_").replace("&", "_")
-            # fileTitle = fileTitle.lower() #+ ext
-            # in_tmp = str(Path_Movies) + str(fileTitle) + '.m3u'
-            # if os.path.isfile(in_tmp):
-                # os.remove(in_tmp)
-            # print('in tmp' , in_tmp)
-            # # # self.download = downloadWithProgress(urlm3u, in_tmp)
-            # # # self.download.addProgress(self.downloadProgress)
-            # # # self.download.start().addCallback(self.check).addErrback(self.showError)
-            # urlretrieve(urlm3u, in_tmp)
-            # sleep(4)
-            # self.session.open(ListM3u, namem3u, urlm3u)
-        # except Exception as e:
-            # print('errore e : ', e)
-
-    # def scsetup(self):
-        # self.session.open(OpenConfig)
-
 
 class OpenScript(Screen):
     def __init__(self, session):
@@ -625,7 +353,7 @@ class OpenScript(Screen):
 
     def showError(self, error):
         self.downloading = False
-        self.session.open(openMessageBox, _('Download Failed!!!'), openMessageBox.TYPE_INFO, timeout=5)
+        self.session.open(MessageBox, _('Download Failed!!!'), MessageBox.TYPE_INFO, timeout=5)
 
     def downlist(self, sel, url):
         global in_tmp
@@ -657,8 +385,6 @@ class OpenScript(Screen):
 
     def scsetup(self):
         self.session.open(OpenConfig)
-
-
 
 class ListM3u1(Screen):
     def __init__(self, session, namem3u, url):
@@ -698,9 +424,8 @@ class ListM3u1(Screen):
          'cancel': self.cancel,
          'ok': self.runList}, -2)
         if not os.path.exists(Path_Movies):
-            self.mbox = self.session.open(openMessageBox, _('Check in your Config Plugin - Path Movie'), openMessageBox.TYPE_INFO, timeout=5)
+            self.mbox = self.session.open(MessageBox, _('Check in your Config Plugin - Path Movie'), MessageBox.TYPE_INFO, timeout=5)
             self.scsetup()
-
         self.onFirstExecBegin.append(self.openList)
         sleep(3)
         # self.onLayoutFinish.append(self.openList2)
@@ -719,8 +444,6 @@ class ListM3u1(Screen):
         if six.PY3:
             content = six.ensure_str(content)
         print('content: ',content)
-        #<a href="br.xml.gz">br.xml.gz</a>  21-Oct-2021 07:05   108884
-        #<a href="raw-radio.m3u8">raw-radio.m3u8</a>    22-Oct-2021 06:08   9639
         regexvideo = '<a href="(.*?)">'
         match = re.compile(regexvideo, re.DOTALL).findall(content)
         print('ListM3u match = ', match)
@@ -740,21 +463,6 @@ class ListM3u1(Screen):
             self.names.append(checkStr(name))
             self.urls.append(checkStr(url))
         m3ulist(self.names, self['list'])
-
-    # def openList2(self):
-        # self.names = []
-        # self.urls = []
-        # path = Path_Movies
-        # AA = ['.m3u8']
-        # for root, dirs, files in os.walk(path):
-            # for name in files:
-                # for x in AA:
-                    # if x in name:
-                        # continue
-                    # self.names.append(name)
-                    # self.urls.append(root +'/'+name)
-        # pass
-        # m3ulist(self.names, self['list'])
 
     def runList(self):
         idx = self["list"].getSelectionIndex()
@@ -806,9 +514,8 @@ class ListM3u(Screen):
          'cancel': self.cancel,
          'ok': self.runList}, -2)
         if not os.path.exists(Path_Movies):
-            self.mbox = self.session.open(openMessageBox, _('Check in your Config Plugin - Path Movie'), openMessageBox.TYPE_INFO, timeout=5)
+            self.mbox = self.session.open(MessageBox, _('Check in your Config Plugin - Path Movie'), MessageBox.TYPE_INFO, timeout=5)
             self.scsetup()
-
         self.onFirstExecBegin.append(self.openList)
         sleep(3)
         # self.onLayoutFinish.append(self.openList2)
@@ -848,21 +555,6 @@ class ListM3u(Screen):
             self.names.append(checkStr(name))
             self.urls.append(checkStr(url))
         m3ulist(self.names, self['list'])
-
-    # def openList2(self):
-        # self.names = []
-        # self.urls = []
-        # path = Path_Movies
-        # AA = ['.m3u8']
-        # for root, dirs, files in os.walk(path):
-            # for name in files:
-                # for x in AA:
-                    # if x in name:
-                        # continue
-                    # self.names.append(name)
-                    # self.urls.append(root +'/'+name)
-        # pass
-        # m3ulist(self.names, self['list'])
 
     def runList(self):
         idx = self["list"].getSelectionIndex()
@@ -933,7 +625,6 @@ class ChannelList(Screen):
          'ok': self.runChannel}, -2)
         # if 'http' in self.url:
         self.currentList = 'list'
-        
         self.onLayoutFinish.append(self.downlist)
         # self.onFirstExecBegin.append(self.downlist)
         print('ChannelList sleep 4 - 1')
@@ -951,7 +642,7 @@ class ChannelList(Screen):
             return
         else:
             servicx = 'iptv'
-            self.session.openWithCallback(self.check10, openMessageBox, _("Do you want to Convert Bouquet IPTV?"), openMessageBox.TYPE_YESNO)
+            self.session.openWithCallback(self.check10, MessageBox, _("Do you want to Convert Bouquet IPTV?"), MessageBox.TYPE_YESNO)
 
     def message2(self):
         global servicx
@@ -960,7 +651,7 @@ class ChannelList(Screen):
             return
         else:
             servicx = 'gst'
-            self.session.openWithCallback(self.check10, openMessageBox, _("Do you want to Convert Bouquet GSTREAMER?"), openMessageBox.TYPE_YESNO)
+            self.session.openWithCallback(self.check10, MessageBox, _("Do you want to Convert Bouquet GSTREAMER?"), MessageBox.TYPE_YESNO)
 
     def check10(self, result):
             global in_tmp, namebouquett
@@ -1013,7 +704,7 @@ class ChannelList(Screen):
                                         else:
                                             desk_tmp = '%s\r\n' % line.split('<')[1].split('>')[1]
                         outfile.close()
-                    self.mbox = self.session.open(openMessageBox, _('Check out the favorites list ...'), openMessageBox.TYPE_INFO, timeout=5)
+                    self.mbox = self.session.open(MessageBox, _('Check out the favorites list ...'), MessageBox.TYPE_INFO, timeout=5)
                     if os.path.isfile('/etc/enigma2/bouquets.tv'):
                         for line in open('/etc/enigma2/bouquets.tv'):
                             if bqtname in line:
@@ -1025,10 +716,10 @@ class ChannelList(Screen):
                                 with open('/etc/enigma2/bouquets.tv', 'a') as outfile:
                                     outfile.write('#SERVICE 1:7:1:0:0:0:0:0:0:0:FROM BOUQUET "%s" ORDER BY bouquet\r\n' % bqtname)
                                     outfile.close()
-                    self.mbox = self.session.open(openMessageBox, _('Shuffle Favorite List in Progress') + '\n' + _('Wait please ...'), openMessageBox.TYPE_INFO, timeout=5)
+                    self.mbox = self.session.open(MessageBox, _('Shuffle Favorite List in Progress') + '\n' + _('Wait please ...'), MessageBox.TYPE_INFO, timeout=5)
                     ReloadBouquet()
                 else:
-                    self.session.open(openMessageBox, _('Conversion Failed!!!'), openMessageBox.TYPE_INFO, timeout=5)
+                    self.session.open(MessageBox, _('Conversion Failed!!!'), MessageBox.TYPE_INFO, timeout=5)
                     return
             except Exception as e:
                 print('error convert iptv ',e)
@@ -1095,14 +786,14 @@ class ChannelList(Screen):
         if idx == -1 or None or '':
             return
         if self.downloading == True:
-            self.session.open(openMessageBox, _('You are already downloading!!!'), openMessageBox.TYPE_INFO, timeout=5)
+            self.session.open(MessageBox, _('You are already downloading!!!'), MessageBox.TYPE_INFO, timeout=5)
         else:
             if '.mp4' in urlm3u or '.mkv' in urlm3u or '.flv' in urlm3u or '.avi' in urlm3u :
                 self.downloading = True
-                self.session.openWithCallback(self.download_m3u, openMessageBox, _("DOWNLOAD VIDEO?" ) , type=openMessageBox.TYPE_YESNO, timeout = 10, default = False)
+                self.session.openWithCallback(self.download_m3u, MessageBox, _("DOWNLOAD VIDEO?" ) , type=MessageBox.TYPE_YESNO, timeout = 10, default = False)
             else:
                 self.downloading = False
-                self.session.open(openMessageBox, _('Only VOD Movie allowed or not .ext Filtered!!!'), openMessageBox.TYPE_INFO, timeout=5)
+                self.session.open(MessageBox, _('Only VOD Movie allowed or not .ext Filtered!!!'), MessageBox.TYPE_INFO, timeout=5)
 
     def download_m3u(self, result):
         if result:
@@ -1130,7 +821,7 @@ class ChannelList(Screen):
                     self.download.start().addCallback(self.check).addErrback(self.showError)
                 else:
                     self.downloading = False
-                    self.session.open(openMessageBox, _('Download Failed!!!'), openMessageBox.TYPE_INFO, timeout=5)
+                    self.session.open(MessageBox, _('Download Failed!!!'), MessageBox.TYPE_INFO, timeout=5)
                     pass
                 return
             except Exception as e:
@@ -1154,7 +845,7 @@ class ChannelList(Screen):
 
     def showError(self, error):
         self.downloading = False
-        self.session.open(openMessageBox, _('Download Failed!!!'), openMessageBox.TYPE_INFO, timeout=5)
+        self.session.open(MessageBox, _('Download Failed!!!'), MessageBox.TYPE_INFO, timeout=5)
         print('ChannelList DownloadError')
 
     def downlist(self):
@@ -1184,12 +875,9 @@ class ChannelList(Screen):
 
         except Exception as e:
             print('errore e : ', e)
-            # self.mbox = self.session.open(openMessageBox, _('DOWNLOAD ERROR'), openMessageBox.TYPE_INFO, timeout=5)
+            # self.mbox = self.session.open(MessageBox, _('DOWNLOAD ERROR'), MessageBox.TYPE_INFO, timeout=5)
         return
 
-
-#EXTINF:-1 tvg-id="ITAJ4500019R9" tvg-chno="4002" tvg-logo="https://tvpmlogopeu.samsungcloud.tv/platform/image/sourcelogo/vc/70/02/32/ITAJ4500019R9_20210923T010508.png" group-title="Film",Commedia - Rakuten TV
-#https://b88478e868cf4297904debbdc3ad1c23.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/Samsung-it_RakutenComedyMovies/playlist.m3u8?ads.wurl_channel=444&ads.wurl_name=RakutenComedyMovies&ads.psid=%7BPSID%7D&ads.targetopt=%7BTARGETOPT%7D&ads.app_domain=%7BAPP_DOMAIN%7D&ads.app_name=%7BAPP_NAME%7D&ads.coppa=0&ads.consent=%7BTC_STRING%7D
     def playList(self):
         global search_ok
         search_ok = False
@@ -1207,9 +895,7 @@ class ChannelList(Screen):
                 # if "#EXTM3U" and 'tvg-logo' in fpage:
                 if 'tvg-logo="http' in fpage:
                     print('tvg-logo in fpage: True')
-                    
                     #EXTINF:-1 tvg-id="externallinearfeed-04-21-2020-213519853-04-21-2020" tvg-logo="https://3gz8cg829c.execute-api.us-west-2.amazonaws.com/prod/image-renderer/16x9/full/600/center/90/5086119a-3424-4a9d-afc9-07cdcd962d4b-large16x9_STIRR_0721_EPG_MavTV_1920x1080.png?1625778769447?cb=c4ca4238a0b923820dcc509a6f75849b",MavTv
-
                     regexcat = 'EXTINF.*?tvg-logo="(.*?)".*?,(.*?)\\n(.*?)\\n'
                     match = re.compile(regexcat, re.DOTALL).findall(fpage)
                     for pic, name, url in match:
@@ -1226,7 +912,6 @@ class ChannelList(Screen):
                                 pic = pic
                             else:
                                 pic = pic + '.png'
-                                
                             item = name + "###" + url + "###" + pic
                             print('url-name Items sort: ', item)
                             items.append(item)
@@ -1312,7 +997,7 @@ class ChannelList(Screen):
     def pinEntered2(self, result):
         if not result:
             self.pin = False
-            self.session.open(openMessageBox, _("The pin code you entered is wrong."), type=openMessageBox.TYPE_ERROR, timeout=5)
+            self.session.open(MessageBox, _("The pin code you entered is wrong."), type=MessageBox.TYPE_ERROR, timeout=5)
         self.runChannel2()
 
     def runChannel2(self):
@@ -1370,23 +1055,6 @@ class ChannelList(Screen):
         self[self.currentList].pageDown()
         self.load_poster()
 
-    # def load_poster(self):
-        # idx = self['list'].getSelectionIndex()
-        
-        # pixmaps = self.pics[idx]        
-        # if pixmaps.startswith('http'):
-            # pixmaps = self.pics[idx]  
-        # else:
-            # pixmaps = defpic 
-        # # if six.PY3:
-            # # pixmaps = six.ensure_binary(pixmaps)
-        # print('pic xxxxxxxxxxxxx', pixmaps)    
-        
-        # path = urlparse(pixmaps).path
-        # ext = splitext(path)[1]
-        # pictmp = '/tmp/posterst' + str(ext)
-        # if fileExists(pictmp):
-            # pictmp = '/tmp/posterst' + str(ext)
     def load_poster(self):
         idx = self['list'].getSelectionIndex()
         pic = self.pics[idx] 
@@ -1400,19 +1068,11 @@ class ChannelList(Screen):
                 if six.PY3:
                     pixmaps = six.ensure_binary(pixmaps)
                 print('pic xxxxxxxxxxxxx', pixmaps)    
-                
-            
                 path = urlparse(pixmaps).path
                 ext = splitext(path)[1]
                 pictmp = '/tmp/posterst' + str(ext)
                 if fileExists(pictmp):
                     pictmp = '/tmp/posterst' + str(ext)
-                    
-            # else:
-                # import hashlib
-                # m = hashlib.md5()
-                # m.update(pixmaps)
-                # pictmp = m.hexdigest()
                 try:
                     if pixmaps.startswith(b"https") and sslverify:
                         parsed_uri = urlparse(pixmaps)
@@ -1420,7 +1080,6 @@ class ChannelList(Screen):
                         sniFactory = SNIFactory(domain)
                         if six.PY3:
                             pixmaps = six.ensure_binary(pixmaps)
-                    
                         # if six.PY3:
                             # pixmaps = pixmaps.encode()
                         print('uurrll: ', pixmaps)
@@ -1434,10 +1093,7 @@ class ChannelList(Screen):
 
     def downloadError(self, raw):
         try:
-            # if fileExists(pictmp):
-                # self.poster_resize(pictmp)
-            # else:
-                self.poster_resize(defpic)                
+            self.poster_resize(defpic)                
         except Exception as ex:
             print(ex)
             print('exe downloadError')
@@ -1631,7 +1287,7 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
             self.session.open(IMDB, HHHHH)
         else:
             text_clear = self.name
-            self.session.open(openMessageBox, text_clear, openMessageBox.TYPE_INFO)
+            self.session.open(MessageBox, text_clear, MessageBox.TYPE_INFO)
 
     def slinkPlay(self, url):
         ref = str(url)
@@ -1722,7 +1378,6 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
         self.close()
 
 class AddIpvStream(Screen):
-
     def __init__(self, session, name, url):
         self.session = session
         skin = skin_fold + '/AddIpvStream.xml'
@@ -1993,7 +1648,7 @@ class OpenConfig(Screen, ConfigListScreen):
 
         def save(self):
             if not os.path.exists(config.plugins.stvcl.pthm3uf.value):
-                self.mbox = self.session.open(openMessageBox, _('M3u list folder not detected!'), openMessageBox.TYPE_INFO, timeout=4)
+                self.mbox = self.session.open(MessageBox, _('M3u list folder not detected!'), MessageBox.TYPE_INFO, timeout=4)
                 return
             if self['config'].isChanged():
                 for x in self['config'].list:
@@ -2001,7 +1656,7 @@ class OpenConfig(Screen, ConfigListScreen):
                 configfile.save()
                 plugins.clearPluginList()
                 plugins.readPluginList(resolveFilename(SCOPE_PLUGINS))
-                self.mbox = self.session.open(openMessageBox, _('Settings saved correctly!'), openMessageBox.TYPE_INFO, timeout=5)
+                self.mbox = self.session.open(MessageBox, _('Settings saved correctly!'), MessageBox.TYPE_INFO, timeout=5)
                 self.close()
             else:
                 self.close()
@@ -2025,175 +1680,18 @@ class OpenConfig(Screen, ConfigListScreen):
 
         def extnok(self):
             if self['config'].isChanged():
-                self.session.openWithCallback(self.cancelConfirm, openMessageBox, _('Really close without saving the settings?'))
+                self.session.openWithCallback(self.cancelConfirm, MessageBox, _('Really close without saving the settings?'))
             else:
                 self.close()
 
-class openMessageBox(Screen):
-    TYPE_YESNO = 0
-    TYPE_INFO = 1
-    TYPE_WARNING = 2
-    TYPE_ERROR = 3
-    TYPE_MESSAGE = 4
-
-    def __init__(self, session, text, type = TYPE_YESNO, timeout = -1, close_on_any_key = False, default = True, enable_input = True, msgBoxID = None, picon = None, simple = False, list = [], timeout_default = None):
-        self.type = type
-        self.session = session
-        skin = skin_fold + '/OpenMessageBox.xml'
-        f = open(skin, 'r')
-        self.skin = f.read()
-        f.close()
-        Screen.__init__(self, session)
-        self.msgBoxID = msgBoxID
-        self['text'] = Label(text)
-        self['Text'] = StaticText(text)
-        self['selectedChoice'] = StaticText()
-        self.text = text
-        self.close_on_any_key = close_on_any_key
-        self.timeout_default = timeout_default
-        self['ErrorPixmap'] = Pixmap()
-        self['QuestionPixmap'] = Pixmap()
-        self['InfoPixmap'] = Pixmap()
-        self['WarningPixmap'] = Pixmap()
-        self.timerRunning = False
-        self.initTimeout(timeout)
-        picon = picon or type
-        if picon != self.TYPE_ERROR:
-                self['ErrorPixmap'].hide()
-        if picon != self.TYPE_YESNO:
-                self['QuestionPixmap'].hide()
-        if picon != self.TYPE_INFO:
-                self['InfoPixmap'].hide()
-        if picon != self.TYPE_WARNING:
-                self['WarningPixmap'].hide()
-        self.title = self.type < self.TYPE_MESSAGE and [_('Question'),
-         _('Information'),
-         _('Warning'),
-         _('Error')][self.type] or _('Message')
-        if type == self.TYPE_YESNO:
-            if list:
-                self.list = list
-            elif default == True:
-                self.list = [(_('Yes'), True), (_('No'), False)]
-            else:
-                self.list = [(_('No'), False), (_('Yes'), True)]
-        else:
-            self.list = []
-        self['list'] = MenuList(self.list)
-
-        if self.list:
-            self['selectedChoice'].setText(self.list[0][0])
-        else:
-            self['list'].hide()
-        if enable_input:
-            self['actions'] = ActionMap(['MsgBoxActions', 'DirectionActions'], {'cancel': self.cancel,
-             'ok': self.ok,
-             'alwaysOK': self.alwaysOK,
-             'up': self.up,
-             'down': self.down,
-             'left': self.left,
-             'right': self.right,
-             'upRepeated': self.up,
-             'downRepeated': self.down,
-             'leftRepeated': self.left,
-             'rightRepeated': self.right}, -1)
-        self.onLayoutFinish.append(self.layoutFinished)
-
-    def layoutFinished(self):
-        self.setTitle(self.title)
-
-    def initTimeout(self, timeout):
-        self.timeout = timeout
-        if timeout > 0:
-            self.timer = eTimer()
-            if os.path.exists('/var/lib/dpkg/status'):
-                self.timer_conn = self.timer.timeout.connect(self.timerTick)
-            else:
-                self.timer.callback.append(self.timerTick)
-            self.onExecBegin.append(self.startTimer)
-            self.origTitle = None
-            if self.execing:
-                self.timerTick()
-            else:
-                self.onShown.append(self.__onShown)
-            self.timerRunning = True
-        else:
-            self.timerRunning = False
-        return
-
-    def __onShown(self):
-        self.onShown.remove(self.__onShown)
-        self.timerTick()
-
-    def startTimer(self):
-            self.timer.start(1000)
-
-    def stopTimer(self):
-        if self.timerRunning:
-            del self.timer
-            self.onExecBegin.remove(self.startTimer)
-            self.setTitle(self.origTitle)
-            self.timerRunning = False
-
-    def timerTick(self):
-        if self.execing:
-            self.timeout -= 1
-            if self.origTitle is None:
-                self.origTitle = self.instance.getTitle()
-            self.setTitle(self.origTitle + ' (' + str(self.timeout) + ')')
-            if self.timeout == 0:
-                self.timer.stop()
-                self.timerRunning = False
-                self.timeoutCallback()
-        return
-
-    def timeoutCallback(self):
-        if self.timeout_default != None:
-            self.close(self.timeout_default)
-        else:
-            self.ok()
-        return
-
-    def cancel(self):
-        self.close(False)
-
-    def ok(self):
-        if self.list:
-            self.close(self['list'].getCurrent()[1])
-        else:
-            self.close(True)
-
-    def alwaysOK(self):
-        self.close(True)
-
-    def up(self):
-        self.move(self['list'].instance.moveUp)
-
-    def down(self):
-        self.move(self['list'].instance.moveDown)
-
-    def left(self):
-        self.move(self['list'].instance.pageUp)
-
-    def right(self):
-        self.move(self['list'].instance.pageDown)
-
-    def move(self, direction):
-        if self.close_on_any_key:
-            self.close(True)
-        self['list'].instance.moveSelection(direction)
-        if self.list:
-            self['selectedChoice'].setText(self['list'].getCurrent()[0])
-        self.stopTimer()
-
-    def __repr__(self):
-        return str(type(self)) + '(' + self.text + ')'
 
 def checks():
+    from Plugins.Extensions.stvcl.Utils import checkInternet
+    checkInternet()
     chekin= False
     if checkInternet():
-            chekin = True
-    return
+        chekin = True
+    return chekin
 
 def main(session, **kwargs):
     if checks:
@@ -2202,7 +1700,6 @@ def main(session, **kwargs):
            upd_done()
         except:       
                pass
-               
         add_skin_font()
         session.open(OpenScript)
     else:
@@ -2229,65 +1726,3 @@ def Plugins(**kwargs):
     if config.plugins.stvcl.strtmain.value:
         result.append(mainDescriptor)
     return result
-
-def charRemove(text):
-    char = ["1080p",
-     "2018",
-     "2019",
-     "2020",
-     "2021",
-     "480p",
-     "4K",
-     "720p",
-     "ANIMAZIONE",
-     "APR",
-     "AVVENTURA",
-     "BIOGRAFICO",
-     "BDRip",
-     "BluRay",
-     "CINEMA",
-     "COMMEDIA",
-     "DOCUMENTARIO",
-     "DRAMMATICO",
-     "FANTASCIENZA",
-     "FANTASY",
-     "FEB",
-     "GEN",
-     "GIU",
-     "HDCAM",
-     "HDTC",
-     "HDTS",
-     "LD",
-     "MAFIA",
-     "MAG",
-     "MARVEL",
-     "MD",
-     "ORROR",
-     "NEW_AUDIO",
-     "POLIZ",
-     "R3",
-     "R6",
-     "SD",
-     "SENTIMENTALE",
-     "TC",
-     "TEEN",
-     "TELECINE",
-     "TELESYNC",
-     "THRILLER",
-     "Uncensored",
-     "V2",
-     "WEBDL",
-     "WEBRip",
-     "WEB",
-     "WESTERN",
-     "-",
-     "_",
-     ".",
-     "+",
-     "[",
-     "]"]
-
-    myreplace = text
-    for ch in char:
-            myreplace = myreplace.replace(ch, "").replace("  ", " ").replace("       ", " ").strip()
-    return myreplace

@@ -46,6 +46,8 @@ plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/'
 defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
 skin_path = plugin_path
 res_plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/")
+
+
 HD = getDesktop(0).size()
 if HD.width() > 1280:
     skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/skins/fhd/")
