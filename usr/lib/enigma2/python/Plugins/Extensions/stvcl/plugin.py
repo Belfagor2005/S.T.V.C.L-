@@ -3,7 +3,7 @@
 #--------------------#
 #  coded by Lululla	 #
 #	skin by MMark	 #
-#	  19/11/2021	 #
+#	  24/11/2021	 #
 #--------------------#
 #Info http://t.me/tivustream
 from __future__ import print_function
@@ -12,7 +12,7 @@ from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.ConfigList import *
-from Components.HTMLComponent import HTMLComponent
+# from Components.HTMLComponent import HTMLComponent
 from Components.Input import Input
 from Components.Label import Label
 from Components.MenuList import MenuList
@@ -99,10 +99,10 @@ if sys.version_info >= (2, 7, 9):
 	except:
 		sslContext = None
 
-global Path_Movies, defpic, skin_fold
+global Path_Movies, defpic, skin_path
 
 currversion = '1.2'
-Version = currversion + ' - 10.11.2021'
+Version = currversion + ' - 24.11.2021'
 title_plug = '..:: S.T.V.C.L. V.%s ::..' % Version
 name_plug = 'Smart Tv Channels List'
 plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
@@ -112,36 +112,12 @@ dir_enigma2 = '/etc/enigma2/'
 service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 134) || (type == 195)'
 res_plugin_fold=plugin_fold + '/res/'
 defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
+dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blankL.png'))
 #================
 def add_skin_font():
     font_path = plugin_fold + '/res/fonts/'
     # addFont(font_path + 'verdana_r.ttf', 'OpenFont1', 100, 1)
     addFont(font_path + 'verdana_r.ttf', 'OpenFont2', 100, 1)
-
-def make_request(url):
-    try:
-        import requests
-        link = requests.get(url, headers = {'User-Agent': 'Mozilla/5.0'}).text
-        print('link1: ', link)
-        return link
-    except ImportError:
-        req = Request(url)
-        req.add_header('User-Agent',RequestAgent())
-        response = urlopen(req, None, 3)
-        link = response.read()
-        response.close()
-        print('link2: ', link)
-        return link
-    except:
-        e = URLError
-        print('We failed to open "%s".' % url)
-        if hasattr(e, 'code'):
-            print('We failed with error code - %s.' % e.code)
-        if hasattr(e, 'reason'):
-            print('We failed to reach a server.')
-            print('Reason: ', e.reason)
-        return
-    return
 
 try:
     from OpenSSL import SSL
@@ -192,11 +168,11 @@ config.plugins.stvcl.strtext                = ConfigYesNo(default=True)
 config.plugins.stvcl.strtmain               = ConfigYesNo(default=True)
 config.plugins.stvcl.thumb                  = ConfigYesNo(default=False)
 config.plugins.stvcl.thumbpic               = ConfigYesNo(default=False)
-tvstrvl = config.plugins.stvcl.cachefold.value + "stvcl"
-tmpfold = config.plugins.stvcl.cachefold.value + "stvcl/tmp"
-picfold = config.plugins.stvcl.cachefold.value + "stvcl/pic"
+tvstrvl = str(config.plugins.stvcl.cachefold.value) + "stvcl"
+tmpfold = str(config.plugins.stvcl.cachefold.value) + "stvcl/tmp"
+picfold = str(config.plugins.stvcl.cachefold.value) + "stvcl/pic"
 
-Path_Movies = str(config.plugins.stvcl.pthm3uf.value) #+ "/"
+Path_Movies = str(config.plugins.stvcl.pthm3uf.value)
 if Path_Movies.endswith("\/\/"):
     Path_Movies = Path_Movies[:-1]
 print('patch movies: ', Path_Movies)
@@ -209,13 +185,13 @@ if not os.path.exists(picfold):
     os.system("mkdir " + picfold)
 
 if isFHD():
-    skin_fold=res_plugin_fold + 'skins/fhd/'
+    skin_path=res_plugin_fold + 'skins/fhd/'
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
 else:
-    skin_fold=res_plugin_fold + 'skins/hd/'
+    skin_path=res_plugin_fold + 'skins/hd/'
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
 if os.path.exists('/var/lib/dpkg/status'):
-    skin_fold=skin_fold + 'dreamOs/'
+    skin_path=skin_path + 'dreamOs/'
 
 def m3ulistEntry(download):
     res = [download]
@@ -279,7 +255,7 @@ Panel_list = [
 class OpenScript(Screen):
     def __init__(self, session):
         self.session = session
-        skin = skin_fold + '/OpenScript.xml'
+        skin = skin_path + '/OpenScript.xml'
         f = open(skin, 'r')
         self.skin = f.read()
         # f.close()
@@ -389,16 +365,16 @@ class OpenScript(Screen):
 class ListM3u1(Screen):
     def __init__(self, session, namem3u, url):
         self.session = session
-        skin = skin_fold + '/ListM3u.xml'
+        skin = skin_path + '/ListM3u.xml'
         f = open(skin, 'r')
         self.skin = f.read()
         # f.close()
         Screen.__init__(self, session)
         self.list = []
         self['list'] = tvList([])
-        global srefInit
+        global SREF
         self.initialservice = self.session.nav.getCurrentlyPlayingServiceReference()
-        srefInit = self.initialservice
+        SREF = self.initialservice
         self['title'] = Label(title_plug + ' ' + namem3u)
         self['Maintainer2'] = Label('%s' % Maintainer2)
         self['progress'] = ProgressBar()
@@ -440,29 +416,32 @@ class ListM3u1(Screen):
     def openList(self):
         self.names = []
         self.urls = []
-        content = make_request(self.url)
+        content = ReadUrl(self.url)
         if six.PY3:
             content = six.ensure_str(content)
         print('content: ',content)
-        regexvideo = '<a href="(.*?)">'
-        match = re.compile(regexvideo, re.DOTALL).findall(content)
-        print('ListM3u match = ', match)
-        items = []
-        for url in match:
-            if '..' in url:
-                continue
-            name = url.replace('/', '')
-            url = self.url + url + '/'
-            # item = name + "###" + url
-            # print('ListM3u url-name Items sort: ', item)
-            # items.append(item)
-        # items.sort()
-        # for item in items:
-            # name = item.split('###')[0]
-            # url = item.split('###')[1]
-            self.names.append(checkStr(name))
-            self.urls.append(checkStr(url))
-        m3ulist(self.names, self['list'])
+        try:
+            regexvideo = '<a href="(.*?)">'
+            match = re.compile(regexvideo, re.DOTALL).findall(content)
+            print('ListM3u match = ', match)
+            items = []
+            for url in match:
+                if '..' in url:
+                    continue
+                name = url.replace('/', '')
+                url = self.url + url + '/'
+                # item = name + "###" + url
+                # print('ListM3u url-name Items sort: ', item)
+                # items.append(item)
+            # items.sort()
+            # for item in items:
+                # name = item.split('###')[0]
+                # url = item.split('###')[1]
+                self.names.append(checkStr(name))
+                self.urls.append(checkStr(url))
+            m3ulist(self.names, self['list'])
+        except Exception as e:
+            print('errore e : ', e)
 
     def runList(self):
         idx = self["list"].getSelectionIndex()
@@ -479,16 +458,16 @@ class ListM3u1(Screen):
 class ListM3u(Screen):
     def __init__(self, session, namem3u, url):
         self.session = session
-        skin = skin_fold + '/ListM3u.xml'
+        skin = skin_path + '/ListM3u.xml'
         f = open(skin, 'r')
         self.skin = f.read()
         # f.close()
         Screen.__init__(self, session)
         self.list = []
         self['list'] = tvList([])
-        global srefInit
+        global SREF
         self.initialservice = self.session.nav.getCurrentlyPlayingServiceReference()
-        srefInit = self.initialservice
+        SREF = self.initialservice
         self['title'] = Label(title_plug + ' ' + namem3u)
         self['Maintainer2'] = Label('%s' % Maintainer2)
         self['progress'] = ProgressBar()
@@ -530,31 +509,34 @@ class ListM3u(Screen):
     def openList(self):
         self.names = []
         self.urls = []
-        content = make_request(self.url)
+        content = ReadUrl(self.url)
         if six.PY3:
             content = six.ensure_str(content)
         print('content: ',content)
         #<a href="br.xml.gz">br.xml.gz</a>  21-Oct-2021 07:05   108884
         #<a href="raw-radio.m3u8">raw-radio.m3u8</a>    22-Oct-2021 06:08   9639
-        regexvideo = '<a href="(.*?)">.*?</a>.*?-(.*?)-(.*?) '
-        match = re.compile(regexvideo, re.DOTALL).findall(content)
-        print('ListM3u match = ', match)
-        items = []
-        for url, mm, aa in match:
-            if '.m3u8' in url:
-                name = url.replace('.m3u8', '')
-                name = name + ' ' + mm + '-' + aa
-                url = self.url + url
-                item = name + "###" + url
-                print('ListM3u url-name Items sort: ', item)
-                items.append(item)
-        items.sort()
-        for item in items:
-            name = item.split('###')[0]
-            url = item.split('###')[1]
-            self.names.append(checkStr(name))
-            self.urls.append(checkStr(url))
-        m3ulist(self.names, self['list'])
+        try:
+            regexvideo = '<a href="(.*?)">.*?</a>.*?-(.*?)-(.*?) '
+            match = re.compile(regexvideo, re.DOTALL).findall(content)
+            print('ListM3u match = ', match)
+            items = []
+            for url, mm, aa in match:
+                if '.m3u8' in url:
+                    name = url.replace('.m3u8', '')
+                    name = name + ' ' + mm + '-' + aa
+                    url = self.url + url
+                    item = name + "###" + url
+                    print('ListM3u url-name Items sort: ', item)
+                    items.append(item)
+            items.sort()
+            for item in items:
+                name = item.split('###')[0]
+                url = item.split('###')[1]
+                self.names.append(checkStr(name))
+                self.urls.append(checkStr(url))
+            m3ulist(self.names, self['list'])
+        except Exception as e:
+            print('errore e : ', e)
 
     def runList(self):
         idx = self["list"].getSelectionIndex()
@@ -571,7 +553,7 @@ class ListM3u(Screen):
 class ChannelList(Screen):
     def __init__(self, session, name, url ):
         self.session = session
-        skin = skin_fold + '/ChannelList.xml'
+        skin = skin_path + '/ChannelList.xml'
         f = open(skin, 'r')
         self.skin = f.read()
         # f.close()
@@ -1380,7 +1362,7 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
 class AddIpvStream(Screen):
     def __init__(self, session, name, url):
         self.session = session
-        skin = skin_fold + '/AddIpvStream.xml'
+        skin = skin_path + '/AddIpvStream.xml'
         f = open(skin, 'r')
         self.skin = f.read()
         f.close()
@@ -1493,7 +1475,7 @@ class AddIpvStream(Screen):
 
 class OpenConfig(Screen, ConfigListScreen):
         def __init__(self, session):
-            skin = skin_fold + '/OpenConfig.xml'
+            skin = skin_path + '/OpenConfig.xml'
             f = open(skin, 'r')
             self.skin = f.read()
             f.close()
@@ -1684,7 +1666,6 @@ class OpenConfig(Screen, ConfigListScreen):
             else:
                 self.close()
 
-
 def checks():
     from Plugins.Extensions.stvcl.Utils import checkInternet
     checkInternet()
@@ -1717,7 +1698,7 @@ def cfgmain(menuid):
 def Plugins(**kwargs):
     piclogox = 'logo.png'
     if not os.path.exists('/var/lib/dpkg/status'):
-        piclogox = skin_fold + '/logo.png'
+        piclogox = skin_path + '/logo.png'
     extDescriptor = PluginDescriptor(name=name_plug, description=_(title_plug), where=PluginDescriptor.WHERE_EXTENSIONSMENU, icon=piclogox, fnc=main)
     mainDescriptor = PluginDescriptor(name=name_plug, description=_(title_plug), where=PluginDescriptor.WHERE_MENU, icon=piclogox, fnc=cfgmain)
     result = [PluginDescriptor(name=name_plug, description=_(title_plug), where=[PluginDescriptor.WHERE_PLUGINMENU], icon=piclogox, fnc=main)]

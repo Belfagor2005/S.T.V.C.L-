@@ -22,6 +22,7 @@ from Screens.Screen import Screen
 from Components.Label import Label
 from Components.config import config
 from Components.Button import Button
+from enigma import eTimer, eActionMap
 from Components.MenuList import MenuList
 from Components.Sources.List import List
 from Screens.MessageBox import MessageBox
@@ -31,7 +32,6 @@ from six.moves.urllib.request import Request
 from Screens.InfoBar import MoviePlayer, InfoBar
 from Components.ActionMap import NumberActionMap
 from time import time, localtime, strftime, sleep
-from enigma import eTimer, eActionMap, getDesktop
 from Components.Pixmap import Pixmap, MovingPixmap
 from Components.Sources.StaticText import StaticText
 from six.moves.urllib.error import HTTPError, URLError
@@ -40,16 +40,9 @@ from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
 from enigma import iServiceInformation, iPlayableService, eServiceReference
 from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarNotifications, \
     InfoBarSubtitleSupport, InfoBarSummarySupport, InfoBarServiceErrorPopupSupport, InfoBarMoviePlayerSummarySupport
-global defpic, dblank, skin_path, tmpfold, picfold
-plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/stvcl/'
-# plugin_path    = os.path.dirname(sys.modules[__name__].__file__)
-defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
-skin_path = plugin_path
-res_plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/")
-
-
-HD = getDesktop(0).size()
-if HD.width() > 1280:
+from Plugins.Extensions.stvcl.Utils import *
+plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
+if isFHD():
     skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/skins/fhd/")
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
     dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blankL.png'))
@@ -65,85 +58,17 @@ try:
 except:
     import Image
     
-def checkStr(txt):
-    if six.PY3:
-        if isinstance(txt, type(bytes())):
-            txt = txt.decode('utf-8')
-    else:
-        if isinstance(txt, type(six.text_type())):
-            txt = txt.encode('utf-8')
-    return txt
-
-def checkInternet():
-    try:
-        socket.setdefaulttimeout(0.5)
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(("8.8.8.8", 53))
-        return True
-    except:
-        return False
-
-def make_request(url):
-    try:
-        import requests
-        link = requests.get(url, headers = {'User-Agent': 'Mozilla/5.0'}).text
-        return link
-    except ImportError:
-        req = Request(url)
-        req.add_header('User-Agent', 'TVS')
-        response = urlopen(req, None, 3)
-        link = response.read()
-        response.close()
-        return link
-    except:
-        e = URLError
-        print('We failed to open "%s".' % url)
-        if hasattr(e, 'code'):
-            print('We failed with error code - %s.' % e.code)
-        if hasattr(e, 'reason'):
-            print('We failed to reach a server.')
-            print('Reason: ', e.reason)
-        return
-    return
-
-def getUrl(url):
-    try:
-        req = Request(url)
-        req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:52.0) Gecko/20100101 Firefox/52.0')
-        response = urlopen(req)
-        link = response.read()
-        response.close()
-        print("link =", link)
-        return link
-    except:
-        e = URLError #, e:
-        print('We failed to open "%s".' % url)
-        if hasattr(e, 'code'):
-            print('We failed with error code - %s.' % e.code)
-        if hasattr(e, 'reason'):
-            print('We failed to reach a server.')
-            print('Reason: ', e.reason)
-
-def getUrl2(url, referer):
-    req = Request(url)
-    req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-    req.add_header('Referer', referer)
-    response = urlopen(req)
-    link=response.read()
-    response.close()
-    return link
-
 def getpics(names, pics, tmpfold, picfold):
     global defpic
     defpic = defpic
     print("In getpics tmpfold =", tmpfold)
     print("In getpics picfold =", picfold)
-    if HD.width() > 1280:
+    if isFHD():
         nw = 300
     else:
         nw = 200
     pix = []
     if config.plugins.stvcl.thumbpic.value == False:
-
         npic = len(pics)
         i = 0
         while i < npic:
@@ -185,7 +110,7 @@ def getpics(names, pics, tmpfold, picfold):
             print("In getpics fileExists(picf) cmd =", cmd)
             os.system(cmd)
         if not os.path.exists(picf):
-            if plugin_path in url:
+            if plugin_fold in url:
                 try:
                     cmd = "cp " + url + " " + tpicf
                     print("In getpics not fileExists(picf) cmd =", cmd)
@@ -220,7 +145,7 @@ def getpics(names, pics, tmpfold, picfold):
             os.system(cmd)
         try:
 
-            if HD.width() > 1280:
+            if isFHD():
                 nw = 220
             else:
                 nw = 150
@@ -251,7 +176,7 @@ def getpics(names, pics, tmpfold, picfold):
 
 
 pos = []
-if HD.width() > 1000:
+if isFHD():
     pos.append([35,80])
     pos.append([395,80])
     pos.append([755,80])
@@ -323,9 +248,9 @@ class GridMain(Screen):
                 "down": self.key_down,
                 })
 
-        global srefInit
+        global SREF
         self.initialservice = self.session.nav.getCurrentlyPlayingServiceReference()
-        srefInit = self.initialservice
+        SREF = self.initialservice
         self.onLayoutFinish.append(self.openTest)
         # self.onShown.append(self.openTest)
 
@@ -359,14 +284,13 @@ class GridMain(Screen):
             self.minentry = (self.ipage-1)*10
             #self.index 0-11
             print("self.ipage , self.minentry, self.maxentry =", self.ipage, self.minentry, self.maxentry)
-
         elif self.ipage == self.npage:
             print("self.ipage , len(self.pics) =", self.ipage, len(self.pics))
             self.maxentry = len(self.pics) - 1
             self.minentry = (self.ipage-1)*10
             print("self.ipage , self.minentry, self.maxentry B=", self.ipage, self.minentry, self.maxentry)
             i1 = 0
-            blpic = dblank #plugin_path + "res/pics/Blank.png"
+            blpic = dblank #plugin_fold + "res/pics/Blank.png"
             while i1 < 12:
                 self["label" + str(i1+1)].setText(" ")
                 self["pixmap" + str(i1+1)].instance.setPixmapFromFile(blpic)
@@ -717,66 +641,4 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
 
     def leavePlayer(self):
         self.close()
-
-def charRemove(text):
-    char = ["1080p",
-     "2018",
-     "2019",
-     "2020",
-     "2021",
-     "480p",
-     "4K",
-     "720p",
-     "ANIMAZIONE",
-     "APR",
-     "AVVENTURA",
-     "BIOGRAFICO",
-     "BDRip",
-     "BluRay",
-     "CINEMA",
-     "COMMEDIA",
-     "DOCUMENTARIO",
-     "DRAMMATICO",
-     "FANTASCIENZA",
-     "FANTASY",
-     "FEB",
-     "GEN",
-     "GIU",
-     "HDCAM",
-     "HDTC",
-     "HDTS",
-     "LD",
-     "MAFIA",
-     "MAG",
-     "MARVEL",
-     "MD",
-     "ORROR",
-     "NEW_AUDIO",
-     "POLIZ",
-     "R3",
-     "R6",
-     "SD",
-     "SENTIMENTALE",
-     "TC",
-     "TEEN",
-     "TELECINE",
-     "TELESYNC",
-     "THRILLER",
-     "Uncensored",
-     "V2",
-     "WEBDL",
-     "WEBRip",
-     "WEB",
-     "WESTERN",
-     "-",
-     "_",
-     ".",
-     "+",
-     "[",
-     "]"]
-
-    myreplace = text
-    for ch in char:
-            myreplace = myreplace.replace(ch, "").replace("  ", " ").replace("       ", " ").strip()
-    return myreplace
 
