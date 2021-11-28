@@ -78,7 +78,8 @@ from six.moves.urllib.request import urlretrieve
 import six.moves.urllib.request
 from Plugins.Extensions.stvcl.getpics import GridMain
 from Plugins.Extensions.stvcl.getpics import getpics
-from Plugins.Extensions.stvcl.Utils import *
+# from Plugins.Extensions.stvcl.Utils import *
+from . import Utils
 try:
     import io
 except:
@@ -590,6 +591,9 @@ class ChannelList(Screen):
         search_ok = False
         self.name = name
         self.url = url
+        self.names = []
+        self.urls = []
+        self.pics = []        
         self['setupActions'] = ActionMap(['SetupActions', 'DirectionActions', 'ColorActions', 'MenuActions', 'TimerEditActions', 'InfobarInstantRecord'], {'red': self.cancel,
          # 'green': self.runRec,
          'menu': self.AdjUrlFavo,
@@ -614,6 +618,7 @@ class ChannelList(Screen):
 
     def __layoutFinished(self):
         # self.setTitle(self.setup_title)
+        sleep(3)
         if config.plugins.stvcl.thumb.value == False: 
             self.load_poster()
         
@@ -1041,7 +1046,7 @@ class ChannelList(Screen):
         idx = self['list'].getSelectionIndex()
         pic = self.pics[idx] 
         pixmaps = defpic     
-        if pic.find('http') == -1:
+        if pic and pic.find('http') == -1:
             self.poster_resize(defpic)
             return
         else:   
