@@ -40,7 +40,10 @@ from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
 from enigma import iServiceInformation, iPlayableService, eServiceReference
 from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarNotifications, \
     InfoBarSubtitleSupport, InfoBarSummarySupport, InfoBarServiceErrorPopupSupport, InfoBarMoviePlayerSummarySupport
-from Plugins.Extensions.stvcl.Utils import *
+try:
+    from Plugins.Extensions.stvcl.Utils import *
+except:
+    from . import Utils
 plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
 if isFHD():
     skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/skins/fhd/")
@@ -57,7 +60,16 @@ try:
     from PIL import Image
 except:
     import Image
-    
+
+def getDesktopSize():
+    from enigma import getDesktop
+    s = getDesktop(0).size()
+    return (s.width(), s.height())
+
+def isFHD():
+    desktopSize = getDesktopSize()
+    return desktopSize[0] == 1920
+
 def getpics(names, pics, tmpfold, picfold):
     global defpic
     defpic = defpic
@@ -148,7 +160,7 @@ def getpics(names, pics, tmpfold, picfold):
             if isFHD():
                 nw = 220
             else:
-                nw = 150
+                nw = 180
             if os.path.exists(tpicf):
                 try:
                     im = Image.open(tpicf)
