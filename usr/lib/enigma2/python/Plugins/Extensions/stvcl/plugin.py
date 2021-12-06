@@ -109,7 +109,7 @@ if sys.version_info >= (2, 7, 9):
 
 global Path_Movies, defpic, skin_path
 currversion = '1.2'
-Version = currversion + ' - 24.11.2021'
+Version = currversion + ' - 06.12.2021'
 title_plug = '..:: S.T.V.C.L. V.%s ::..' % Version
 name_plug = 'Smart Tv Channels List'
 plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
@@ -125,6 +125,16 @@ def add_skin_font():
     font_path = plugin_fold + '/res/fonts/'
     # addFont(font_path + 'verdana_r.ttf', 'OpenFont1', 100, 1)
     addFont(font_path + 'verdana_r.ttf', 'OpenFont2', 100, 1)
+
+def remove_line(filename, what):
+    if os.path.isfile(filename):
+        file_read = open(filename).readlines()
+        file_write = open(filename, 'w')
+        for line in file_read:
+            if what not in line:
+                file_write.write(line)
+        file_write.close()
+
 try:
     from OpenSSL import SSL
     from twisted.internet import ssl
@@ -256,7 +266,7 @@ def tvListEntry(name,png):
     return res
 
 Panel_list = [
- ('SMTVCL')
+ ('SMART TV CHANNELS LIST')
  ]
 
 class OpenScript(Screen):
@@ -316,7 +326,7 @@ class OpenScript(Screen):
     def keyNumberGlobalCB(self, idx):
         sel = self.menu_list[idx]
         url = ''
-        if sel == ("SMTVCL"):
+        if sel == ("SMART TV CHANNELS LIST"):
             url = 'http://i.mjh.nz/'
         else:
             return
@@ -423,9 +433,26 @@ class ListM3u1(Screen):
     def openList(self):
         self.names = []
         self.urls = []
-        content = ReadUrl(self.url)
-        if six.PY3:
-            content = six.ensure_str(content)
+        
+        if sys.version_info.major == 3:
+             import urllib.request as urllib2
+        elif sys.version_info.major == 2:
+             import urllib2
+        req = urllib2.Request(self.url)                      
+        req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')
+        r = urllib2.urlopen(req,None,15)
+        link = r.read()
+        r.close()
+        content = link
+        if str(type(content)).find('bytes') != -1:
+            try:
+                content = content.decode("utf-8")                
+            except Exception as e:                   
+                   print("Error: %s." % e)          
+        
+        # content = ReadUrl(self.url)
+        # if six.PY3:
+            # content = six.ensure_str(content)
         print('content: ',content)
         try:
             regexvideo = '<a href="(.*?)">'
@@ -516,9 +543,25 @@ class ListM3u(Screen):
     def openList(self):
         self.names = []
         self.urls = []
-        content = ReadUrl(self.url)
-        if six.PY3:
-            content = six.ensure_str(content)
+        
+        if sys.version_info.major == 3:
+             import urllib.request as urllib2
+        elif sys.version_info.major == 2:
+             import urllib2
+        req = urllib2.Request(self.url)                      
+        req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')
+        r = urllib2.urlopen(req,None,15)
+        link = r.read()
+        r.close()
+        content = link
+        if str(type(content)).find('bytes') != -1:
+            try:
+                content = content.decode("utf-8")                
+            except Exception as e:                   
+                   print("Error: %s." % e)          
+        # content = ReadUrl(self.url)
+        # if six.PY3:
+            # content = six.ensure_str(content)
         print('content: ',content)
         #<a href="br.xml.gz">br.xml.gz</a>  21-Oct-2021 07:05   108884
         #<a href="raw-radio.m3u8">raw-radio.m3u8</a>    22-Oct-2021 06:08   9639
@@ -590,11 +633,10 @@ class ChannelList(Screen):
         global in_tmp
         global search_ok
         global servicx
-        self.servicx = ''
+        self.servicx = 'gst'
         search_ok = False
         in_tmp = Path_Movies
         self.search = ''
-        search_ok = False
         self.name = name
         self.url = url
         self.names = []
@@ -623,11 +665,8 @@ class ChannelList(Screen):
         self.onLayoutFinish.append(self.__layoutFinished)
 
     def __layoutFinished(self):
-        # self.setTitle(self.setup_title)
-        sleep(3)
-        if config.plugins.stvcl.thumb.value == False:
-            self.load_poster()
-
+        pass
+        
     def message1(self):
         global servicx
         idx = self['list'].getSelectionIndex()
@@ -647,14 +686,16 @@ class ChannelList(Screen):
             self.session.openWithCallback(self.check10, MessageBox, _("Do you want to Convert Bouquet GSTREAMER?"), MessageBox.TYPE_YESNO)
 
     def check10(self, result):
-            global in_tmp, namebouquett
+        if result:
+            # global in_tmp, namebouquett
             print('in folder tmp : ', in_tmp)
             idx = self["list"].getSelectionIndex()
             if idx == -1 or None or '':
                 return
             self.convert = True
+            #userbouquet.it-dec-2021-amuse-animation.tv
             name = self.name + ' ' + self.names[idx]
-            namebouquett = name.replace(' ','-').strip()
+            namebouquett = self.name.replace(' ','_').replace('-','_').strip()
             print('namebouquett in folder tmp : ', namebouquett)
             try:
                 sleep(3)
@@ -710,11 +751,12 @@ class ChannelList(Screen):
                                     outfile.write('#SERVICE 1:7:1:0:0:0:0:0:0:0:FROM BOUQUET "%s" ORDER BY bouquet\r\n' % bqtname)
                                     outfile.close()
                     self.mbox = self.session.open(MessageBox, _('Shuffle Favorite List in Progress') + '\n' + _('Wait please ...'), MessageBox.TYPE_INFO, timeout=5)
-                    ReloadBouquet()
+                    ReloadBouquets()
                 else:
                     self.session.open(MessageBox, _('Conversion Failed!!!'), MessageBox.TYPE_INFO, timeout=5)
                     return
             except Exception as e:
+                self.convert = False
                 print('error convert iptv ',e)
 
     def cancel(self):
@@ -864,7 +906,7 @@ class ChannelList(Screen):
             # self.download = downloadWithProgress(urlm3u, in_tmp)
             # self.download.addProgress(self.downloadProgress)
             # self.download.start().addCallback(self.check).addErrback(self.showError)
-            print('ChannelList Downlist sleep 3 - 2')        # return
+            # print('ChannelList Downlist sleep 3 - 2')        # return
 
         except Exception as e:
             print('errore e : ', e)
@@ -956,8 +998,10 @@ class ChannelList(Screen):
                 #####
                 else:
                     m3ulist(self.names, self['list'])
-                    self.load_poster()
+                    # self.load_poster()
                     self["live"].setText('N.' + str(len(self.names)) + " Stream")
+                # if config.plugins.stvcl.thumb.value == False:
+                    self.load_poster()
 
 
         except Exception as ex:
