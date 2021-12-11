@@ -12,6 +12,7 @@ from __future__ import print_function
 from . import _
 from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
+from Components.config import *
 from Components.Button import Button
 from Components.ConfigList import ConfigListScreen
 # from Components.HTMLComponent import HTMLComponent
@@ -31,14 +32,13 @@ from Components.Sources.List import List
 from Components.Sources.Progress import Progress
 from Components.Sources.Source import Source
 from Components.Sources.StaticText import StaticText
-from Components.config import *
 from Plugins.Plugin import PluginDescriptor
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Console import Console
 from Screens.InfoBar import InfoBar
 from Screens.InfoBar import MoviePlayer
-from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, \
-    InfoBarSubtitleSupport, InfoBarNotifications
+from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarMoviePlayerSummarySupport, \
+    InfoBarSubtitleSupport, InfoBarSummarySupport, InfoBarServiceErrorPopupSupport, InfoBarNotifications
 from Screens.InputBox import InputBox
 from Screens.LocationBox import LocationBox
 from Screens.MessageBox import MessageBox
@@ -68,19 +68,17 @@ import os
 import re
 import shutil
 import six
-# import socket
 import ssl
 import sys
 import time
+
 from six.moves.urllib.request import urlopen
 from six.moves.urllib.request import Request
-# from six.moves.urllib.error import HTTPError
-# from six.moves.urllib.error import URLError
 from six.moves.urllib.parse import urlparse
 from six.moves.urllib.parse import quote
 from six.moves.urllib.parse import urlencode
-from six.moves.urllib.request import urlretrieve
-# import six.moves.urllib.request
+# from six.moves.urllib.request import urlretrieve
+
 from Plugins.Extensions.stvcl.getpics import GridMain
 from Plugins.Extensions.stvcl.getpics import getpics
 try:
@@ -113,7 +111,6 @@ Version = currversion + ' - 06.12.2021'
 title_plug = '..:: S.T.V.C.L. V.%s ::..' % Version
 name_plug = 'Smart Tv Channels List'
 plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
-# Credits = 'http://t.me/tivustream'
 Maintainer2 = 'Maintener @Lululla'
 dir_enigma2 = '/etc/enigma2/'
 service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 134) || (type == 195)'
@@ -126,14 +123,14 @@ def add_skin_font():
     # addFont(font_path + 'verdana_r.ttf', 'OpenFont1', 100, 1)
     addFont(font_path + 'verdana_r.ttf', 'OpenFont2', 100, 1)
 
-def remove_line(filename, what):
-    if os.path.isfile(filename):
-        file_read = open(filename).readlines()
-        file_write = open(filename, 'w')
-        for line in file_read:
-            if what not in line:
-                file_write.write(line)
-        file_write.close()
+# def remove_line(filename, what):
+    # if os.path.isfile(filename):
+        # file_read = open(filename).readlines()
+        # file_write = open(filename, 'w')
+        # for line in file_read:
+            # if what not in line:
+                # file_write.write(line)
+        # file_write.close()
 
 try:
     from OpenSSL import SSL
@@ -370,7 +367,11 @@ class OpenScript(Screen):
             # # self.download = downloadWithProgress(urlm3u, in_tmp)
             # # self.download.addProgress(self.downloadProgress)
             # # self.download.start().addCallback(self.check).addErrback(self.showError)
-            urlretrieve(urlm3u, in_tmp)
+            import requests
+            r = requests.get(urlm3u)
+            with open(in_tmp,'wb') as f:
+              f.write(r.content)
+            # urlretrieve(urlm3u, in_tmp)
             sleep(4)
             self.session.open(ListM3u1, namem3u, urlm3u)
         except Exception as e:
@@ -433,7 +434,6 @@ class ListM3u1(Screen):
     def openList(self):
         self.names = []
         self.urls = []
-        
         if sys.version_info.major == 3:
              import urllib.request as urllib2
         elif sys.version_info.major == 2:
@@ -900,7 +900,11 @@ class ChannelList(Screen):
             if os.path.isfile(in_tmp):
                 os.remove(in_tmp)
             print('path tmp : ', in_tmp)
-            urlretrieve(urlm3u, in_tmp)
+            import requests
+            r = requests.get(urlm3u)
+            with open(in_tmp,'wb') as f:
+              f.write(r.content)
+            # urlretrieve(urlm3u, in_tmp)
             sleep(7)
             self.playList()
             # self.download = downloadWithProgress(urlm3u, in_tmp)
@@ -1254,13 +1258,25 @@ class TvInfoBarShowHide():
     def debug(obj, text = ""):
         print(text + " %s\n" % obj)
 
-class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarSubtitleSupport, InfoBarNotifications, TvInfoBarShowHide, Screen):
+# class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarSubtitleSupport, InfoBarNotifications, TvInfoBarShowHide, Screen):
+class M3uPlay2(
+    InfoBarBase,
+    InfoBarMenu,
+    InfoBarSeek,
+    InfoBarAudioSelection,
+    InfoBarSubtitleSupport,
+    InfoBarNotifications,
+    TvInfoBarShowHide,
+    Screen
+):
     STATE_IDLE = 0
     STATE_PLAYING = 1
     STATE_PAUSED = 2
+    ENABLE_RESUME_SUPPORT = True
+    ALLOW_SUSPEND = True                                
     screen_timeout = 5000
     def __init__(self, session, name, url):
-        global SREF, streml
+        global SREF, streaml
         Screen.__init__(self, session)
         self.session = session
         self.skinName = 'MoviePlayer'
@@ -1297,7 +1313,11 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
          'stop': self.cancel,
          'cancel': self.cancel,
          'back': self.cancel}, -1)
-        self.url = url.replace(':', '%3a').replace(' ','%20')
+        self.allowPiP = False
+        self.service = None
+        service = None
+        self.url = url
+        self.pcip = 'None'
         self.name = decodeHtml(name)
         self.state = self.STATE_PLAYING
         SREF = self.session.nav.getCurrentlyPlayingServiceReference()
@@ -1376,8 +1396,7 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
             from Plugins.Extensions.IMDb.plugin import IMDB
             text_clear = self.name
             text = charRemove(text_clear)
-            HHHHH = text
-            self.session.open(IMDB, HHHHH)
+            self.session.open(IMDB, text)
         else:
             text_clear = self.name
             self.session.open(MessageBox, text_clear, MessageBox.TYPE_INFO)
@@ -1409,7 +1428,7 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
         global streaml
         streaml = False
         from itertools import cycle, islice
-        self.servicetype = str(config.plugins.stvcl.services.value) #+':0:1:0:0:0:0:0:0:0:'#  '4097'
+        self.servicetype = str(config.plugins.stvcl.services.value)
         print('servicetype1: ', self.servicetype)
         url = str(self.url)
         if str(os.path.splitext(self.url)[-1]) == ".m3u8":
