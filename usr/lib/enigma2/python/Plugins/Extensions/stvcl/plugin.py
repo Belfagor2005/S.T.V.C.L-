@@ -53,10 +53,16 @@ from Tools.LoadPixmap import LoadPixmap
 from enigma import *
 from enigma import RT_HALIGN_CENTER, RT_VALIGN_CENTER
 from enigma import RT_HALIGN_LEFT, RT_HALIGN_RIGHT
-from enigma import eSize, eListbox, eListboxPythonMultiContent, eServiceCenter, eServiceReference, iPlayableService
+from enigma import eListbox, eListboxPythonMultiContent 
 from enigma import eTimer
 from enigma import ePicLoad, gPixmapPtr
+from enigma import eServiceCenter
+from enigma import eServiceReference
+from enigma import eSize, ePicLoad
+from enigma import iServiceInformation
 from enigma import loadPNG, gFont
+from enigma import quitMainloop
+from enigma import iPlayableService 
 from os.path import splitext
 from sys import version_info
 from time import sleep
@@ -1114,7 +1120,7 @@ class ChannelList(Screen):
                 path = urlparse(pixmaps).path
                 ext = splitext(path)[1]
                 pictmp = '/tmp/posterst' + str(ext)
-                if fileExists(pictmp):
+                if os.path.exist(pictmp):
                     pictmp = '/tmp/posterst' + str(ext)
                 try:
                     if pixmaps.startswith(b"https") and sslverify:
@@ -1142,7 +1148,7 @@ class ChannelList(Screen):
             print('exe downloadError')
 
     def downloadPic(self, data, pictmp):
-        if fileExists(pictmp):
+        if os.path.exists(pictmp):
             try:
                 self.poster_resize(pictmp)
             except Exception as ex:
