@@ -47,7 +47,7 @@ from Screens.Screen import Screen
 from Screens.Standby import TryQuitMainloop, Standby
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 from ServiceReference import ServiceReference
-from Tools.Directories import SCOPE_PLUGINS, resolveFilename
+from Tools.Directories import SCOPE_PLUGINS, resolveFilename, fileExists
 from Tools.Downloader import downloadWithProgress
 from Tools.LoadPixmap import LoadPixmap
 from enigma import *
@@ -77,14 +77,24 @@ import six
 import ssl
 import sys
 import time
+PY3 = False
 
-from six.moves.urllib.request import urlopen
-from six.moves.urllib.request import Request
-from six.moves.urllib.parse import urlparse
-from six.moves.urllib.parse import quote
-from six.moves.urllib.parse import urlencode
-# from six.moves.urllib.request import urlretrieve
-
+try:
+    import http.cookiejar as cookielib
+    from urllib.parse import urlencode
+    from urllib.parse import quote
+    from urllib.parse import urlparse
+    from urllib.request import Request
+    from urllib.request import urlopen
+    PY3 = True; unicode = str; unichr = chr; long = int; xrange = range
+except:
+    import cookielib
+    from urllib import urlencode
+    from urllib import quote
+    from urlparse import urlparse
+    from urllib2 import Request
+    from urllib2 import urlopen
+      
 from Plugins.Extensions.stvcl.getpics import GridMain
 from Plugins.Extensions.stvcl.getpics import getpics
 try:
@@ -95,10 +105,7 @@ try:
     import io
 except:
     import StringIO
-try:
-    import http.cookiejar
-except:
-    import cookielib
+
 try:
     import httplib
 except:
@@ -124,19 +131,9 @@ res_plugin_fold=plugin_fold + '/res/'
 defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
 dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blankL.png'))
 #================
-def add_skin_font():
-    font_path = plugin_fold + '/res/fonts/'
-    # addFont(font_path + 'verdana_r.ttf', 'OpenFont1', 100, 1)
-    addFont(font_path + 'verdana_r.ttf', 'OpenFont2', 100, 1)
-
-# def remove_line(filename, what):
-    # if os.path.isfile(filename):
-        # file_read = open(filename).readlines()
-        # file_write = open(filename, 'w')
-        # for line in file_read:
-            # if what not in line:
-                # file_write.write(line)
-        # file_write.close()
+# def add_skin_font():
+    # font_path = plugin_fold + '/res/fonts/'
+    # addFont(font_path + 'verdana_r.ttf', 'OpenFont2', 100, 1)
 
 try:
     from OpenSSL import SSL
@@ -213,6 +210,28 @@ else:
 if os.path.exists('/var/lib/dpkg/status'):
     skin_path=skin_path + 'dreamOs/'
 
+class tvList(MenuList):
+    def __init__(self, list):
+        MenuList.__init__(self, list, False, eListboxPythonMultiContent)
+        self.l.setFont(0, gFont('Regular', 20))
+        self.l.setFont(1, gFont('Regular', 22))
+        self.l.setFont(2, gFont('Regular', 24))
+        self.l.setFont(3, gFont('Regular', 26))
+        self.l.setFont(4, gFont('Regular', 28))
+        self.l.setFont(5, gFont('Regular', 30))
+        self.l.setFont(6, gFont('Regular', 32))
+        self.l.setFont(7, gFont('Regular', 34))
+        self.l.setFont(8, gFont('Regular', 36))
+        self.l.setFont(9, gFont('Regular', 40))
+        if isFHD():
+            self.l.setItemHeight(50)
+            textfont = int(34)
+            self.l.setFont(0, gFont('Regular', textfont))
+        else:
+            self.l.setItemHeight(50)
+            textfont = int(24)
+            self.l.setFont(0, gFont('Regular', textfont))
+
 def m3ulistEntry(download):
     res = [download]
     white = 16777215
@@ -224,10 +243,10 @@ def m3ulistEntry(download):
     png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting2.png'))
     if isFHD():
         res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
-        res.append(MultiContentEntryText(pos=(60, 0), size=(1200, 50), font=7, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+        res.append(MultiContentEntryText(pos=(60, 0), size=(1200, 50), font=0, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     else:
         res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
-        res.append(MultiContentEntryText(pos=(60, 0), size=(1000, 50), font=2, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+        res.append(MultiContentEntryText(pos=(60, 0), size=(1000, 50), font=0, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     return res
 
 def m3ulist(data, list):
@@ -239,33 +258,17 @@ def m3ulist(data, list):
         icount = icount + 1
     list.setList(mlist)
 
-class tvList(MenuList):
-    def __init__(self, list):
-        MenuList.__init__(self, list, False, eListboxPythonMultiContent)
-        self.l.setFont(0, gFont('OpenFont2', 20))
-        self.l.setFont(1, gFont('OpenFont2', 22))
-        self.l.setFont(2, gFont('OpenFont2', 24))
-        self.l.setFont(3, gFont('OpenFont2', 26))
-        self.l.setFont(4, gFont('OpenFont2', 28))
-        self.l.setFont(5, gFont('OpenFont2', 30))
-        self.l.setFont(6, gFont('OpenFont2', 32))
-        self.l.setFont(7, gFont('OpenFont2', 34))
-        self.l.setFont(8, gFont('OpenFont2', 36))
-        self.l.setFont(9, gFont('OpenFont2', 40))
-        if isFHD():
-            self.l.setItemHeight(50)
-        else:
-            self.l.setItemHeight(50)
 
-def tvListEntry(name,png):
+            
+def tvListEntry(name, png):
     res = [name]
     png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting.png'))
     if isFHD():
             res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
-            res.append(MultiContentEntryText(pos=(60, 0), size=(1200, 50), font=7, text=name, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+            res.append(MultiContentEntryText(pos=(60, 0), size=(1200, 50), font=0, text=name, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     else:
             res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
-            res.append(MultiContentEntryText(pos=(60, 0), size=(1000, 50), font=2, text=name, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+            res.append(MultiContentEntryText(pos=(60, 0), size=(1000, 50), font=0, text=name, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     return res
 
 Panel_list = [
@@ -280,20 +283,21 @@ class OpenScript(Screen):
         self.skin = f.read()
         # f.close()
         Screen.__init__(self, session)
-        self.setup_title = _('Smart Tv Channel List')
+
         self['list'] = tvList([])
         self.icount = 0
         self['progress'] = ProgressBar()
-        self['progresstext'] = StaticText()
+        self['progresstext'] = StaticText('')
         self["progress"].hide()
         self.downloading = False
-        self['title'] = Label(_(title_plug))
-        self['Maintainer2'] = Label('%s' % Maintainer2)
-        self['path'] = Label(_('Folder path %s') % Path_Movies)
+        self.setTitle(title_plug)
+        self['title'] = Label(title_plug)
+        self['Maintainer2'] = Label('Maintener @Lululla')
+        self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
         self['key_red'] = Button(_('Exit'))
-        self['key_green'] = Button('')
-        self['key_yellow'] = Button('')
-        self["key_blue"] = Button('')
+        self['key_green'] = Button(_(''))
+        self['key_yellow'] = Button(_(''))
+        self["key_blue"] = Button(_(''))
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
@@ -355,7 +359,7 @@ class OpenScript(Screen):
         global in_tmp
         namem3u = str(sel)
         urlm3u = checkStr(url.strip())
-        if six.PY3:
+        if PY3:
             urlm3u.encode()
         # if six.PY3:
             # urlm3u = six.ensure_str(urlm3u)
@@ -400,19 +404,19 @@ class ListM3u1(Screen):
         self.initialservice = self.session.nav.getCurrentlyPlayingServiceReference()
         SREF = self.initialservice
         self['title'] = Label(title_plug + ' ' + namem3u)
-        self['Maintainer2'] = Label('%s' % Maintainer2)
+        self['Maintainer2'] = Label('Maintener @Lululla')
+        self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
         self['progress'] = ProgressBar()
-        self['progresstext'] = StaticText()
+        self['progresstext'] = StaticText('')
         self["progress"].hide()
         self.downloading = False
         self.convert = False
         self.url = url
         self.name = namem3u
-        self['path'] = Label(_('Folder path %s') % Path_Movies)
         self['key_red'] = Button(_('Back'))
-        self['key_green'] = Button('')
-        self['key_yellow'] = Button('')
-        self["key_blue"] = Button('')
+        self['key_green'] = Button(_(''))
+        self['key_yellow'] = Button(_(''))
+        self["key_blue"] = Button(_(''))
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
@@ -478,7 +482,7 @@ class ListM3u1(Screen):
                 # name = item.split('###')[0]
                 # url = item.split('###')[1]
                 self.names.append(checkStr(name))
-                self.urls.append(checkStr(url))
+                self.urls.append(url)
             m3ulist(self.names, self['list'])
         except Exception as e:
             print('errore e : ', e)
@@ -509,19 +513,19 @@ class ListM3u(Screen):
         self.initialservice = self.session.nav.getCurrentlyPlayingServiceReference()
         SREF = self.initialservice
         self['title'] = Label(title_plug + ' ' + namem3u)
-        self['Maintainer2'] = Label('%s' % Maintainer2)
+        self['Maintainer2'] = Label('Maintener @Lululla')
+        self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
         self['progress'] = ProgressBar()
-        self['progresstext'] = StaticText()
+        self['progresstext'] = StaticText('')
         self["progress"].hide()
         self.downloading = False
         self.convert = False
         self.url = url
         self.name = namem3u
-        self['path'] = Label(_('Folder path %s') % Path_Movies)
         self['key_red'] = Button(_('Back'))
-        self['key_green'] = Button('')
-        self['key_yellow'] = Button('')
-        self["key_blue"] = Button('')
+        self['key_green'] = Button(_(''))
+        self['key_yellow'] = Button(_(''))
+        self["key_blue"] = Button(_(''))
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
@@ -589,7 +593,7 @@ class ListM3u(Screen):
                 name = item.split('###')[0]
                 url = item.split('###')[1]
                 self.names.append(checkStr(name))
-                self.urls.append(checkStr(url))
+                self.urls.append(url)
             m3ulist(self.names, self['list'])
         except Exception as e:
             print('errore e : ', e)
@@ -620,18 +624,18 @@ class ChannelList(Screen):
         self['list'] = tvList([])
         self.setTitle(title_plug + ' ' + name)
         self['title'] = Label(title_plug + ' ' + name)
-        self['Maintainer2'] = Label('%s' % Maintainer2)
+        self['Maintainer2'] = Label('Maintener @Lululla')
+        self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
         service = config.plugins.stvcl.services.value
         self['service'] = Label(_('Service Reference used %s') % service)
         self['live'] = Label('')
-        self['path'] = Label(_('Folder path %s') % Path_Movies)
         self['poster'] = Pixmap()
         self['key_red'] = Button(_('Back'))
         self['key_green'] = Button(_('Convert ExtePlayer3'))
         self['key_yellow'] = Button(_('Convert Gstreamer'))
         self["key_blue"] = Button(_("Search"))
         self['progress'] = ProgressBar()
-        self['progresstext'] = StaticText()
+        self['progresstext'] = StaticText('')
         self["progress"].hide()
         self.downloading = False
         self.pin = False
@@ -893,7 +897,7 @@ class ChannelList(Screen):
         global in_tmp
         namem3u = self.name
         urlm3u = self.url
-        if six.PY3:
+        if PY3:
             urlm3u = six.ensure_str(urlm3u)
         print('urlmm33uu ', urlm3u)
         try:
@@ -968,7 +972,7 @@ class ChannelList(Screen):
                         pic = item.split('###')[2]
 
                         self.names.append(checkStr(name))
-                        self.urls.append(checkStr(url))
+                        self.urls.append(url)
                         self.pics.append(checkStr(pic))
                 else:
                     regexcat = '#EXTINF.*?,(.*?)\\n(.*?)\\n'
@@ -993,7 +997,7 @@ class ChannelList(Screen):
                         pic = item.split('###')[2]
 
                         self.names.append(checkStr(name))
-                        self.urls.append(checkStr(url))
+                        self.urls.append(url)
                         self.pics.append(checkStr(pic))
                 #####
                 if config.plugins.stvcl.thumb.value == True:
@@ -1114,20 +1118,20 @@ class ChannelList(Screen):
         else:
             if pic.startswith('http'):
                 pixmaps = str(pic)
-                if six.PY3:
+                if PY3:
                     pixmaps = six.ensure_binary(pixmaps)
                 print('pic xxxxxxxxxxxxx', pixmaps)
                 path = urlparse(pixmaps).path
                 ext = splitext(path)[1]
                 pictmp = '/tmp/posterst' + str(ext)
-                if os.path.exist(pictmp):
+                if fileExists(pictmp):
                     pictmp = '/tmp/posterst' + str(ext)
                 try:
                     if pixmaps.startswith(b"https") and sslverify:
                         parsed_uri = urlparse(pixmaps)
                         domain = parsed_uri.hostname
                         sniFactory = SNIFactory(domain)
-                        if six.PY3:
+                        if PY3:
                             pixmaps = six.ensure_binary(pixmaps)
                         # if six.PY3:
                             # pixmaps = pixmaps.encode()
@@ -1148,7 +1152,7 @@ class ChannelList(Screen):
             print('exe downloadError')
 
     def downloadPic(self, data, pictmp):
-        if os.path.exists(pictmp):
+        if fileExists(pictmp):
             try:
                 self.poster_resize(pictmp)
             except Exception as ex:
@@ -1158,7 +1162,7 @@ class ChannelList(Screen):
     def poster_resize(self, png):
         self["poster"].show()
         pixmaps = png
-        if os.path.exists(pixmaps):
+        if fileExists(pixmaps):
             size = self['poster'].instance.size()
             self.picload = ePicLoad()
             self.scale = AVSwitch().getFramebufferScale()
@@ -1513,19 +1517,21 @@ class AddIpvStream(Screen):
         self.skin = f.read()
         f.close()
         Screen.__init__(self, session)
-        self['title'] = Label(_(title_plug))
-        self['Maintainer2'] = Label('%s' % Maintainer2)
+        self.setTitle(title_plug + ' ' + name)
+        self['title'] = Label(title_plug + ' ' + name)
+        self['Maintainer2'] = Label('Maintener @Lululla')
+        # self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
         self['key_red'] = Button(_('Back'))
         self['key_green'] = Button(_('Ok'))
-        self['key_yellow'] = Button('')
-        self["key_blue"] = Button('')
+        self['key_yellow'] = Button(_(''))
+        self["key_blue"] = Button(_(''))
         self["key_yellow"].hide()
         self["key_blue"].hide()
         self['actions'] = ActionMap(['SetupActions', 'ColorActions'], {'ok': self.keyOk,
          'cancel': self.keyCancel,
          'green': self.keyOk,
          'red': self.keyCancel}, -2)
-        self['statusbar'] = Label()
+        self['statusbar'] = Label('')
         self.list = []
         self['menu'] = MenuList([])
         self.mutableList = None
@@ -1631,16 +1637,18 @@ class OpenConfig(Screen, ConfigListScreen):
             self.list = []
             self.session = session
             info = '***YOUR SETUP***'
-            self['title'] = Label(_(title_plug))
-            self['Maintainer2'] = Label('%s' % Maintainer2)
+            self.setTitle(title_plug + ' ' + info)
+            self['title'] = Label(title_plug + ' SETUP')
+            self['Maintainer2'] = Label('Maintener @Lululla')
+            # self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
             self['key_red'] = Button(_('Back'))
             self['key_green'] = Button(_('Save'))
             self["key_blue"] = Button(_('Empty Pic Cache'))
-            self['key_yellow'] = Button('')
+            self['key_yellow'] = Button(_(''))
             self['key_yellow'].hide()
             # self["key_blue"].hide()
             self['text'] = Label(info)
-            self["description"] = Label(_(''))
+            self["description"] = Label('')
             self['actions'] = ActionMap(["SetupActions", "ColorActions", "VirtualKeyboardActions"  ], {
                 'cancel': self.extnok,
                 "red": self.extnok,
@@ -1827,7 +1835,7 @@ def main(session, **kwargs):
            upd_done()
         except:
                pass
-        add_skin_font()
+        # add_skin_font()
         session.open(OpenScript)
     else:
         session.open(MessageBox, "No Internet", MessageBox.TYPE_INFO)
