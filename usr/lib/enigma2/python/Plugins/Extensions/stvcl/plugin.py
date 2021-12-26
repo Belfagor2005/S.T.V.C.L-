@@ -120,8 +120,8 @@ if sys.version_info >= (2, 7, 9):
 
 global Path_Movies, defpic, skin_path
 currversion = '1.2'
-Version = currversion + ' - 06.12.2021'
-title_plug = '..:: S.T.V.C.L. V.%s ::..' % Version
+# Version = currversion + ' - 06.12.2021'
+title_plug = '..:: S.T.V.C.L. V.%s ::..' % currversion
 name_plug = 'Smart Tv Channels List'
 plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
 Maintainer2 = 'Maintener @Lululla'
@@ -134,7 +134,6 @@ dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('b
 # def add_skin_font():
     # font_path = plugin_fold + '/res/fonts/'
     # addFont(font_path + 'verdana_r.ttf', 'OpenFont2', 100, 1)
-
 try:
     from OpenSSL import SSL
     from twisted.internet import ssl
@@ -194,13 +193,10 @@ print('patch movies: ', Path_Movies)
 
 if not os.path.exists(tvstrvl):
     os.system("mkdir " + tvstrvl)
-
 if not os.path.exists(tmpfold):
     os.system("mkdir " + tmpfold)
-
 if not os.path.exists(picfold):
     os.system("mkdir " + picfold)
-
 if isFHD():
     skin_path=res_plugin_fold + 'skins/fhd/'
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
@@ -213,16 +209,6 @@ if os.path.exists('/var/lib/dpkg/status'):
 class tvList(MenuList):
     def __init__(self, list):
         MenuList.__init__(self, list, False, eListboxPythonMultiContent)
-        self.l.setFont(0, gFont('Regular', 20))
-        self.l.setFont(1, gFont('Regular', 22))
-        self.l.setFont(2, gFont('Regular', 24))
-        self.l.setFont(3, gFont('Regular', 26))
-        self.l.setFont(4, gFont('Regular', 28))
-        self.l.setFont(5, gFont('Regular', 30))
-        self.l.setFont(6, gFont('Regular', 32))
-        self.l.setFont(7, gFont('Regular', 34))
-        self.l.setFont(8, gFont('Regular', 36))
-        self.l.setFont(9, gFont('Regular', 40))
         if isFHD():
             self.l.setItemHeight(50)
             textfont = int(34)
@@ -258,8 +244,6 @@ def m3ulist(data, list):
         icount = icount + 1
     list.setList(mlist)
 
-
-            
 def tvListEntry(name, png):
     res = [name]
     png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting.png'))
@@ -277,13 +261,12 @@ Panel_list = [
 
 class OpenScript(Screen):
     def __init__(self, session):
+        Screen.__init__(self, session)
         self.session = session
         skin = skin_path + '/OpenScript.xml'
         f = open(skin, 'r')
         self.skin = f.read()
         # f.close()
-        Screen.__init__(self, session)
-
         self['list'] = tvList([])
         self.icount = 0
         self['progress'] = ProgressBar()
@@ -392,12 +375,12 @@ class OpenScript(Screen):
 
 class ListM3u1(Screen):
     def __init__(self, session, namem3u, url):
+        Screen.__init__(self, session)
         self.session = session
         skin = skin_path + '/ListM3u.xml'
         f = open(skin, 'r')
         self.skin = f.read()
         # f.close()
-        Screen.__init__(self, session)
         self.list = []
         self['list'] = tvList([])
         global SREF
@@ -501,12 +484,12 @@ class ListM3u1(Screen):
 
 class ListM3u(Screen):
     def __init__(self, session, namem3u, url):
+        Screen.__init__(self, session)
         self.session = session
         skin = skin_path + '/ListM3u.xml'
         f = open(skin, 'r')
         self.skin = f.read()
         # f.close()
-        Screen.__init__(self, session)
         self.list = []
         self['list'] = tvList([])
         global SREF
@@ -612,12 +595,12 @@ class ListM3u(Screen):
 
 class ChannelList(Screen):
     def __init__(self, session, name, url ):
+        Screen.__init__(self, session)
         self.session = session
         skin = skin_path + '/ChannelList.xml'
         f = open(skin, 'r')
         self.skin = f.read()
         # f.close()
-        Screen.__init__(self, session)
         self.list = []
         self.picload = ePicLoad()
         self.scale = AVSwitch().getFramebufferScale()
@@ -905,7 +888,7 @@ class ChannelList(Screen):
             fileTitle = re.sub(r' ', '_', fileTitle)
             fileTitle = re.sub(r'_+', '_', fileTitle)
             fileTitle = fileTitle.replace("(", "_").replace(")", "_").replace("#", "").replace("+", "_").replace("\'", "_").replace("'", "_").replace("!", "_").replace("&", "_")
-            fileTitle = fileTitle.lower() #+ ext
+            fileTitle = fileTitle.lower() 
             in_tmp = Path_Movies + fileTitle + '.m3u'
             if os.path.isfile(in_tmp):
                 os.remove(in_tmp)
@@ -1413,7 +1396,7 @@ class M3uPlay2(
 
     def slinkPlay(self, url):
         name = self.name
-        ref = "{0}:{1}".format(url.replace(":", "%3A"), name.replace(":", "%3A"))
+        ref = "{0}:{1}".format(url.replace(":", "%3a"), name.replace(":", "%3a"))
         print('final reference:   ', ref)
         sref = eServiceReference(ref)
         sref.setName(name)
@@ -1422,11 +1405,11 @@ class M3uPlay2(
 
     def openPlay(self, servicetype, url):
         name = self.name
-        ref = "{0}:0:0:0:0:0:0:0:0:0:{1}:{2}".format(servicetype, url.replace(":", "%3A"), name.replace(":", "%3A"))
+        ref = "{0}:0:0:0:0:0:0:0:0:0:{1}:{2}".format(servicetype, url.replace(":", "%3a"), name.replace(":", "%3a"))
         print('reference:   ', ref)
         if streaml == True:
             url = 'http://127.0.0.1:8088/' + str(url)
-            ref = "{0}:0:1:0:0:0:0:0:0:0:{1}:{2}".format(servicetype, url.replace(":", "%3A"), name.replace(":", "%3A"))
+            ref = "{0}:0:1:0:0:0:0:0:0:0:{1}:{2}".format(servicetype, url.replace(":", "%3a"), name.replace(":", "%3a"))
             print('streaml reference:   ', ref)
         print('final reference:   ', ref)
         sref = eServiceReference(ref)
@@ -1511,12 +1494,12 @@ class M3uPlay2(
 
 class AddIpvStream(Screen):
     def __init__(self, session, name, url):
+        Screen.__init__(self, session)
         self.session = session
         skin = skin_path + '/AddIpvStream.xml'
         f = open(skin, 'r')
         self.skin = f.read()
         f.close()
-        Screen.__init__(self, session)
         self.setTitle(title_plug + ' ' + name)
         self['title'] = Label(title_plug + ' ' + name)
         self['Maintainer2'] = Label('Maintener @Lululla')
@@ -1627,15 +1610,15 @@ class AddIpvStream(Screen):
 
 class OpenConfig(Screen, ConfigListScreen):
         def __init__(self, session):
+            Screen.__init__(self, session)
+            self.session = session
             skin = skin_path + '/OpenConfig.xml'
             f = open(skin, 'r')
             self.skin = f.read()
             f.close()
-            Screen.__init__(self, session)
             self.setup_title = _("stvcl Config")
             self.onChangedEntry = [ ]
             self.list = []
-            self.session = session
             info = '***YOUR SETUP***'
             self.setTitle(title_plug + ' ' + info)
             self['title'] = Label(title_plug + ' SETUP')

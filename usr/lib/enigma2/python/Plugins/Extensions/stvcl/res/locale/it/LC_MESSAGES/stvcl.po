@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: stvcl\n"
 "Report-Msgid-Bugs-To: Lululla <ekekaz@gmail.com>\n"
 "POT-Creation-Date: 2021-11-03 20:38+0100\n"
-"PO-Revision-Date: 2021-11-03 20:41+0100\n"
+"PO-Revision-Date: 2021-12-01 20:58+0100\n"
 "Last-Translator: Lululla <ekekaz@gmail.com>\n"
 "Language-Team: lululla\n"
 "Language: it_IT\n"
@@ -166,7 +166,7 @@ msgstr "Salva"
 
 #: Nuovo documento di testo.py:1594 plugin - Copia.py:1631 plugin.py:1632
 msgid "Empty Pic Cache"
-msgstr "Svuota la cache delle immagini"
+msgstr "Svuota la cache Poster"
 
 #: Nuovo documento di testo.py:1625 plugin - Copia.py:1662 plugin.py:1663
 msgid "All cache fold are empty!"

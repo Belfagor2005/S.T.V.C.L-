@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 '''
-Info http://t.me/tivustream
 ****************************************
 *        coded by Lululla              *
 *           thank's Pcd                *
 *             21/10/2021               *
 *       skin by MMark                  *
 ****************************************
+Info http://t.me/tivustream                           
 '''
 from __future__ import print_function
 from . import _
@@ -23,6 +23,7 @@ from Components.Label import Label
 from Components.config import config
 from Components.Button import Button
 from enigma import eTimer, eActionMap
+from Components.AVSwitch import AVSwitch
 from Components.MenuList import MenuList
 from Components.Sources.List import List
 from Screens.MessageBox import MessageBox
@@ -30,12 +31,11 @@ from Components.ActionMap import ActionMap
 from six.moves.urllib.request import urlopen
 from six.moves.urllib.request import Request
 from Screens.InfoBar import MoviePlayer, InfoBar
-from Components.ActionMap import NumberActionMap
 from time import time, localtime, strftime, sleep
 from Components.Pixmap import Pixmap, MovingPixmap
 from Components.Sources.StaticText import StaticText
 from six.moves.urllib.error import HTTPError, URLError
-from Tools.Directories import SCOPE_PLUGINS, resolveFilename
+from Tools.Directories import SCOPE_PLUGINS, resolveFilename, fileExists
 from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
 from enigma import iServiceInformation, iPlayableService, eServiceReference
 from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarNotifications, \
@@ -45,6 +45,10 @@ try:
 except:
     from . import Utils
 plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
+try:
+    import Image
+except:
+    from PIL import Image
 if isFHD():
     skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/skins/fhd/")
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
@@ -55,11 +59,7 @@ else:
     dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blank.png'))
 if os.path.exists('/var/lib/dpkg/status'):
     skin_path = skin_path + 'dreamOs/'
-    
-try:
-    from PIL import Image
-except:
-    import Image
+
 
 def getDesktopSize():
     from enigma import getDesktop
@@ -70,6 +70,30 @@ def isFHD():
     desktopSize = getDesktopSize()
     return desktopSize[0] == 1920
 
+pos = []
+if isFHD():
+    pos.append([35,80])
+    pos.append([395,80])
+    pos.append([755,80])
+    pos.append([1115,80])
+    pos.append([1475,80])
+    pos.append([35,530])
+    pos.append([395,530])
+    pos.append([755,530])
+    pos.append([1115,530])
+    pos.append([1475,530])
+else:
+    pos.append([20,50])
+    pos.append([260,50])
+    pos.append([500,50])
+    pos.append([740,50])
+    pos.append([980,50])
+    pos.append([20,350])
+    pos.append([260,350])
+    pos.append([500,350])
+    pos.append([740,350])
+    pos.append([980,350])
+    
 def getpics(names, pics, tmpfold, picfold):
     global defpic
     defpic = defpic
@@ -99,13 +123,10 @@ def getpics(names, pics, tmpfold, picfold):
         if name is None:
             name = "Video"
         try:
-            name = name.replace("&", "")
-            name = name.replace(":", "")
-            name = name.replace("(", "-")
-            name = name.replace(")", "")
-            name = name.replace(" ", "")
-            name = name.replace("'", "")
+            name = name.replace("&", "").replace(":", "").replace("(", "-")
+            name = name.replace(")", "").replace(" ", "").replace("'", "")
             name = name.replace("/", "-")
+            name = decodeHtml(name)
         except:
             pass
         url = pics[j]
@@ -113,15 +134,21 @@ def getpics(names, pics, tmpfold, picfold):
             url = ""
         url = url.replace(" ", "%20")
         url = url.replace("ExQ", "=")
+        url = url.replace("AxNxD", "&")
         print("In getpics url =", url)
         ext = str(os.path.splitext(url)[-1])
         picf = picfold + "/" + name + ext
         tpicf = tmpfold + "/" + name + ext
-        if os.path.exists(picf):
+        if fileExists(picf):
             cmd = "cp " + picf + " " + tmpfold
             print("In getpics fileExists(picf) cmd =", cmd)
             os.system(cmd)
-        if not os.path.exists(picf):
+        if fileExists(tpicf):
+            if ('Stagione') in str(name):
+                cmd = "rm " + tpicf
+                os.system(cmd)
+    #-----------------
+        if not fileExists(picf):
             if plugin_fold in url:
                 try:
                     cmd = "cp " + url + " " + tpicf
@@ -147,70 +174,75 @@ def getpics(names, pics, tmpfold, picfold):
                         f1=open(tpicf,"wb")
                         f1.write(fpage)
                         f1.close()
+
                 except:
                     cmd = "cp " + defpic + " " + tpicf
                     os.system(cmd)
-        if not os.path.exists(tpicf):
+
+        if not fileExists(tpicf):
+        # else:
             print("In getpics not fileExists(tpicf) tpicf=", tpicf)
             cmd = "cp " + defpic + " " + tpicf
             print("In getpics not fileExists(tpicf) cmd=", cmd)
             os.system(cmd)
-        try:
+            try:
+                #start kiddac code
+                size = [200, 200]
+                if isFHD():
+                    size = [300, 300]
+                im = Image.open(tpicf).convert('RGBA')
+                im.thumbnail(size, Image.ANTIALIAS)
+                # crop and center image
+                bg = Image.new('RGBA', size, (255, 255, 255, 0))
+                imagew, imageh = im.size
+                im_alpha = im.convert('RGBA').split()[-1]
+                bgwidth, bgheight = bg.size
+                bg_alpha = bg.convert('RGBA').split()[-1]
+                temp = Image.new('L', (bgwidth, bgheight), 0)
+                temp.paste(im_alpha, (int((bgwidth - imagew) / 2), int((bgheight - imageh) / 2)), im_alpha)
+                bg_alpha = ImageChops.screen(bg_alpha, temp)
+                bg.paste(im, (int((bgwidth - imagew) / 2), int((bgheight - imageh) / 2)))
+                im = bg
+                im.save(tpicf, 'PNG')
 
-            if isFHD():
-                nw = 220
-            else:
-                nw = 180
-            if os.path.exists(tpicf):
-                try:
-                    im = Image.open(tpicf)
-                    w = im.size[0]
-                    d = im.size[1]
-                    r = float(d)/float(w)
-                    d1 = r*nw
-                    if w != nw:
-                        x = int(nw)
-                        y = int(d1)
-                        im = im.resize((x,y), Image.ANTIALIAS)
-                    im.save(tpicf, quality=100, optimize=True)
-                except Exception as e:
-                       print("******* picon resize failed *******")
-                       print(e)
-        except:
+            #end kiddac code
+                # im = Image.open(tpicf)#.convert('RGBA')
+                # # imode = im.mode
+                # # if im.mode == "JPEG":
+                    # # im.save(tpicf)
+                    # # # in most case, resulting jpg file is resized small one
+                # # if imode.mode in ["RGBA", "P"]:
+                    # # imode = imode.convert("RGB")
+                    # # rgb_im.save(tpicf)
+                # # if imode != "P":
+                    # # im = im.convert("P")
+                # # if im.mode != "P":
+                    # # im = im.convert("P")
+                # w = im.size[0]
+                # d = im.size[1]
+                # r = float(d)/float(w)
+                # d1 = r*nw
+                # if w != nw:
+                    # x = int(nw)
+                    # y = int(d1)
+                    # im = im.resize((x,y), Image.ANTIALIAS)
+                # im.save(tpicf, quality=100, optimize=True)
+            except Exception as e:
+                   print("******* picon resize failed *******")
+                   print(e)
+        else:
             tpicf = defpic
         pix.append(j)
         pix[j] = picf
         j = j+1
+
     cmd1 = "cp " + tmpfold + "/* " + picfold + " && rm " + tmpfold + "/* &"
-    print("In getpics final cmd1=", cmd1)
+    # print("In getpics final cmd1=", cmd1)
     os.system(cmd1)
+    os.system('sleep 1')
     return pix
 
 
-pos = []
-if isFHD():
-    pos.append([35,80])
-    pos.append([395,80])
-    pos.append([755,80])
-    pos.append([1115,80])
-    pos.append([1475,80])
-    pos.append([35,530])
-    pos.append([395,530])
-    pos.append([755,530])
-    pos.append([1115,530])
-    pos.append([1475,530])
-else:
-    pos.append([20,50])
-    pos.append([260,50])
-    pos.append([500,50])
-    pos.append([740,50])
-    pos.append([980,50])
-    pos.append([20,350])
-    pos.append([260,350])
-    pos.append([500,350])
-    pos.append([740,350])
-    pos.append([980,350])
-            
 class GridMain(Screen):
     def __init__(self, session, names, urls, pics = []):
         skin = skin_path + '/GridMain.xml'
@@ -224,9 +256,9 @@ class GridMain(Screen):
         pics = getpics(names, pics, tmpfold, picfold)
         sleep(3)
         list = []
-           
-        self.pos = [] 
-        self.pos = pos                
+
+        self.pos = []
+        self.pos = pos
         print(" self.pos =", self.pos)
         self.name = "stvcl"
         self.pics = pics
@@ -242,15 +274,14 @@ class GridMain(Screen):
               self["label" + str(i+1)] = StaticText()
               self["pixmap" + str(i+1)] = Pixmap()
               i = i+1
-        i = 0  
+        i = 0
         ip = 0
         self.index = 0
-        ln = len(self.names1)
-        self.npage = int(float(ln/10)) + 1
         self.ipage = 1
         self.icount = 0
-        
-        self["actions"] = NumberActionMap(["OkCancelActions", "MenuActions", "DirectionActions", "NumberActions"],
+        ln = len(self.names1)
+        self.npage = int(float(ln/10)) + 1
+        self["actions"] = ActionMap(["OkCancelActions", "MenuActions", "DirectionActions", "NumberActions"],
                 {
                 "ok": self.okClicked,
                 "cancel": self.cancel,
@@ -302,7 +333,7 @@ class GridMain(Screen):
             self.minentry = (self.ipage-1)*10
             print("self.ipage , self.minentry, self.maxentry B=", self.ipage, self.minentry, self.maxentry)
             i1 = 0
-            blpic = dblank #plugin_fold + "res/pics/Blank.png"
+            blpic = dblank
             while i1 < 12:
                 self["label" + str(i1+1)].setText(" ")
                 self["pixmap" + str(i1+1)].instance.setPixmapFromFile(blpic)
@@ -394,7 +425,7 @@ class GridMain(Screen):
                 print("keydown self.index, self.maxentry 3= ", self.index, self.maxentry)
                 self.paintFrame()
         else:
-            self.paintFrame()   #pcd fix
+            self.paintFrame()
 
     def okClicked(self):
         itype = self.index
@@ -454,11 +485,11 @@ class TvInfoBarShowHide():
     def doTimerHide(self):
         self.hideTimer.stop()
         if self.__state == self.STATE_SHOWN:
-            self.hide() 
-            
+            self.hide()
+
     def OkPressed(self):
         self.toggleShow()
-        
+
     def toggleShow(self):
         if self.skipToggleShow:
             self.skipToggleShow = False
@@ -470,7 +501,7 @@ class TvInfoBarShowHide():
         else:
             self.hide()
             self.startHideTimer()
-            
+
     def lockShow(self):
         try:
             self.__locked += 1
@@ -494,15 +525,30 @@ class TvInfoBarShowHide():
     def debug(obj, text = ""):
         print(text + " %s\n" % obj)
 
-class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarSubtitleSupport, InfoBarNotifications, TvInfoBarShowHide, Screen):
+# class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarSubtitleSupport, InfoBarNotifications, TvInfoBarShowHide, Screen):
+class M3uPlay2(
+    InfoBarBase,
+    InfoBarMenu,
+    InfoBarSeek,
+    InfoBarAudioSelection,
+    InfoBarSubtitleSupport,
+    InfoBarNotifications,
+    TvInfoBarShowHide,
+    Screen
+):
     STATE_IDLE = 0
     STATE_PLAYING = 1
     STATE_PAUSED = 2
-    screen_timeout = 5000
+    ENABLE_RESUME_SUPPORT = True
+    ALLOW_SUSPEND = True
+    screen_timeout = 4000
+
     def __init__(self, session, name, url):
-        global SREF, streml
+        global SREF, streaml
         Screen.__init__(self, session)
         self.session = session
+        global _session
+        _session = session
         self.skinName = 'MoviePlayer'
         title = name
         streaml = False
@@ -513,14 +559,13 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
                 InfoBarSubtitleSupport, \
                 InfoBarNotifications, \
                 TvInfoBarShowHide:
-            x.__init__(self)                
+            x.__init__(self)
         try:
             self.init_aspect = int(self.getAspect())
         except:
             self.init_aspect = 0
         self.new_aspect = self.init_aspect
-        self['actions'] = ActionMap(['WizardActions',
-         'MoviePlayerActions',
+        self['actions'] = ActionMap(['MoviePlayerActions',
          'MovieSelectionActions',
          'MediaPlayerActions',
          'EPGSelectActions',
@@ -529,7 +574,7 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
          'ColorActions',
          'InfobarShowHideActions',
          'InfobarActions',
-         'InfobarSeekActions'], {'leavePlayer': self.leavePlayer,
+         'InfobarSeekActions'], {'leavePlayer': self.cancel,
          'epg': self.showIMDB,
          'info': self.showIMDB,
          # 'info': self.cicleStreamType,
@@ -537,9 +582,13 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
          'stop': self.leavePlayer,
          'cancel': self.leavePlayer,
          'back': self.leavePlayer}, -1)
-        url = url.replace(':', '%3a')
+        self.allowPiP = False
+        self.service = None
+        service = None
+        self.pcip = 'None'
+        self.icount = 0
         self.url = url
-        self.name = name
+        self.name = decodeHtml(name)
         self.state = self.STATE_PLAYING
         SREF = self.session.nav.getCurrentlyPlayingServiceReference()
         if '8088' in str(self.url):
@@ -550,39 +599,103 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
             self.onFirstExecBegin.append(self.cicleStreamType)
         self.onClose.append(self.cancel)
 
+    def getAspect(self):
+        return AVSwitch().getAspectRatioSetting()
+
+    def getAspectString(self, aspectnum):
+        return {0: _('4:3 Letterbox'),
+         1: _('4:3 PanScan'),
+         2: _('16:9'),
+         3: _('16:9 always'),
+         4: _('16:10 Letterbox'),
+         5: _('16:10 PanScan'),
+         6: _('16:9 Letterbox')}[aspectnum]
+
+    def setAspect(self, aspect):
+        map = {0: '4_3_letterbox',
+         1: '4_3_panscan',
+         2: '16_9',
+         3: '16_9_always',
+         4: '16_10_letterbox',
+         5: '16_10_panscan',
+         6: '16_9_letterbox'}
+        config.av.aspectratio.setValue(map[aspect])
+        try:
+            AVSwitch().setAspectRatio(aspect)
+        except:
+            pass
+
+    def av(self):
+        temp = int(self.getAspect())
+        temp = temp + 1
+        if temp > 6:
+            temp = 0
+        self.new_aspect = temp
+        self.setAspect(temp)
+
+    def showinfo(self):
+        # debug = True
+        sTitle = ''
+        sServiceref = ''
+        try:
+            servicename, serviceurl = getserviceinfo(sref)
+            if servicename != None:
+                sTitle = servicename
+            else:
+                sTitle = ''
+            if serviceurl != None:
+                sServiceref = serviceurl
+            else:
+                sServiceref = ''
+            currPlay = self.session.nav.getCurrentService()
+            sTagCodec = currPlay.info().getInfoString(iServiceInformation.sTagCodec)
+            sTagVideoCodec = currPlay.info().getInfoString(iServiceInformation.sTagVideoCodec)
+            sTagAudioCodec = currPlay.info().getInfoString(iServiceInformation.sTagAudioCodec)
+            message = 'stitle:' + str(sTitle) + '\n' + 'sServiceref:' + str(sServiceref) + '\n' + 'sTagCodec:' + str(sTagCodec) + '\n' + 'sTagVideoCodec:' + str(sTagVideoCodec) + '\n' + 'sTagAudioCodec : ' + str(sTagAudioCodec)
+            self.mbox = self.session.open(MessageBox, message, MessageBox.TYPE_INFO)
+        except:
+            pass
+        return
     def showIMDB(self):
-        if os.path.exists("/usr/lib/enigma2/python/Plugins/Extensions/TMBD"):
+        TMDB = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('TMDB'))
+        IMDb = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('IMDb'))
+        if os.path.exists(TMDB):
             from Plugins.Extensions.TMBD.plugin import TMBD
             text_clear = self.name
+
             text = charRemove(text_clear)
             self.session.open(TMBD, text, False)
-        elif os.path.exists("/usr/lib/enigma2/python/Plugins/Extensions/IMDb"):
+        elif os.path.exists(IMDb):
             from Plugins.Extensions.IMDb.plugin import IMDB
             text_clear = self.name
+
             text = charRemove(text_clear)
             HHHHH = text
             self.session.open(IMDB, HHHHH)
+
         else:
             text_clear = self.name
-            self.session.open(openMessageBox, text_clear, openMessageBox.TYPE_INFO)
+            self.session.open(MessageBox, text_clear, MessageBox.TYPE_INFO)
 
     def slinkPlay(self, url):
+        name = self.name
         ref = str(url)
         ref = ref.replace(':', '%3a').replace(' ','%20')
         print('final reference:   ', ref)
         sref = eServiceReference(ref)
-        sref.setName(self.name)
+        sref.setName(name)
         self.session.nav.stopService()
         self.session.nav.playService(sref)
 
     def openPlay(self, servicetype, url):
+        name = self.name
         url = url.replace(':', '%3a').replace(' ','%20')
         ref = str(servicetype) + ':0:1:0:0:0:0:0:0:0:' + str(url)
         if streaml == True:
             ref = str(servicetype) + ':0:1:0:0:0:0:0:0:0:http%3a//127.0.0.1%3a8088/' + str(url)
         print('final reference:   ', ref)
         sref = eServiceReference(ref)
-        sref.setName(self.name)
+        sref.setName(name)
         self.session.nav.stopService()
         self.session.nav.playService(sref)
 
@@ -619,14 +732,24 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
         print('servicetype2: ', self.servicetype)
         self.openPlay(self.servicetype, url)
 
-    def keyNumberGlobal(self, number):
-        self['text'].number(number)
+    def up(self):
+        pass
 
-    def keyLeft(self):
-        self['text'].left()
+    def down(self):
+        # pass
+        self.up()
 
-    def keyRight(self):
-        self['text'].right()
+    def doEofInternal(self, playing):
+        self.close()
+
+    def __evEOF(self):
+        self.end = True
+
+    def ok(self):
+        if self.shown:
+            self.hideInfobar()
+        else:
+            self.showInfobar()
 
     def showVideoInfo(self):
         if self.shown:
@@ -649,6 +772,7 @@ class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, Inf
                 self.setAspect(self.init_aspect)
             except:
                 pass
+        streaml = False
         self.close()
 
     def leavePlayer(self):
