@@ -166,7 +166,7 @@ if os.path.exists("/usr/bin/apt-get"):
     modechoices.append(("8193", _("eServiceUri(8193)")))
 sessions = []
 config.plugins.stvcl = ConfigSubsection()
-config.plugins.stvcl.pthm3uf = ConfigDirectory(default='/media/hdd/movie')
+config.plugins.stvcl.pthm3uf = ConfigDirectory(default='/media/hdd/movie/')
 try:
     from Components.UsageConfig import defaultMoviePath
     downloadpath = defaultMoviePath()
@@ -187,9 +187,9 @@ tmpfold = str(config.plugins.stvcl.cachefold.value) + "stvcl/tmp"
 picfold = str(config.plugins.stvcl.cachefold.value) + "stvcl/pic"
 
 Path_Movies = str(config.plugins.stvcl.pthm3uf.value)
-if Path_Movies.endswith("\/\/"):
-    Path_Movies = Path_Movies[:-1]
-print('patch movies: ', Path_Movies)
+if not Path_Movies.endswith("/"):
+    Path_Movies = Path_Movies + '/' #[:-1]
+# print('patch movies: ', Path_Movies)
 
 if not os.path.exists(tvstrvl):
     os.system("mkdir " + tvstrvl)
@@ -197,6 +197,7 @@ if not os.path.exists(tmpfold):
     os.system("mkdir " + tmpfold)
 if not os.path.exists(picfold):
     os.system("mkdir " + picfold)
+
 if isFHD():
     skin_path=res_plugin_fold + 'skins/fhd/'
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
