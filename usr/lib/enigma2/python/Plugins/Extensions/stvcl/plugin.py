@@ -32,6 +32,7 @@ from Components.Sources.List import List
 from Components.Sources.Progress import Progress
 from Components.Sources.Source import Source
 from Components.Sources.StaticText import StaticText
+from os.path import exists as file_exists
 from Plugins.Plugin import PluginDescriptor
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Console import Console
@@ -47,7 +48,7 @@ from Screens.Screen import Screen
 from Screens.Standby import TryQuitMainloop, Standby
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 from ServiceReference import ServiceReference
-from Tools.Directories import SCOPE_PLUGINS, resolveFilename, fileExists
+from Tools.Directories import SCOPE_PLUGINS, resolveFilename#, fileExists
 from Tools.Downloader import downloadWithProgress
 from Tools.LoadPixmap import LoadPixmap
 from enigma import *
@@ -120,7 +121,7 @@ if sys.version_info >= (2, 7, 9):
 
 global Path_Movies, defpic, skin_path
 currversion = '1.2'
-# Version = currversion + ' - 06.12.2021'
+# Version = ' - 06.12.2021'
 title_plug = '..:: S.T.V.C.L. V.%s ::..' % currversion
 name_plug = 'Smart Tv Channels List'
 plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
@@ -361,11 +362,14 @@ class OpenScript(Screen):
             # # self.download = downloadWithProgress(urlm3u, in_tmp)
             # # self.download.addProgress(self.downloadProgress)
             # # self.download.start().addCallback(self.check).addErrback(self.showError)
-            import requests
-            r = requests.get(urlm3u)
-            with open(in_tmp,'wb') as f:
-              f.write(r.content)
-            # urlretrieve(urlm3u, in_tmp)
+            # import requests
+            # r = requests.get(urlm3u)
+            # with open(in_tmp,'wb') as f:
+              # f.write(r.content)
+            # # urlretrieve(urlm3u, in_tmp)
+            
+            downloadFile(urlm3u,in_tmp)
+            
             sleep(4)
             self.session.open(ListM3u1, namem3u, urlm3u)
         except Exception as e:
@@ -894,11 +898,14 @@ class ChannelList(Screen):
             if os.path.isfile(in_tmp):
                 os.remove(in_tmp)
             print('path tmp : ', in_tmp)
-            import requests
-            r = requests.get(urlm3u)
-            with open(in_tmp,'wb') as f:
-              f.write(r.content)
-            # urlretrieve(urlm3u, in_tmp)
+            # import requests
+            # r = requests.get(urlm3u)
+            # with open(in_tmp,'wb') as f:
+              # f.write(r.content)
+            # # urlretrieve(urlm3u, in_tmp)
+            
+            downloadFile(urlm3u,in_tmp)
+            
             sleep(7)
             self.playList()
             # self.download = downloadWithProgress(urlm3u, in_tmp)
@@ -1108,7 +1115,7 @@ class ChannelList(Screen):
                 path = urlparse(pixmaps).path
                 ext = splitext(path)[1]
                 pictmp = '/tmp/posterst' + str(ext)
-                if fileExists(pictmp):
+                if file_exists(pictmp):
                     pictmp = '/tmp/posterst' + str(ext)
                 try:
                     if pixmaps.startswith(b"https") and sslverify:
@@ -1136,7 +1143,7 @@ class ChannelList(Screen):
             print('exe downloadError')
 
     def downloadPic(self, data, pictmp):
-        if fileExists(pictmp):
+        if file_exists(pictmp):
             try:
                 self.poster_resize(pictmp)
             except Exception as ex:
@@ -1146,7 +1153,7 @@ class ChannelList(Screen):
     def poster_resize(self, png):
         self["poster"].show()
         pixmaps = png
-        if fileExists(pixmaps):
+        if file_exists(pixmaps):
             size = self['poster'].instance.size()
             self.picload = ePicLoad()
             self.scale = AVSwitch().getFramebufferScale()
