@@ -5,7 +5,7 @@ Info http://t.me/tivustream
 ****************************************
 *        coded by Lululla              *
 *                                      *
-*             30/11/2021               *
+*             03/01/2022               *
 ****************************************
 '''
 from __future__ import print_function
@@ -131,6 +131,8 @@ service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 
 res_plugin_fold=plugin_fold + '/res/'
 defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
 dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blankL.png'))
+scramble = 'aHR0cDovL2kubWpoLm56Lw=='
+
 #================
 # def add_skin_font():
     # font_path = plugin_fold + '/res/fonts/'
@@ -319,7 +321,7 @@ class OpenScript(Screen):
         sel = self.menu_list[idx]
         url = ''
         if sel == ("SMART TV CHANNELS LIST"):
-            url = 'http://i.mjh.nz/'
+            url = b64decoder(scramble)
         else:
             return
         self.downlist(sel, url)
