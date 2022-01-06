@@ -5,7 +5,7 @@ Info http://t.me/tivustream
 ****************************************
 *        coded by Lululla              *
 *                                      *
-*             03/01/2022               *
+*             06/01/2022               *
 ****************************************
 '''
 from __future__ import print_function
@@ -113,11 +113,11 @@ except:
     import http.client
 
 if sys.version_info >= (2, 7, 9):
-	try:
-		import ssl
-		sslContext = ssl._create_unverified_context()
-	except:
-		sslContext = None
+    try:
+        import ssl
+        sslContext = ssl._create_unverified_context()
+    except:
+        sslContext = None
 
 global Path_Movies, defpic, skin_path
 currversion = '1.2'
@@ -129,10 +129,13 @@ Maintainer2 = 'Maintener @Lululla'
 dir_enigma2 = '/etc/enigma2/'
 service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 134) || (type == 195)'
 res_plugin_fold=plugin_fold + '/res/'
-defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
+# defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
 dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blankL.png'))
 scramble = 'aHR0cDovL2kubWpoLm56Lw=='
 
+skin_path=res_plugin_fold + 'skins/hd/'
+defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
+    
 #================
 # def add_skin_font():
     # font_path = plugin_fold + '/res/fonts/'
@@ -176,24 +179,23 @@ try:
     config.plugins.stvcl.pthm3uf  = ConfigDirectory(default=downloadpath)
 except:
     if os.path.exists("/usr/bin/apt-get"):
-        config.plugins.stvcl.pthm3uf  = ConfigDirectory(default='/media/hdd/movie/')
-config.plugins.stvcl.bouquettop             = ConfigSelection(default='Bottom', choices=['Bottom', 'Top'])
-config.plugins.stvcl.services               = ConfigSelection(default='4097', choices=modechoices)
-config.plugins.stvcl.cachefold              = ConfigDirectory(default='/media/hdd/')
-config.plugins.stvcl.filter                = ConfigYesNo(default=False)
-config.plugins.stvcl.strtext                = ConfigYesNo(default=True)
-config.plugins.stvcl.strtmain               = ConfigYesNo(default=True)
-config.plugins.stvcl.thumb                  = ConfigYesNo(default=False)
-config.plugins.stvcl.thumbpic               = ConfigYesNo(default=False)
+        config.plugins.stvcl.pthm3uf = ConfigDirectory(default='/media/hdd/movie/')
+config.plugins.stvcl.bouquettop = ConfigSelection(default='Bottom', choices=['Bottom', 'Top'])
+config.plugins.stvcl.services = ConfigSelection(default='4097', choices=modechoices)
+config.plugins.stvcl.cachefold = ConfigDirectory(default='/media/hdd/')
+config.plugins.stvcl.filter = ConfigYesNo(default=False)
+config.plugins.stvcl.strtext = ConfigYesNo(default=True)
+config.plugins.stvcl.strtmain = ConfigYesNo(default=True)
+config.plugins.stvcl.thumb = ConfigYesNo(default=False)
+config.plugins.stvcl.thumbpic = ConfigYesNo(default=False)
+
 tvstrvl = str(config.plugins.stvcl.cachefold.value) + "stvcl"
 tmpfold = str(config.plugins.stvcl.cachefold.value) + "stvcl/tmp"
 picfold = str(config.plugins.stvcl.cachefold.value) + "stvcl/pic"
 
 Path_Movies = str(config.plugins.stvcl.pthm3uf.value)
 if not Path_Movies.endswith("/"):
-    Path_Movies = Path_Movies + '/' #[:-1]
-# print('patch movies: ', Path_Movies)
-
+    Path_Movies = Path_Movies + '/' 
 if not os.path.exists(tvstrvl):
     os.system("mkdir " + tvstrvl)
 if not os.path.exists(tmpfold):
@@ -204,9 +206,9 @@ if not os.path.exists(picfold):
 if isFHD():
     skin_path=res_plugin_fold + 'skins/fhd/'
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
-else:
-    skin_path=res_plugin_fold + 'skins/hd/'
-    defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
+# else:
+    # skin_path=res_plugin_fold + 'skins/hd/'
+    # defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
 if os.path.exists('/var/lib/dpkg/status'):
     skin_path=skin_path + 'dreamOs/'
 
@@ -259,9 +261,7 @@ def tvListEntry(name, png):
             res.append(MultiContentEntryText(pos=(60, 0), size=(1000, 50), font=0, text=name, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     return res
 
-Panel_list = [
- ('SMART TV CHANNELS LIST')
- ]
+Panel_list = [('SMART TV CHANNELS LIST')]
 
 class OpenScript(Screen):
     def __init__(self, session):
@@ -291,13 +291,13 @@ class OpenScript(Screen):
         self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions', 'TimerEditActions'],
          {'ok': self.okRun,
          'menu': self.scsetup,
-         'red': self.close,
+         'red': self.exit,
          # 'green': self.messagereload,
-         'info': self.close,
+         'info': self.exit,
          # 'yellow': self.messagedellist,
          # 'blue': self.ChannelList,
-         'back': self.close,
-         'cancel': self.close}, -1)
+         'back': self.exit,
+         'cancel': self.exit}, -1)
         # self.onFirstExecBegin.append(self.updateMenuList)
         self.onLayoutFinish.append(self.updateMenuList)
 
@@ -379,6 +379,10 @@ class OpenScript(Screen):
 
     def scsetup(self):
         self.session.open(OpenConfig)
+
+    def exit(self):
+        deletetmp()
+        self.close()
 
 class ListM3u1(Screen):
     def __init__(self, session, namem3u, url):
