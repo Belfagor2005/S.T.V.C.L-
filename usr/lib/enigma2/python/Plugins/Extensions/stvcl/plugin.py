@@ -5,7 +5,7 @@ Info http://t.me/tivustream
 ****************************************
 *        coded by Lululla              *
 *                                      *
-*             06/01/2022               *
+*             13/01/2022               *
 ****************************************
 '''
 from __future__ import print_function
@@ -375,7 +375,7 @@ class OpenScript(Screen):
             sleep(4)
             self.session.open(ListM3u1, namem3u, urlm3u)
         except Exception as e:
-            print('errore e : ', e)
+            print('error : ', str(e))
 
     def scsetup(self):
         self.session.open(OpenConfig)
@@ -452,7 +452,7 @@ class ListM3u1(Screen):
             try:
                 content = content.decode("utf-8")                
             except Exception as e:                   
-                   print("Error: %s." % e)          
+                   print("Error: ", str(e))          
         
         # content = ReadUrl(self.url)
         # if six.PY3:
@@ -479,7 +479,7 @@ class ListM3u1(Screen):
                 self.urls.append(url)
             m3ulist(self.names, self['list'])
         except Exception as e:
-            print('errore e : ', e)
+            print('error: ', str(e))
 
     def runList(self):
         idx = self["list"].getSelectionIndex()
@@ -562,7 +562,7 @@ class ListM3u(Screen):
             try:
                 content = content.decode("utf-8")                
             except Exception as e:                   
-                   print("Error: %s." % e)          
+                   print("Error: ", str(e))          
         # content = ReadUrl(self.url)
         # if six.PY3:
             # content = six.ensure_str(content)
@@ -590,7 +590,7 @@ class ListM3u(Screen):
                 self.urls.append(url)
             m3ulist(self.names, self['list'])
         except Exception as e:
-            print('errore e : ', e)
+            print('error: ', str(e))
 
     def runList(self):
         idx = self["list"].getSelectionIndex()
@@ -761,7 +761,7 @@ class ChannelList(Screen):
                     return
             except Exception as e:
                 self.convert = False
-                print('error convert iptv ',e)
+                print('error convert iptv ', str(e))
 
     def cancel(self):
         if search_ok == True:
@@ -864,7 +864,7 @@ class ChannelList(Screen):
                     pass
                 return
             except Exception as e:
-                print('error m3u', e)
+                print('error m3u', str(e))
 
     def downloadProgress(self, recvbytes, totalbytes):
         self["progress"].show()
@@ -920,7 +920,7 @@ class ChannelList(Screen):
             # print('ChannelList Downlist sleep 3 - 2')        # return
 
         except Exception as e:
-            print('errore e : ', e)
+            print('error: ', str(e))
             # self.mbox = self.session.open(MessageBox, _('DOWNLOAD ERROR'), MessageBox.TYPE_INFO, timeout=5)
         return
 
@@ -1015,8 +1015,8 @@ class ChannelList(Screen):
                     self.load_poster()
 
 
-        except Exception as ex:
-            print('error exception: ', ex)
+        except Exception as e:
+            print('error: ', str(e))
 
     def gridpic(self):
         self.session.open(GridMain, self.names, self.urls, self.pics)
@@ -1136,24 +1136,23 @@ class ChannelList(Screen):
                         downloadPage(pixmaps, pictmp, sniFactory, timeout=5).addCallback(self.downloadPic, pictmp).addErrback(self.downloadError)
                     else:
                         downloadPage(pixmaps, pictmp).addCallback(self.downloadPic, pictmp).addErrback(self.downloadError)
-                except Exception as ex:
-                    print(ex)
-                    print("Error: can't find file or read data")
+                except Exception as e:
+                    print("Error: can't find file or read data ", str(e))
         return
 
     def downloadError(self, raw):
         try:
             self.poster_resize(defpic)
-        except Exception as ex:
-            print(ex)
+        except Exception as e:
+            print(str(e))
             print('exe downloadError')
 
     def downloadPic(self, data, pictmp):
         if file_exists(pictmp):
             try:
                 self.poster_resize(pictmp)
-            except Exception as ex:
-                print("* error ** %s" % ex)
+            except Exception as e:
+                print("* error ", str(e))
                 pass
 
     def poster_resize(self, png):
@@ -1765,8 +1764,8 @@ class OpenConfig(Screen, ConfigListScreen):
                  editDir=True,
                  inhibitDirs=['/bin', '/boot', '/dev', '/home', '/lib', '/proc', '/run', '/sbin', '/sys', '/var'],
                  minFree=15)
-            except Exception as ex:
-                print(ex)
+            except Exception as e:
+                print('error: ', str(e))
 
         def openDirectoryBrowserCB(self, path):
             if path != None:

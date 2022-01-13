@@ -4,7 +4,7 @@
 ****************************************
 *        coded by Lululla              *
 *           thank's Pcd                *
-*             21/10/2021               *
+*             13/01/2022               *
 *       skin by MMark                  *
 ****************************************
 Info http://t.me/tivustream                           
@@ -46,9 +46,10 @@ except:
     from . import Utils
 plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
 try:
-    import Image
-except:
     from PIL import Image
+except:
+    import Image
+
 if isFHD():
     skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/skins/fhd/")
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
@@ -229,7 +230,7 @@ def getpics(names, pics, tmpfold, picfold):
                 # im.save(tpicf, quality=100, optimize=True)
             except Exception as e:
                    print("******* picon resize failed *******")
-                   print(e)
+                   print(str(e))
         else:
             tpicf = defpic
         pix.append(j)
