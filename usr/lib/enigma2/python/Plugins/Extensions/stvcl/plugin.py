@@ -121,7 +121,7 @@ if sys.version_info >= (2, 7, 9):
 
 global Path_Movies, defpic, skin_path
 currversion = '1.2'
-# Version = ' - 06.12.2021'
+# Version = ' - 06.01.2022'
 title_plug = '..:: S.T.V.C.L. V.%s ::..' % currversion
 name_plug = 'Smart Tv Channels List'
 plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
@@ -547,29 +547,29 @@ class ListM3u(Screen):
     def openList(self):
         self.names = []
         self.urls = []
-        
-        if sys.version_info.major == 3:
-             import urllib.request as urllib2
-        elif sys.version_info.major == 2:
-             import urllib2
-        req = urllib2.Request(self.url)                      
-        req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')
-        r = urllib2.urlopen(req,None,15)
-        link = r.read()
-        r.close()
-        content = link
-        if str(type(content)).find('bytes') != -1:
-            try:
-                content = content.decode("utf-8")                
-            except Exception as e:                   
-                   print("Error: ", str(e))          
-        # content = ReadUrl(self.url)
-        # if six.PY3:
-            # content = six.ensure_str(content)
-        print('content: ',content)
-        #<a href="br.xml.gz">br.xml.gz</a>  21-Oct-2021 07:05   108884
-        #<a href="raw-radio.m3u8">raw-radio.m3u8</a>    22-Oct-2021 06:08   9639
-        try:
+        try:        
+            if sys.version_info.major == 3:
+                 import urllib.request as urllib2
+            elif sys.version_info.major == 2:
+                 import urllib2
+            req = urllib2.Request(self.url)                      
+            req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')
+            r = urllib2.urlopen(req,None,15)
+            link = r.read()
+            r.close()
+            content = link
+            if str(type(content)).find('bytes') != -1:
+                try:
+                    content = content.decode("utf-8")                
+                except Exception as e:                   
+                       print("Error: ", str(e))          
+            # content = ReadUrl(self.url)
+            # if six.PY3:
+                # content = six.ensure_str(content)
+            print('content: ',content)
+            #<a href="br.xml.gz">br.xml.gz</a>  21-Oct-2021 07:05   108884
+            #<a href="raw-radio.m3u8">raw-radio.m3u8</a>    22-Oct-2021 06:08   9639
+
             regexvideo = '<a href="(.*?)">.*?</a>.*?-(.*?)-(.*?) '
             match = re.compile(regexvideo, re.DOTALL).findall(content)
             print('ListM3u match = ', match)
@@ -754,6 +754,7 @@ class ChannelList(Screen):
                                 with open('/etc/enigma2/bouquets.tv', 'a') as outfile:
                                     outfile.write('#SERVICE 1:7:1:0:0:0:0:0:0:0:FROM BOUQUET "%s" ORDER BY bouquet\r\n' % bqtname)
                                     outfile.close()
+                                in_bouquets = 1
                     self.mbox = self.session.open(MessageBox, _('Shuffle Favorite List in Progress') + '\n' + _('Wait please ...'), MessageBox.TYPE_INFO, timeout=5)
                     ReloadBouquets()
                 else:
@@ -1388,8 +1389,8 @@ class M3uPlay2(
             self.mbox = self.session.open(MessageBox, message, MessageBox.TYPE_INFO)
         except:
             pass
-
         return
+
     def showIMDB(self):
         TMDB = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('TMDB'))
         IMDb = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('IMDb'))
@@ -1502,8 +1503,6 @@ class M3uPlay2(
 
     def leavePlayer(self):
         self.close()
-
-
 
 class AddIpvStream(Screen):
     def __init__(self, session, name, url):
