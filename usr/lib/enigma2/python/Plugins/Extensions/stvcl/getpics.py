@@ -7,7 +7,7 @@
 *             13/01/2022               *
 *       skin by MMark                  *
 ****************************************
-Info http://t.me/tivustream                           
+Info http://t.me/tivustream
 '''
 from __future__ import print_function
 from . import _
@@ -94,7 +94,7 @@ else:
     pos.append([500,350])
     pos.append([740,350])
     pos.append([980,350])
-    
+
 def getpics(names, pics, tmpfold, picfold):
     global defpic
     defpic = defpic
@@ -141,6 +141,9 @@ def getpics(names, pics, tmpfold, picfold):
         picf = picfold + "/" + name + ext
         tpicf = tmpfold + "/" + name + ext
         if fileExists(picf):
+            if ('Stagione') in str(name):
+                cmd = "rm " + picf
+                os.system(cmd)
             cmd = "cp " + picf + " " + tmpfold
             print("In getpics fileExists(picf) cmd =", cmd)
             os.system(cmd)
@@ -148,7 +151,6 @@ def getpics(names, pics, tmpfold, picfold):
             if ('Stagione') in str(name):
                 cmd = "rm " + tpicf
                 os.system(cmd)
-    #-----------------
         if not fileExists(picf):
             if plugin_fold in url:
                 try:
@@ -171,7 +173,7 @@ def getpics(names, pics, tmpfold, picfold):
                         f1.close()
                     else:
                         print("Going in urlopen url =", url)
-                        fpage = getUrl(url)
+                        fpage = AdultUrl(url)
                         f1=open(tpicf,"wb")
                         f1.write(fpage)
                         f1.close()
@@ -526,7 +528,6 @@ class TvInfoBarShowHide():
     def debug(obj, text = ""):
         print(text + " %s\n" % obj)
 
-# class M3uPlay2(InfoBarBase, InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarSubtitleSupport, InfoBarNotifications, TvInfoBarShowHide, Screen):
 class M3uPlay2(
     InfoBarBase,
     InfoBarMenu,

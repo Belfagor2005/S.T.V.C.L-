@@ -11,7 +11,12 @@ import base64
 # pythonFull = float(str(sys.version_info.major) + "." + str(sys.version_info.minor))
 # pythonVer = sys.version_info.major
 # PY3 = version_info[0] == 3
+
+pythonFull = float(str(sys.version_info.major) + "." + str(sys.version_info.minor))
+pythonVer = sys.version_info.major
+# if pythonFull < 3.9:
 PY3 = sys.version_info.major >= 3
+
 if PY3:
     # Python 3
     PY3 = True
@@ -578,7 +583,8 @@ def ReadUrl2(url):
     content = link
     if str(type(content)).find('bytes') != -1:
         try:
-            content = content.decode("utf-8")                
+            content = content.decode("utf-8")  
+            # content = content.decode() 
         except Exception as e:
             print('error: ', str(e))  
     return content
