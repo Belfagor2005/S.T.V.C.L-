@@ -476,13 +476,14 @@ class ListM3u1(Screen):
             print('error: ', str(e))
 
     def runList(self):
+        i = len(self.names)
+        print('iiiiii= ',i)
+        if i < 1:
+            return
         idx = self["list"].getSelectionIndex()
         sel = self.names[idx]
         urlm3u = self.urls[idx]
-        if idx == -1 or None or '':
-            return
-        else:
-            self.session.open(ListM3u, sel, urlm3u)
+        self.session.open(ListM3u, sel, urlm3u)
 
     def cancel(self):
         self.close()
@@ -587,13 +588,14 @@ class ListM3u(Screen):
             print('error: ', str(e))
 
     def runList(self):
+        i = len(self.names)
+        print('iiiiii= ',i)
+        if i < 1:
+            return
         idx = self["list"].getSelectionIndex()
         sel = self.names[idx]
         urlm3u = self.urls[idx]
-        if idx == -1 or None or '':
-            return
-        else:
-            self.session.open(ChannelList, sel, urlm3u)
+        self.session.open(ChannelList, sel, urlm3u)
 
     def cancel(self):
         self.close()
@@ -666,22 +668,24 @@ class ChannelList(Screen):
         pass
         
     def message1(self):
+        i = len(self.names)
+        print('iiiiii= ',i)
+        if i < 1:
+            return
         global servicx
         idx = self['list'].getSelectionIndex()
-        if idx == -1 or None or '':
-            return
-        else:
-            servicx = 'iptv'
-            self.session.openWithCallback(self.check10, MessageBox, _("Do you want to Convert Bouquet IPTV?"), MessageBox.TYPE_YESNO)
+        servicx = 'iptv'
+        self.session.openWithCallback(self.check10, MessageBox, _("Do you want to Convert Bouquet IPTV?"), MessageBox.TYPE_YESNO)
 
     def message2(self):
+        i = len(self.names)
+        print('iiiiii= ',i)
+        if i < 1:
+            return
         global servicx
         idx = self['list'].getSelectionIndex()
-        if idx == -1 or None or '':
-            return
-        else:
-            servicx = 'gst'
-            self.session.openWithCallback(self.check10, MessageBox, _("Do you want to Convert Bouquet GSTREAMER?"), MessageBox.TYPE_YESNO)
+        servicx = 'gst'
+        self.session.openWithCallback(self.check10, MessageBox, _("Do you want to Convert Bouquet GSTREAMER?"), MessageBox.TYPE_YESNO)
 
     def check10(self, result):
         if result:
@@ -813,12 +817,14 @@ class ChannelList(Screen):
         self.playList()
 
     def runRec(self):
+        i = len(self.names)
+        print('iiiiii= ',i)
+        if i < 1:
+            return
         global urlm3u, namem3u
         idx = self["list"].getSelectionIndex()
         namem3u = self.names[idx]
         urlm3u = self.urls[idx]
-        if idx == -1 or None or '':
-            return
         if self.downloading == True:
             self.session.open(MessageBox, _('You are already downloading!!!'), MessageBox.TYPE_INFO, timeout=5)
         else:
@@ -904,9 +910,7 @@ class ChannelList(Screen):
             # with open(in_tmp,'wb') as f:
               # f.write(r.content)
             # # urlretrieve(urlm3u, in_tmp)
-            
             downloadFile(urlm3u,in_tmp)
-            
             sleep(7)
             self.playList()
             # self.download = downloadWithProgress(urlm3u, in_tmp)
@@ -1018,21 +1022,22 @@ class ChannelList(Screen):
         self.close()
 
     def runChannel(self):
-        idx = self['list'].getSelectionIndex()
-        if idx == -1 or None or '':
+        i = len(self.names)
+        print('iiiiii= ',i)
+        if i < 1:
             return
-        else:
-            self.pin = True
-            if config.ParentalControl.configured.value:
-                a = '+18', 'adult', 'hot', 'porn', 'sex', 'xxx'
-                if any(s in str(self.names[idx]).lower() for s in a):
-                    self.allow2()
-                else:
-                    self.pin = True
-                    self.pinEntered2(True)
+        idx = self['list'].getSelectionIndex()
+        self.pin = True
+        if config.ParentalControl.configured.value:
+            a = '+18', 'adult', 'hot', 'porn', 'sex', 'xxx'
+            if any(s in str(self.names[idx]).lower() for s in a):
+                self.allow2()
             else:
                 self.pin = True
                 self.pinEntered2(True)
+        else:
+            self.pin = True
+            self.pinEntered2(True)
 
     def allow2(self):
         from Screens.InputBox import PinInput
@@ -1071,18 +1076,18 @@ class ChannelList(Screen):
             self.session.open(MessageBox, _('Install Streamlink first'), MessageBox.TYPE_INFO, timeout=5)
 
     def AdjUrlFavo(self):
-        idx = self['list'].getSelectionIndex()
-        if idx == -1 or None or '':
+        i = len(self.names)
+        print('iiiiii= ',i)
+        if i < 1:
             return
-
-        else:
-            name = self.names[idx]
-            url = self.urls[idx]
-            regexcat = '(.*?).m3u8'
-            match = re.compile(regexcat, re.DOTALL).findall(url)
-            for url in match:
-                url = url + '.m3u8'
-            self.session.open(AddIpvStream, name, url)
+        idx = self['list'].getSelectionIndex()
+        name = self.names[idx]
+        url = self.urls[idx]
+        regexcat = '(.*?).m3u8'
+        match = re.compile(regexcat, re.DOTALL).findall(url)
+        for url in match:
+            url = url + '.m3u8'
+        self.session.open(AddIpvStream, name, url)
 
     def up(self):
         self[self.currentList].up()
@@ -1101,6 +1106,10 @@ class ChannelList(Screen):
         self.load_poster()
 
     def load_poster(self):
+        i = len(self.pics)
+        print('iiiiii= ',i)
+        if i < 1:
+            return
         idx = self['list'].getSelectionIndex()
         pic = self.pics[idx]
         pixmaps = defpic
