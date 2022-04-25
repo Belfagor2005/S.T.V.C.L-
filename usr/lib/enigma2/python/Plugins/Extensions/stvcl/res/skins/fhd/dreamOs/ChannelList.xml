@@ -1,31 +1,30 @@
 <!-- Skin ChannelList 20/10/2021 -->
 <screen name="ChannelList" position="0,0" size="1920,1080" title="..::stvcl List Channel::.." backgroundColor="#10101010" flags="wfNoBorder">
-	<ePixmap position="0,0" size="1920,1080" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/main2.png" alphatest="blend" zPosition="1" />
-	<ePixmap position="220,30" size="279,50" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/tvs.png" alphatest="blend" zPosition="5" />
-	<widget name="title" position="220,85" size="749,40" font="Regular;30" halign="left" valign="center" foregroundColor="#002a79b8" backgroundColor="black" transparent="1" zPosition="5" />
-	<ePixmap position="220,130" size="1030,8" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sep.png" zPosition="5" />
-	<widget name="Maintainer2" position="511,42" size="400,40" font="Regular;24" halign="left" foregroundColor="yellow" backgroundColor="#000000" transparent="1" zPosition="5" />
-	<!-- Menu List -->
-	<widget name="list" position="220,155" size="1030,638" scrollbarMode="showOnDemand" transparent="1" zPosition="5" backgroundColor="#20000000" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColorSelected="#0b2049" selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sliderb.png" />
+	<widget name="title" position="220,85" size="749,40" font="Regular;30" halign="left" valign="center" foregroundColor="#002a79b8" backgroundColor="black" transparent="1" zPosition="5"/>
+	<widget name="Maintainer2" position="511,42" size="400,40" font="Regular;24" halign="left" foregroundColor="yellow" backgroundColor="#000000" transparent="1" zPosition="5"/>
+	<widget name="path" position="219,809" size="825,53" font="Regular;30" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5"/>
+	<widget name="progress" position="502,936" size="300,50" foregroundColor="#2a70a4" backgroundColor="#10000000" transparent="1" zPosition="5"/>
+	<widget source="progresstext" render="Label" font="Regular;20" position="502,937" size="300,50" backgroundColor="#202020" transparent="1" halign="center" zPosition="6"/>
+	<widget name="service" position="219,861" size="1030,46" font="Regular;30" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5"/>
+	<widget name="live" position="884,809" size="359,50" font="Regular;30" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5"/>
 	<!-- Widget -->
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_menu.png" scale="strech" position="601,998" size="80,35" zPosition="6" />
-	<widget name="path" position="219,809" size="825,53" font="Regular;30" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />	
-	<widget name="progress" position="502,936" size="300,50" foregroundColor="#2a70a4" backgroundColor="#10000000" transparent="1" zPosition="5" />
-	<widget source="progresstext" render="Label" font="Regular;20" position="502,937" size="300,50" backgroundColor="#202020" transparent="1" halign="center" zPosition="6" />	
-	<widget name="service" position="219,861" size="1030,46" font="Regular;30" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />
-	<widget name="live" position="884,809" size="359,50" font="Regular;30" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />
-	
-	<eLabel position="1375,40" size="440,639" backgroundColor="#10101010" cornerRadius="20" zPosition="1" />	
-	<widget name="poster" position="1395,60" size="400,600" backgroundColor="#30000000" transparent="0" borderWidth="3" borderColor="#00ffffff" alphatest="blend" zPosition="4" />
-	
+	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/main2.png" position="0,0" size="1920,1080" alphatest="blend" zPosition="1"/>
+	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/tvs.png" position="220,30" size="279,50" alphatest="blend" zPosition="5"/>
+	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sep.png" position="220,130" size="1030,8" zPosition="5"/>
+	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sep.png" position="220,910" size="1030,8" zPosition="5"/>
+	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_menu.png" position="601,998" size="80,35" zPosition="6"/>
+	<!-- Menu List -->
+	<widget name="list" position="220,155" size="1030,638" scrollbarMode="showOnDemand" transparent="1" zPosition="5" backgroundColor="#20000000" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColorSelected="#0b2049" selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sliderb.png"/>
+	<!-- Widget -->
+	<eLabel position="1375,40" size="440,639" backgroundColor="#10101010" cornerRadius="20" zPosition="1"/>
+	<widget name="poster" position="1395,60" size="400,600" backgroundColor="#30000000" transparent="0" borderWidth="3" borderColor="#00ffffff" alphatest="blend" zPosition="4"/>
 	<!-- Colors 1220 -->
-	<ePixmap position="220,910" size="1030,8" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sep.png" zPosition="5" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_red.png" position="220,945" size="30,30" alphatest="on" zPosition="5" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_green.png" position="220,1005" size="30,30" alphatest="on" zPosition="5" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_yellow.png" position="1220,945" size="30,30" alphatest="on" zPosition="5" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_blue.png" position="1220,1005" size="30,30" alphatest="on" zPosition="5" />
-	<widget name="key_red" position="270,940" size="300,40" font="Regular;30" halign="left" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1" />
-	<widget name="key_green" position="270,1000" size="300,40" font="Regular;30" halign="left" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1" />
-	<widget name="key_yellow" position="715,940" size="500,40" font="Regular;30" halign="right" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1" />
-	<widget name="key_blue" position="715,1000" size="500,40" font="Regular;30" halign="right" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1" />
+	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_red.png" position="220,945" size="30,30" alphatest="on" zPosition="5"/>
+	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_green.png" position="220,1005" size="30,30" alphatest="on" zPosition="5"/>
+	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_yellow.png" position="1220,945" size="30,30" alphatest="on" zPosition="5"/>
+	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_blue.png" position="1220,1005" size="30,30" alphatest="on" zPosition="5"/>
+	<widget name="key_red" position="270,940" size="300,40" font="Regular;30" halign="left" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1"/>
+	<widget name="key_green" position="270,1000" size="300,40" font="Regular;30" halign="left" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1"/>
+	<widget name="key_yellow" position="715,940" size="500,40" font="Regular;30" halign="right" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1"/>
+	<widget name="key_blue" position="715,1000" size="500,40" font="Regular;30" halign="right" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1"/>
 </screen>

@@ -5,7 +5,7 @@ Info http://t.me/tivustream
 ****************************************
 *        coded by Lululla              *
 *                                      *
-*             13/01/2022               *
+*             25/04/2022               *
 ****************************************
 '''
 from __future__ import print_function
@@ -96,12 +96,15 @@ except:
     from urllib2 import Request
     from urllib2 import urlopen
       
-from Plugins.Extensions.stvcl.getpics import GridMain
-from Plugins.Extensions.stvcl.getpics import getpics
-try:
-    from Plugins.Extensions.stvcl.Utils import *
-except:
-    from . import Utils
+# from Plugins.Extensions.stvcl.getpics import GridMain
+# from Plugins.Extensions.stvcl.getpics import getpics
+from .getpics import getpics, GridMain
+
+# try:
+    # from Plugins.Extensions.stvcl.Utils import *
+# except:
+from . import Utils
+    
 try:
     import io
 except:
@@ -203,7 +206,7 @@ if not os.path.exists(tmpfold):
 if not os.path.exists(picfold):
     os.system("mkdir " + picfold)
 
-if isFHD():
+if Utils.isFHD():
     skin_path=res_plugin_fold + 'skins/fhd/'
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
 if os.path.exists('/var/lib/dpkg/status'):
@@ -212,13 +215,14 @@ if os.path.exists('/var/lib/dpkg/status'):
 class tvList(MenuList):
     def __init__(self, list):
         MenuList.__init__(self, list, False, eListboxPythonMultiContent)
-        self.l.setItemHeight(50)
-        textfont = int(24)
-        self.l.setFont(0, gFont('Regular', textfont))        
-        if isFHD():
+        if Utils.isFHD():
             self.l.setItemHeight(50)
             textfont = int(34)
             self.l.setFont(0, gFont('Regular', textfont))
+        else:    
+            self.l.setItemHeight(50)
+            textfont = int(24)
+            self.l.setFont(0, gFont('Regular', textfont))             
 
 def m3ulistEntry(download):
     res = [download]
@@ -229,11 +233,13 @@ def m3ulistEntry(download):
     backcol = 0
     blue = 4282611429
     png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting2.png'))
-    res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
-    res.append(MultiContentEntryText(pos=(60, 0), size=(1000, 50), font=0, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))    
-    if isFHD():
+    if Utils.isFHD():
         res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
         res.append(MultiContentEntryText(pos=(60, 0), size=(1200, 50), font=0, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+    else:    
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
+        res.append(MultiContentEntryText(pos=(60, 0), size=(1000, 50), font=0, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))          
+        
     return res
 
 def m3ulist(data, list):
@@ -248,11 +254,12 @@ def m3ulist(data, list):
 def tvListEntry(name, png):
     res = [name]
     png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting.png'))
-    res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
-    res.append(MultiContentEntryText(pos=(60, 0), size=(1000, 50), font=0, text=name, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))    
-    if isFHD():
+    if Utils.isFHD():
         res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
         res.append(MultiContentEntryText(pos=(60, 0), size=(1200, 50), font=0, text=name, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+    else:        
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
+        res.append(MultiContentEntryText(pos=(60, 0), size=(1000, 50), font=0, text=name, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))          
     return res
 
 Panel_list = [('SMART TV CHANNELS LIST')]
@@ -315,7 +322,7 @@ class OpenScript(Screen):
         sel = self.menu_list[idx]
         url = ''
         if sel == ("SMART TV CHANNELS LIST"):
-            url = b64decoder(scramble)
+            url = Utils.b64decoder(scramble)
         else:
             return
         self.downlist(sel, url)
@@ -339,7 +346,7 @@ class OpenScript(Screen):
     def downlist(self, sel, url):
         global in_tmp
         namem3u = str(sel)
-        urlm3u = checkStr(url.strip())
+        urlm3u = Utils.checkStr(url.strip())
         if PY3:
             urlm3u.encode()
         # if six.PY3:
@@ -364,7 +371,7 @@ class OpenScript(Screen):
               # f.write(r.content)
             # # urlretrieve(urlm3u, in_tmp)
             
-            downloadFile(urlm3u,in_tmp)
+            Utils.downloadFile(urlm3u,in_tmp)
             
             sleep(4)
             self.session.open(ListM3u1, namem3u, urlm3u)
@@ -375,7 +382,7 @@ class OpenScript(Screen):
         self.session.open(OpenConfig)
 
     def exit(self):
-        deletetmp()
+        Utils.deletetmp()
         self.close()
 
 class ListM3u1(Screen):
@@ -389,8 +396,7 @@ class ListM3u1(Screen):
         self.list = []
         self['list'] = tvList([])
         global SREF
-        self.initialservice = self.session.nav.getCurrentlyPlayingServiceReference()
-        SREF = self.initialservice
+        SREF = self.session.nav.getCurrentlyPlayingServiceReference()
         self['title'] = Label(title_plug + ' ' + namem3u)
         self['Maintainer2'] = Label('Maintener @Lululla')
         self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
@@ -408,7 +414,7 @@ class ListM3u1(Screen):
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
-        self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions', 'TimerEditActions'],
+        self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions'],
         {
          # 'green': self.message2,
          # 'yellow': self.message1,
@@ -469,7 +475,7 @@ class ListM3u1(Screen):
             # for item in items:
                 # name = item.split('###')[0]
                 # url = item.split('###')[1]
-                self.names.append(checkStr(name))
+                self.names.append(Utils.checkStr(name))
                 self.urls.append(url)
             m3ulist(self.names, self['list'])
         except Exception as e:
@@ -499,8 +505,7 @@ class ListM3u(Screen):
         self.list = []
         self['list'] = tvList([])
         global SREF
-        self.initialservice = self.session.nav.getCurrentlyPlayingServiceReference()
-        SREF = self.initialservice
+        SREF = self.session.nav.getCurrentlyPlayingServiceReference()
         self['title'] = Label(title_plug + ' ' + namem3u)
         self['Maintainer2'] = Label('Maintener @Lululla')
         self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
@@ -518,7 +523,7 @@ class ListM3u(Screen):
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
-        self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions', 'TimerEditActions'],
+        self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions'],
         {
          # 'green': self.message2,
          # 'yellow': self.message1,
@@ -581,7 +586,7 @@ class ListM3u(Screen):
             for item in items:
                 name = item.split('###')[0]
                 url = item.split('###')[1]
-                self.names.append(checkStr(name))
+                self.names.append(Utils.checkStr(name))
                 self.urls.append(url)
             m3ulist(self.names, self['list'])
         except Exception as e:
@@ -754,7 +759,7 @@ class ChannelList(Screen):
                                     outfile.close()
                                 in_bouquets = 1
                     self.mbox = self.session.open(MessageBox, _('Shuffle Favorite List in Progress') + '\n' + _('Wait please ...'), MessageBox.TYPE_INFO, timeout=5)
-                    ReloadBouquets()
+                    Utils.ReloadBouquets()
                 else:
                     self.session.open(MessageBox, _('Conversion Failed!!!'), MessageBox.TYPE_INFO, timeout=5)
                     return
@@ -910,7 +915,7 @@ class ChannelList(Screen):
             # with open(in_tmp,'wb') as f:
               # f.write(r.content)
             # # urlretrieve(urlm3u, in_tmp)
-            downloadFile(urlm3u,in_tmp)
+            Utils.downloadFile(urlm3u,in_tmp)
             sleep(7)
             self.playList()
             # self.download = downloadWithProgress(urlm3u, in_tmp)
@@ -967,9 +972,9 @@ class ChannelList(Screen):
                         url = item.split('###')[1]
                         pic = item.split('###')[2]
 
-                        self.names.append(checkStr(name))
+                        self.names.append(Utils.checkStr(name))
                         self.urls.append(url)
-                        self.pics.append(checkStr(pic))
+                        self.pics.append(Utils.checkStr(pic))
                 else:
                     regexcat = '#EXTINF.*?,(.*?)\\n(.*?)\\n'
                     match = re.compile(regexcat, re.DOTALL).findall(fpage)
@@ -992,9 +997,12 @@ class ChannelList(Screen):
                         url = item.split('###')[1]
                         pic = item.split('###')[2]
 
-                        self.names.append(checkStr(name))
+                        self.names.append(Utils.checkStr(name))
                         self.urls.append(url)
-                        self.pics.append(checkStr(pic))
+                        self.pics.append(Utils.checkStr(pic))
+                        
+                        
+                        
                 #####
                 if config.plugins.stvcl.thumb.value == True:
                     self["live"].setText('N.' + str(len(self.names)) + " Stream")
@@ -1286,7 +1294,7 @@ class M3uPlay2(
     ALLOW_SUSPEND = True                                
     screen_timeout = 5000
     def __init__(self, session, name, url):
-        global SREF, streaml
+        global streaml
         Screen.__init__(self, session)
         self.session = session
         self.skinName = 'MoviePlayer'
@@ -1328,8 +1336,9 @@ class M3uPlay2(
         service = None
         self.url = url
         self.pcip = 'None'
-        self.name = decodeHtml(name)
+        self.name = Utils.decodeHtml(name)
         self.state = self.STATE_PLAYING
+        global SREF
         SREF = self.session.nav.getCurrentlyPlayingServiceReference()
         if '8088' in str(self.url):
             self.onFirstExecBegin.append(self.slinkPlay)
@@ -1400,12 +1409,12 @@ class M3uPlay2(
         if os.path.exists(TMDB):
             from Plugins.Extensions.TMBD.plugin import TMBD
             text_clear = self.name
-            text = charRemove(text_clear)
+            text = Utils.charRemove(text_clear)
             self.session.open(TMBD, text, False)
         elif os.path.exists(IMDb):
             from Plugins.Extensions.IMDb.plugin import IMDB
             text_clear = self.name
-            text = charRemove(text_clear)
+            text = Utils.charRemove(text_clear)
             self.session.open(IMDB, text)
         else:
             text_clear = self.name
@@ -1449,7 +1458,7 @@ class M3uPlay2(
         # if "youtube" in str(self.url):
             # self.mbox = self.session.open(MessageBox, _('For Stream Youtube coming soon!'), MessageBox.TYPE_INFO, timeout=5)
             # return
-        if isStreamlinkAvailable():
+        if Utils.isStreamlinkAvailable():
             streamtypelist.append("5002") #ref = '5002:0:1:0:0:0:0:0:0:0:http%3a//127.0.0.1%3a8088/' + url
             streaml = True
         if os.path.exists("/usr/bin/gstplayer"):
@@ -1638,6 +1647,7 @@ class OpenConfig(Screen, ConfigListScreen):
             self.setTitle(title_plug + ' ' + info)
             self['title'] = Label(title_plug + ' SETUP')
             self['Maintainer2'] = Label('Maintener @Lululla')
+            self["paypal"] = Label()
             # self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
             self['key_red'] = Button(_('Back'))
             self['key_green'] = Button(_('Save'))
@@ -1664,9 +1674,17 @@ class OpenConfig(Screen, ConfigListScreen):
             if self.setInfo not in self['config'].onSelectionChanged:
                 self['config'].onSelectionChanged.append(self.setInfo)
 
+        def paypal2(self):
+            conthelp = "If you like what I do you\n"
+            conthelp += " can contribute with a coffee\n\n"
+            conthelp += "scan the qr code and donate € 1.00"
+            return conthelp
+        
         def layoutFinished(self):
+            paypal = self.paypal2()
+            self["paypal"].setText(paypal)    
             self.setTitle(self.setup_title)
-
+        
         def cachedel(self):
             fold = config.plugins.stvcl.cachefold.value + "stvcl"
             cmd = "rm -rf " + tvstrvl + "/*"
@@ -1818,19 +1836,12 @@ class OpenConfig(Screen, ConfigListScreen):
             else:
                 self.close()
 
-def checks():
-    from Plugins.Extensions.stvcl.Utils import checkInternet
-    checkInternet()
-    chekin= False
-    if checkInternet():
-        chekin = True
-    return chekin
-
 def main(session, **kwargs):
-    if checks:
+    from . import Utils
+    if Utils.checkInternet():
         try:
-           from Plugins.Extensions.stvcl.Update import upd_done
-           upd_done()
+           from . import Update
+           Update.upd_done()
         except:
                pass
         # add_skin_font()
