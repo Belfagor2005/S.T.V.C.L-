@@ -69,6 +69,8 @@ from sys import version_info
 from time import sleep
 from twisted.web.client import downloadPage, getPage
 from xml.dom import Node, minidom
+from .getpics import getpics, GridMain
+from . import Utils
 import base64
 import glob
 import os
@@ -78,6 +80,7 @@ import six
 import ssl
 import sys
 import time
+
 PY3 = False
 
 try:
@@ -96,15 +99,6 @@ except:
     from urllib2 import Request
     from urllib2 import urlopen
       
-# from Plugins.Extensions.stvcl.getpics import GridMain
-# from Plugins.Extensions.stvcl.getpics import getpics
-from .getpics import getpics, GridMain
-
-# try:
-    # from Plugins.Extensions.stvcl.Utils import *
-# except:
-from . import Utils
-    
 try:
     import io
 except:
@@ -124,7 +118,6 @@ if sys.version_info >= (2, 7, 9):
 
 global Path_Movies, defpic, skin_path
 currversion = '1.2'
-# Version = ' - 06.01.2022'
 title_plug = '..:: S.T.V.C.L. V.%s ::..' % currversion
 name_plug = 'Smart Tv Channels List'
 plugin_fold    = os.path.dirname(sys.modules[__name__].__file__)
@@ -132,12 +125,10 @@ Maintainer2 = 'Maintener @Lululla'
 dir_enigma2 = '/etc/enigma2/'
 service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 134) || (type == 195)'
 res_plugin_fold=plugin_fold + '/res/'
-# defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
+defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
 dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blankL.png'))
 scramble = 'aHR0cDovL2kubWpoLm56Lw=='
-
 skin_path=res_plugin_fold + 'skins/hd/'
-defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
     
 #================
 # def add_skin_font():
@@ -212,20 +203,34 @@ if Utils.isFHD():
 if os.path.exists('/var/lib/dpkg/status'):
     skin_path=skin_path + 'dreamOs/'
 
+class mainList(MenuList):
+    def __init__(self, list):
+        MenuList.__init__(self, list, False, eListboxPythonMultiContent)
+        if Utils.isFHD():
+            self.l.setItemHeight(300)
+            textfont = int(70)
+            self.l.setFont(0, gFont('Regular', textfont))
+        else:    
+            self.l.setItemHeight(200)
+            textfont = int(50)
+            self.l.setFont(0, gFont('Regular', textfont))     
+        
 class tvList(MenuList):
     def __init__(self, list):
         MenuList.__init__(self, list, False, eListboxPythonMultiContent)
         if Utils.isFHD():
-            self.l.setItemHeight(50)
+            self.l.setItemHeight(60)
             textfont = int(34)
             self.l.setFont(0, gFont('Regular', textfont))
         else:    
-            self.l.setItemHeight(50)
+            self.l.setItemHeight(60)
             textfont = int(24)
-            self.l.setFont(0, gFont('Regular', textfont))             
-
+            self.l.setFont(0, gFont('Regular', textfont))       
+            
 def m3ulistEntry(download):
     res = [download]
+    # name = res[0]
+    
     white = 16777215
     yellow = 16776960
     green = 3828297
@@ -234,13 +239,13 @@ def m3ulistEntry(download):
     blue = 4282611429
     png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting2.png'))
     if Utils.isFHD():
-        res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
-        res.append(MultiContentEntryText(pos=(60, 0), size=(1200, 50), font=0, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
-    else:    
-        res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
-        res.append(MultiContentEntryText(pos=(60, 0), size=(1000, 50), font=0, text=download, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))          
-        
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 10), size=(50, 40), png=loadPNG(png)))
+        res.append(MultiContentEntryText(pos=(90, 0), size=(1200, 60), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+    else:
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 10), size=(50, 40), png=loadPNG(png)))
+        res.append(MultiContentEntryText(pos=(90, 0), size=(1000, 60), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     return res
+
 
 def m3ulist(data, list):
     icount = 0
@@ -253,16 +258,17 @@ def m3ulist(data, list):
 
 def tvListEntry(name, png):
     res = [name]
-    png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting.png'))
+    png1 = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
+    png2 = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
     if Utils.isFHD():
-        res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
-        res.append(MultiContentEntryText(pos=(60, 0), size=(1200, 50), font=0, text=name, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
-    else:        
-        res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 12), size=(34, 25), png=loadPNG(png)))
-        res.append(MultiContentEntryText(pos=(60, 0), size=(1000, 50), font=0, text=name, color = 0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))          
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 0), size=(300, 300), png=loadPNG(png1)))
+        res.append(MultiContentEntryText(pos=(330, 100), size=(1200, 70), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+    else:
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 0), size=(200, 200), png=loadPNG(png2)))
+        res.append(MultiContentEntryText(pos=(230, 70), size=(1000, 50), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     return res
 
-Panel_list = [('SMART TV CHANNELS LIST')]
+Panel_list = [('S.T.V.C.L.')]
 
 class OpenScript(Screen):
     def __init__(self, session):
@@ -272,7 +278,7 @@ class OpenScript(Screen):
         f = open(skin, 'r')
         self.skin = f.read()
         # f.close()
-        self['list'] = tvList([])
+        self['list'] = mainList([])
         self.icount = 0
         self['progress'] = ProgressBar()
         self['progresstext'] = StaticText('')
@@ -314,14 +320,14 @@ class OpenScript(Screen):
             self.menu_list.append(x)
             idx += 1
         self['list'].setList(list)
-
+        
     def okRun(self):
         self.keyNumberGlobalCB(self['list'].getSelectedIndex())
 
     def keyNumberGlobalCB(self, idx):
         sel = self.menu_list[idx]
         url = ''
-        if sel == ("SMART TV CHANNELS LIST"):
+        if sel == ("S.T.V.C.L."):
             url = Utils.b64decoder(scramble)
         else:
             return
@@ -349,8 +355,6 @@ class OpenScript(Screen):
         urlm3u = Utils.checkStr(url.strip())
         if PY3:
             urlm3u.encode()
-        # if six.PY3:
-            # urlm3u = six.ensure_str(urlm3u)
         print('urlmm33uu ', urlm3u)
         try:
             fileTitle = re.sub(r'[\<\>\:\"\/\\\|\?\*\[\]]', '_', namem3u)
@@ -370,10 +374,8 @@ class OpenScript(Screen):
             # with open(in_tmp,'wb') as f:
               # f.write(r.content)
             # # urlretrieve(urlm3u, in_tmp)
-            
             Utils.downloadFile(urlm3u,in_tmp)
-            
-            sleep(4)
+            sleep(3)
             self.session.open(ListM3u1, namem3u, urlm3u)
         except Exception as e:
             print('error : ', str(e))
