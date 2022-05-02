@@ -167,15 +167,36 @@ def getLanguage():
         pass
 
 def downloadFile(url, target):
+    import socket
     try:
-        response = urlopen(url)
+        from urllib.error import HTTPError, URLError
+    except:
+        from urllib2 import HTTPError, URLError
+    try:
+        response = checkStr(urlopen(url, None, 5))
         with open(target, 'wb') as output:
             output.write(response.read())
+        response.close()
         return True
-    except:
-        print("download error")
+    except HTTPError:
+        print("Http error")
         return False
-
+    except URLError:
+        print("Url error")
+        return False
+    except socket.timeout:
+        print("sochet error")
+        return False
+        
+# def downloadFile(url, target):
+    # try:
+        # response = urlopen(url)
+        # with open(target, 'wb') as output:
+            # output.write(response.read())
+        # return True
+    # except:
+        # print("download error")
+        # return False
 def getserviceinfo(sref):## this def returns the current playing service name and stream_url from give sref
     try:
         from ServiceReference import ServiceReference

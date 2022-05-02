@@ -127,7 +127,7 @@ service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 
 res_plugin_fold=plugin_fold + '/res/'
 defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
 dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blankL.png'))
-scramble = 'aHR0cDovL2kubWpoLm56Lw=='
+scramble = 'aHR0cHM6Ly9pLm1qaC5uei8='
 skin_path=res_plugin_fold + 'skins/hd/'
     
 #================
@@ -270,11 +270,11 @@ def tvListEntry(name, png):
 
 Panel_list = [('S.T.V.C.L.')]
 
-class OpenScript(Screen):
+class StvclMain(Screen):
     def __init__(self, session):
         Screen.__init__(self, session)
         self.session = session
-        skin = skin_path + '/OpenScript.xml'
+        skin = skin_path + '/StvclMain.xml'
         f = open(skin, 'r')
         self.skin = f.read()
         # f.close()
@@ -289,7 +289,7 @@ class OpenScript(Screen):
         self['Maintainer2'] = Label('Maintener @Lululla')
         self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
         self['key_red'] = Button(_('Exit'))
-        self['key_green'] = Button(_(''))
+        self['key_green'] = Button(_('Select'))
         self['key_yellow'] = Button(_(''))
         self["key_blue"] = Button(_(''))
         self["key_green"].hide()
@@ -319,6 +319,7 @@ class OpenScript(Screen):
             list.append(tvListEntry(x, png))
             self.menu_list.append(x)
             idx += 1
+        self["key_green"].show()
         self['list'].setList(list)
         
     def okRun(self):
@@ -366,14 +367,6 @@ class OpenScript(Screen):
             if os.path.isfile(in_tmp):
                 os.remove(in_tmp)
             print('in tmp' , in_tmp)
-            # # self.download = downloadWithProgress(urlm3u, in_tmp)
-            # # self.download.addProgress(self.downloadProgress)
-            # # self.download.start().addCallback(self.check).addErrback(self.showError)
-            # import requests
-            # r = requests.get(urlm3u)
-            # with open(in_tmp,'wb') as f:
-              # f.write(r.content)
-            # # urlretrieve(urlm3u, in_tmp)
             Utils.downloadFile(urlm3u,in_tmp)
             sleep(3)
             self.session.open(ListM3u1, namem3u, urlm3u)
@@ -410,7 +403,7 @@ class ListM3u1(Screen):
         self.url = url
         self.name = namem3u
         self['key_red'] = Button(_('Back'))
-        self['key_green'] = Button(_(''))
+        self['key_green'] = Button(_('Select'))
         self['key_yellow'] = Button(_(''))
         self["key_blue"] = Button(_(''))
         self["key_green"].hide()
@@ -432,6 +425,7 @@ class ListM3u1(Screen):
         self.onLayoutFinish.append(self.passing)
 
     def passing(self):
+        self["key_green"].show()
         pass
 
     def scsetup(self):
@@ -468,17 +462,20 @@ class ListM3u1(Screen):
             for url in match:
                 if '..' in url:
                     continue
+                if 'DONATE' in url:
+                    continue
                 name = url.replace('/', '')
-                url = self.url + url + '/'
+                url = self.url + url #+ '/'
                 # item = name + "###" + url
-                # print('ListM3u url-name Items sort: ', item)
+                print('ListM3u url-name Items sort: ', url)
                 # items.append(item)
             # items.sort()
             # for item in items:
                 # name = item.split('###')[0]
                 # url = item.split('###')[1]
-                self.names.append(Utils.checkStr(name))
-                self.urls.append(url)
+                self.urls.append(Utils.checkStr(url.strip()))
+                self.names.append(Utils.checkStr(name.strip()))
+                
             m3ulist(self.names, self['list'])
         except Exception as e:
             print('error: ', str(e))
@@ -519,7 +516,7 @@ class ListM3u(Screen):
         self.url = url
         self.name = namem3u
         self['key_red'] = Button(_('Back'))
-        self['key_green'] = Button(_(''))
+        self['key_green'] = Button(_('Select'))
         self['key_yellow'] = Button(_(''))
         self["key_blue"] = Button(_(''))
         self["key_green"].hide()
@@ -588,8 +585,9 @@ class ListM3u(Screen):
             for item in items:
                 name = item.split('###')[0]
                 url = item.split('###')[1]
-                self.names.append(Utils.checkStr(name))
-                self.urls.append(url)
+                self.urls.append(Utils.checkStr(url.strip()))
+                self.names.append(Utils.checkStr(name.strip()))
+            self["key_green"].show()
             m3ulist(self.names, self['list'])
         except Exception as e:
             print('error: ', str(e))
@@ -630,7 +628,10 @@ class ChannelList(Screen):
         self['key_red'] = Button(_('Back'))
         self['key_green'] = Button(_('Convert ExtePlayer3'))
         self['key_yellow'] = Button(_('Convert Gstreamer'))
-        self["key_blue"] = Button(_("Search"))
+        self["key_blue"] = Button(_("Search"))        
+        self["key_green"].hide()
+        self["key_yellow"].hide()
+        self["key_blue"].hide() 
         self['progress'] = ProgressBar()
         self['progresstext'] = StaticText('')
         self["progress"].hide()
@@ -696,7 +697,6 @@ class ChannelList(Screen):
 
     def check10(self, result):
         if result:
-            # global in_tmp, namebouquett
             print('in folder tmp : ', in_tmp)
             idx = self["list"].getSelectionIndex()
             if idx == -1 or None or '':
@@ -912,18 +912,17 @@ class ChannelList(Screen):
             if os.path.isfile(in_tmp):
                 os.remove(in_tmp)
             print('path tmp : ', in_tmp)
-            # import requests
-            # r = requests.get(urlm3u)
-            # with open(in_tmp,'wb') as f:
-              # f.write(r.content)
-            # # urlretrieve(urlm3u, in_tmp)
+            if PY3:
+                urlm3u.encode()
+            print('url m3u : ', urlm3u)
             Utils.downloadFile(urlm3u,in_tmp)
-            sleep(7)
-            self.playList()
+            sleep(8)
+            self.playList()            
+            
             # self.download = downloadWithProgress(urlm3u, in_tmp)
             # self.download.addProgress(self.downloadProgress)
             # self.download.start().addCallback(self.check).addErrback(self.showError)
-            # print('ChannelList Downlist sleep 3 - 2')        # return
+            print('ChannelList Downlist sleep 3 - 2')        # return
 
         except Exception as e:
             print('error: ', str(e))
@@ -1005,25 +1004,28 @@ class ChannelList(Screen):
                         
                         
                         
-                #####
-                if config.plugins.stvcl.thumb.value == True:
-                    self["live"].setText('N.' + str(len(self.names)) + " Stream")
-                    self.gridmaint = eTimer()
-                    try:
-                        self.gridmaint.callback.append(self.gridpic)
-                    except:
-                        self.gridmaint_conn = self.gridmaint.timeout.connect(self.gridpic)
-                    self.gridmaint.start(5000, True)
-                    # self.session.open(GridMain, self.names, self.urls, self.pics)
-                #####
-                else:
-                    m3ulist(self.names, self['list'])
-                    # self.load_poster()
-                    self["live"].setText('N.' + str(len(self.names)) + " Stream")
-                # if config.plugins.stvcl.thumb.value == False:
-                    self.load_poster()
+            #####
+            if config.plugins.stvcl.thumb.value == True:
+                self["live"].setText('N.' + str(len(self.names)) + " Stream")
+                self.gridmaint = eTimer()
+                try:
+                    self.gridmaint.callback.append(self.gridpic)
+                except:
+                    self.gridmaint_conn = self.gridmaint.timeout.connect(self.gridpic)
+                self.gridmaint.start(5000, True)
+                # self.session.open(GridMain, self.names, self.urls, self.pics)
+            #####
+            else:
+                m3ulist(self.names, self['list'])
+                # self.load_poster()
+                self["live"].setText('N.' + str(len(self.names)) + " Stream")
+            # if config.plugins.stvcl.thumb.value == False:
+                self.load_poster()
 
-
+                self["key_green"].show()
+                self["key_yellow"].show()
+                self["key_blue"].show() 
+        
         except Exception as e:
             print('error: ', str(e))
 
@@ -1847,7 +1849,7 @@ def main(session, **kwargs):
         except:
                pass
         # add_skin_font()
-        session.open(OpenScript)
+        session.open(StvclMain)
     else:
         session.open(MessageBox, "No Internet", MessageBox.TYPE_INFO)
 
