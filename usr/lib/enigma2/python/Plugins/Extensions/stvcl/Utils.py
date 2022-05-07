@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#19.02.2021
+#01.05.2021
 #a common tips used from Lululla
 #
 import sys
@@ -173,8 +173,8 @@ def downloadFile(url, target):
     except:
         from urllib2 import HTTPError, URLError
     try:
-        response = checkStr(urlopen(url, None, 5))
-        with open(target, 'wb') as output:
+        response = urlopen(url, None, 5)
+        with open(target, 'w') as output:
             output.write(response.read())
         response.close()
         return True
@@ -188,15 +188,15 @@ def downloadFile(url, target):
         print("sochet error")
         return False
         
-# def downloadFile(url, target):
-    # try:
-        # response = urlopen(url)
-        # with open(target, 'wb') as output:
-            # output.write(response.read())
-        # return True
-    # except:
-        # print("download error")
-        # return False
+def downloadFilest(url, target):
+    try:
+        response = urlopen(url)
+        with open(target, 'wb') as output:
+            output.write(response.read())
+        return True
+    except:
+        print("download error")
+        return False
 def getserviceinfo(sref):## this def returns the current playing service name and stream_url from give sref
     try:
         from ServiceReference import ServiceReference
@@ -405,7 +405,7 @@ def ReloadBouquets():
         print('bouquets reloaded...')
 
 def deletetmp():
-    os.system('rm -rf /tmp/unzipped;rm -f /tmp/*.ipk;rm -f /tmp/*.tar;rm -f /tmp/*.zip;rm -f /tmp/*.tar.gz;rm -f /tmp/*.tar.bz2;rm -f /tmp/*.tar.tbz2;rm -f /tmp/*.tar.tbz')
+    os.system('rm -rf /tmp/unzipped;rm -f /tmp/*.ipk;rm -f /tmp/*.tar;rm -f /tmp/*.zip;rm -f /tmp/*.tar.gz;rm -f /tmp/*.tar.bz2;rm -f /tmp/*.tar.tbz2;rm -f /tmp/*.tar.tbz;rm -f /tmp/*.m3u')
     return
 
 def del_jpg():

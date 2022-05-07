@@ -367,7 +367,7 @@ class StvclMain(Screen):
             if os.path.isfile(in_tmp):
                 os.remove(in_tmp)
             print('in tmp' , in_tmp)
-            Utils.downloadFile(urlm3u,in_tmp)
+            Utils.downloadFilest(urlm3u,in_tmp)
             sleep(3)
             self.session.open(ListM3u1, namem3u, urlm3u)
         except Exception as e:
@@ -425,7 +425,6 @@ class ListM3u1(Screen):
         self.onLayoutFinish.append(self.passing)
 
     def passing(self):
-        self["key_green"].show()
         pass
 
     def scsetup(self):
@@ -477,6 +476,7 @@ class ListM3u1(Screen):
                 self.names.append(Utils.checkStr(name.strip()))
                 
             m3ulist(self.names, self['list'])
+            self["key_green"].show()
         except Exception as e:
             print('error: ', str(e))
 
@@ -915,7 +915,7 @@ class ChannelList(Screen):
             if PY3:
                 urlm3u.encode()
             print('url m3u : ', urlm3u)
-            Utils.downloadFile(urlm3u,in_tmp)
+            Utils.downloadFilest(urlm3u,in_tmp)
             sleep(8)
             self.playList()            
             
