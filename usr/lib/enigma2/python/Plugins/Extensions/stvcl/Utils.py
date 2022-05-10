@@ -166,6 +166,38 @@ def getLanguage():
         return language
         pass
 
+
+        
+if sys.version_info >= (2, 7, 9):
+    try:
+        import ssl
+        sslContext = ssl._create_unverified_context()
+    except:
+        sslContext = None
+
+def ssl_urlopen(url):
+    if sslContext:
+        return urlopen(url, context=sslContext)
+    else:
+        return urlopen(url)
+
+def downloadFilest(url, target):
+    try:
+        req=Request(url)
+        req.add_header('User-Agent','Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
+        response=ssl_urlopen(req)
+        with open(target, 'w') as output:
+            if PY3:
+                output.write(response.read().decode('utf-8'))
+            else:
+                output.write(response.read())
+            print('response: ', response)
+        return True
+    except HTTPError as e:
+        print('HTTP Error code: ',e.code)
+    except URLError as e:
+        print('URL Error: ',e.reason)
+
 def downloadFile(url, target):
     import socket
     try:
@@ -187,16 +219,7 @@ def downloadFile(url, target):
     except socket.timeout:
         print("sochet error")
         return False
-        
-def downloadFilest(url, target):
-    try:
-        response = urlopen(url)
-        with open(target, 'wb') as output:
-            output.write(response.read())
-        return True
-    except:
-        print("download error")
-        return False
+
 def getserviceinfo(sref):## this def returns the current playing service name and stream_url from give sref
     try:
         from ServiceReference import ServiceReference
@@ -542,17 +565,7 @@ def isStreamlinkAvailable():
 
 #========================getUrl
 
-# if sys.version_info >= (2, 7, 9):
-    # try:
-        # import ssl
-        # sslContext = ssl._create_unverified_context()
-    # except:
-        # sslContext = None
-# def ssl_urlopen(url):
-    # if sslContext:
-        # return urlopen(url, context=sslContext)
-    # else:
-        # return urlopen(url)
+
 def AdultUrl(url):
         if sys.version_info.major == 3:
              import urllib.request as urllib2

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: stvcl\n"
 "Report-Msgid-Bugs-To: Lululla <ekekaz@gmail.com>\n"
-"POT-Creation-Date: 2021-11-03 20:38+0100\n"
-"PO-Revision-Date: 2021-12-01 20:58+0100\n"
+"POT-Creation-Date: 2022-05-09 21:14+0200\n"
+"PO-Revision-Date: 2022-05-09 21:14+0200\n"
 "Last-Translator: Lululla <ekekaz@gmail.com>\n"
 "Language-Team: lululla\n"
 "Language: it_IT\n"
@@ -16,302 +16,294 @@ msgstr ""
 "X-Poedit-SourceCharset: iso-8859-1\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: Nuovo documento di testo.py:273 plugin - Copia.py:276 plugin.py:276
+#: Utils.py:689
+#, python-format
+msgid "ReadUrl1:\n"
+"  url = %s"
+msgstr ""
+
+#: Utils.py:1200
+msgid "Stream already added to bouquet"
+msgstr ""
+
+#: Utils.py:1207
+msgid "Adding to bouquet failed"
+msgstr ""
+
+#: getpics.py:256
+msgid "..:: S.T.V.C.L. ::.."
+msgstr ""
+
+#: getpics.py:608 plugin.py:1402
+msgid "4:3 Letterbox"
+msgstr ""
+
+#: getpics.py:609 plugin.py:1403
+msgid "4:3 PanScan"
+msgstr ""
+
+#: getpics.py:610 plugin.py:1404
+msgid "16:9"
+msgstr ""
+
+#: getpics.py:611 plugin.py:1405
+msgid "16:9 always"
+msgstr ""
+
+#: getpics.py:612 plugin.py:1406
+msgid "16:10 Letterbox"
+msgstr ""
+
+#: getpics.py:613 plugin.py:1407
+msgid "16:10 PanScan"
+msgstr ""
+
+#: getpics.py:614 plugin.py:1408
+msgid "16:9 Letterbox"
+msgstr ""
+
+#: plugin.py:199
 msgid "ServiceMp3(4097)"
 msgstr ""
 
-#: Nuovo documento di testo.py:274 plugin - Copia.py:277 plugin.py:277
+#: plugin.py:200
 msgid "Hardware(1)"
 msgstr ""
 
-#: Nuovo documento di testo.py:278 plugin - Copia.py:281 plugin.py:281
+#: plugin.py:203
 msgid "Gstreamer(5001)"
 msgstr ""
 
-#: Nuovo documento di testo.py:280 plugin - Copia.py:283 plugin.py:283
+#: plugin.py:205
 msgid "Exteplayer3(5002)"
 msgstr ""
 
-#: Nuovo documento di testo.py:282 plugin - Copia.py:285 plugin.py:285
+#: plugin.py:207
+msgid "Streamlink(5002)"
+msgstr ""
+
+#: plugin.py:209
 msgid "eServiceUri(8193)"
 msgstr ""
 
-#: Nuovo documento di testo.py:420 plugin - Copia.py:421 plugin.py:421
-msgid "Smart Tv Channel List"
-msgstr ""
-
-#: Nuovo documento di testo.py:429 testo.py:569 testo.py:673 plugin -
-#: Copia.py:430 Copia.py:570 Copia.py:674 plugin.py:430 plugin.py:570
-#: plugin.py:674
+#: plugin.py:333 plugin.py:440 plugin.py:553 plugin.py:666
 #, python-format
 msgid "Folder path %s"
 msgstr "Percorso cartella %s"
 
-#: Nuovo documento di testo.py:430 plugin - Copia.py:431 plugin.py:431
+#: plugin.py:334
 msgid "Exit"
 msgstr "Uscire"
 
-#: Nuovo documento di testo.py:513 testo.py:908 testo.py:932 plugin -
-#: Copia.py:514 Copia.py:909 Copia.py:933 plugin.py:514 plugin.py:910
-#: plugin.py:934
+#: plugin.py:335 plugin.py:449 plugin.py:562
+msgid "Select"
+msgstr "Seleziona"
+
+#: plugin.py:394 plugin.py:918 plugin.py:942
 msgid "Download Failed!!!"
 msgstr ""
 
-#: Nuovo documento di testo.py:570 testo.py:675 testo.py:1474 testo.py:1592
-#: plugin - Copia.py:571 Copia.py:676 Copia.py:1511 Copia.py:1629 plugin.py:571
-#: plugin.py:676 plugin.py:1512 plugin.py:1630
+#: plugin.py:448 plugin.py:561 plugin.py:671 plugin.py:1580 plugin.py:1701
 msgid "Back"
 msgstr "Indietro"
 
-#: Nuovo documento di testo.py:585 plugin - Copia.py:586 plugin.py:586
+#: plugin.py:463 plugin.py:576
 msgid "Check in your Config Plugin - Path Movie"
 msgstr "Controlla nel Menu di configurazione - Path Movie"
 
-#: Nuovo documento di testo.py:671 plugin - Copia.py:672 plugin.py:672
+#: plugin.py:668
 #, python-format
 msgid "Service Reference used %s"
 msgstr "Service Reference utilizzato %s"
 
-#: Nuovo documento di testo.py:676 plugin - Copia.py:677 plugin.py:677
+#: plugin.py:672
 msgid "Convert ExtePlayer3"
 msgstr "Converti ExtePlayer3"
 
-#: Nuovo documento di testo.py:677 plugin - Copia.py:678 plugin.py:678
+#: plugin.py:673
 msgid "Convert Gstreamer"
 msgstr "Converti Gstreamer"
 
-#: Nuovo documento di testo.py:678 plugin - Copia.py:679 plugin.py:679
+#: plugin.py:674
 msgid "Search"
 msgstr "Cerca"
 
-#: Nuovo documento di testo.py:729 plugin - Copia.py:730 plugin.py:731
+#: plugin.py:729
 msgid "Do you want to Convert Bouquet IPTV?"
 msgstr "Vuoi convertire Bouquet IPTV?"
 
-#: Nuovo documento di testo.py:738 plugin - Copia.py:739 plugin.py:740
+#: plugin.py:739
 msgid "Do you want to Convert Bouquet GSTREAMER?"
 msgstr "Vuoi convertire Bouquet GSTREAMER?"
 
-#: Nuovo documento di testo.py:791 plugin - Copia.py:792 plugin.py:793
+#: plugin.py:793
 msgid "Check out the favorites list ..."
 msgstr "Dai un'occhiata all'elenco dei preferiti ..."
 
-#: Nuovo documento di testo.py:803 plugin - Copia.py:804 plugin.py:805
+#: plugin.py:810
 msgid "Shuffle Favorite List in Progress"
 msgstr "Riordino Liste favorite in corso"
 
-#: Nuovo documento di testo.py:803 plugin - Copia.py:804 plugin.py:805
+#: plugin.py:810
 msgid "Wait please ..."
 msgstr "Attendere prego ..."
 
-#: Nuovo documento di testo.py:806 plugin - Copia.py:807 plugin.py:808
+#: plugin.py:813
 msgid "Conversion Failed!!!"
 msgstr ""
 
-#: Nuovo documento di testo.py:822 plugin - Copia.py:823 plugin.py:824
+#: plugin.py:830
 msgid "Filter this category..."
 msgstr "Filtra questa categoria..."
 
-#: Nuovo documento di testo.py:873 plugin - Copia.py:874 plugin.py:875
+#: plugin.py:883
 msgid "You are already downloading!!!"
 msgstr "Stai già scaricando !!!"
 
-#: Nuovo documento di testo.py:877 plugin - Copia.py:878 plugin.py:879
+#: plugin.py:887
 msgid "DOWNLOAD VIDEO?"
 msgstr ""
 
-#: Nuovo documento di testo.py:880 plugin - Copia.py:881 plugin.py:882
+#: plugin.py:890
 msgid "Only VOD Movie allowed or not .ext Filtered!!!"
 msgstr "Solo film VOD consentito o nessun Filtro!!!"
 
-#: Nuovo documento di testo.py:1076 plugin - Copia.py:1086 plugin.py:1087
+#: plugin.py:1101
 msgid "Please enter the parental control pin code"
 msgstr "Inserisci il codice PIN del controllo genitori"
 
-#: Nuovo documento di testo.py:1076 plugin - Copia.py:1086 plugin.py:1087
+#: plugin.py:1101
 msgid "Enter pin code"
 msgstr "Inserisci il codice PIN"
 
-#: Nuovo documento di testo.py:1081 plugin - Copia.py:1091 plugin.py:1092
+#: plugin.py:1106
 msgid "The pin code you entered is wrong."
 msgstr "Il codice PIN che hai inserito è sbagliato."
 
-#: Nuovo documento di testo.py:1108 plugin - Copia.py:1118 plugin.py:1119
+#: plugin.py:1133
 msgid "Install Streamlink first"
 msgstr ""
 
-#: Nuovo documento di testo.py:1475 plugin - Copia.py:1512 plugin.py:1513
+#: plugin.py:1581
 msgid "Ok"
 msgstr ""
 
-#: Nuovo documento di testo.py:1499 plugin - Copia.py:1536 plugin.py:1537
+#: plugin.py:1605
 msgid "Add Stream IPTV"
 msgstr "Aggiungi Stream IPTV"
 
-#: Nuovo documento di testo.py:1505 plugin - Copia.py:1542 plugin.py:1543
+#: plugin.py:1611
 msgid "Select the Bouquet and press OK to add"
 msgstr "Selezionare il bouquet e premere OK per aggiungere"
 
-#: Nuovo documento di testo.py:1540 plugin - Copia.py:1577 plugin.py:1578
+#: plugin.py:1646
 msgid "Enter Name"
 msgstr "Inserire Nome"
 
-#: Nuovo documento di testo.py:1585 plugin - Copia.py:1622 plugin.py:1623
+#: plugin.py:1692
 msgid "stvcl Config"
 msgstr "Configurazione STVCL"
 
-#: Nuovo documento di testo.py:1593 plugin - Copia.py:1630 plugin.py:1631
+#: plugin.py:1702
 msgid "Save"
 msgstr "Salva"
 
-#: Nuovo documento di testo.py:1594 plugin - Copia.py:1631 plugin.py:1632
+#: plugin.py:1703
 msgid "Empty Pic Cache"
 msgstr "Svuota la cache Poster"
 
-#: Nuovo documento di testo.py:1625 plugin - Copia.py:1662 plugin.py:1663
+#: plugin.py:1742
 msgid "All cache fold are empty!"
 msgstr "Tutte la cache è vuota!!"
 
-#: Nuovo documento di testo.py:1630 testo.py:1646 plugin - Copia.py:1667
-#: Copia.py:1683 plugin.py:1668 plugin.py:1684
+#: plugin.py:1747 plugin.py:1763
 msgid "IPTV bouquets location "
 msgstr "Posizione dei bouquet IPTV"
 
-#: Nuovo documento di testo.py:1630 testo.py:1647 plugin - Copia.py:1667
-#: Copia.py:1684 plugin.py:1668 plugin.py:1685
+#: plugin.py:1747 plugin.py:1764
 msgid "Configure position of the bouquets of the converted lists"
 msgstr "Configura la posizione dei Bouquet delle liste convertite"
 
-#: Nuovo documento di testo.py:1631 testo.py:1649 plugin - Copia.py:1668
-#: Copia.py:1686 plugin.py:1669 plugin.py:1687
+#: plugin.py:1748 plugin.py:1766
 msgid "Player folder List <.m3u>:"
 msgstr "Elenco cartelle del lettore <.m3u>:"
 
-#: Nuovo documento di testo.py:1631 testo.py:1650 plugin - Copia.py:1668
-#: Copia.py:1687 plugin.py:1669 plugin.py:1688
+#: plugin.py:1748 plugin.py:1767
 msgid "Folder path containing the .m3u files"
 msgstr "Percorso della cartella contenente i file .m3u"
 
-#: Nuovo documento di testo.py:1632 testo.py:1655 plugin - Copia.py:1669
-#: Copia.py:1692 plugin.py:1670 plugin.py:1693
+#: plugin.py:1749 plugin.py:1772
 msgid "Services Player Reference type"
 msgstr ""
 
-#: Nuovo documento di testo.py:1632 testo.py:1656 plugin - Copia.py:1669
-#: Copia.py:1693 plugin.py:1670 plugin.py:1694
+#: plugin.py:1749 plugin.py:1773
 msgid "Configure Service Player Reference"
 msgstr "Configura i Service  Reference per il Player"
 
-#: Nuovo documento di testo.py:1633 testo.py:1652 plugin - Copia.py:1670
-#: Copia.py:1689 plugin.py:1671 plugin.py:1690
+#: plugin.py:1750 plugin.py:1769
 msgid "Filter M3U link regex type"
 msgstr "Filtro Ricerca Link M3U in regex"
 
-#: Nuovo documento di testo.py:1633 testo.py:1653 plugin - Copia.py:1670
-#: Copia.py:1690 plugin.py:1671 plugin.py:1691
+#: plugin.py:1750 plugin.py:1770
 msgid "Set On for line link m3u full"
 msgstr "'On' per Link m3u full"
 
-#: Nuovo documento di testo.py:1634 testo.py:1658 plugin - Copia.py:1671
-#: Copia.py:1695 plugin.py:1672 plugin.py:1696
+#: plugin.py:1751 plugin.py:1775
 msgid "Show thumpics?"
 msgstr "Mostra thumpics?"
 
-#: Nuovo documento di testo.py:1634 testo.py:1659 plugin - Copia.py:1671
-#: Copia.py:1696 plugin.py:1672 plugin.py:1697
+#: plugin.py:1751 plugin.py:1776
 msgid "Show Thumbpics ? Enigma restart required"
 msgstr "Mostra miniature ? Necessario il riavvio di Enigma"
 
-#: Nuovo documento di testo.py:1636 testo.py:1661 plugin - Copia.py:1673
-#: Copia.py:1698 plugin.py:1674 plugin.py:1699
+#: plugin.py:1753 plugin.py:1778
 msgid "Download thumpics?"
 msgstr "Scarica Poster"
 
-#: Nuovo documento di testo.py:1636 testo.py:1662 plugin - Copia.py:1673
-#: Copia.py:1699 plugin.py:1674 plugin.py:1700
+#: plugin.py:1753 plugin.py:1779
 msgid "Download thumpics in Player M3U (is very Slow)?"
 msgstr "Scarica Poster nel PlayerM3U (molto lento)?"
 
-#: Nuovo documento di testo.py:1637 testo.py:1664 plugin - Copia.py:1674
-#: Copia.py:1701 plugin.py:1675 plugin.py:1702
+#: plugin.py:1754 plugin.py:1781
 msgid "Folder Cache for Thumbpics:"
 msgstr "Cache delle cartelle per Thumbpics:"
 
-#: Nuovo documento di testo.py:1637 testo.py:1665 plugin - Copia.py:1674
-#: Copia.py:1702 plugin.py:1675 plugin.py:1703
+#: plugin.py:1754 plugin.py:1782
 msgid "Configure position folder for temporary Thumbpics"
 msgstr "Configura la cartella di posizione per Thumbpics temporanei"
 
-#: Nuovo documento di testo.py:1638 testo.py:1667 plugin - Copia.py:1675
-#: Copia.py:1704 plugin.py:1676 plugin.py:1705
+#: plugin.py:1755 plugin.py:1784
 msgid "Link in Extensions Menu:"
 msgstr ""
 
-#: Nuovo documento di testo.py:1638 testo.py:1668 plugin - Copia.py:1675
-#: Copia.py:1705 plugin.py:1676 plugin.py:1706
+#: plugin.py:1755 plugin.py:1785
 msgid "Show Plugin in Extensions Menu"
 msgstr "Mostra Plugin in Menu Estensioni"
 
-#: Nuovo documento di testo.py:1639 testo.py:1670 plugin - Copia.py:1676
-#: Copia.py:1707 plugin.py:1677 plugin.py:1708
+#: plugin.py:1756 plugin.py:1787
 msgid "Link in Main Menu:"
 msgstr ""
 
-#: Nuovo documento di testo.py:1639 testo.py:1671 plugin - Copia.py:1676
-#: Copia.py:1708 plugin.py:1677 plugin.py:1709
+#: plugin.py:1756 plugin.py:1788
 msgid "Show Plugin in Main Menu"
 msgstr "Mostra Plugin in Menu Estensioni"
 
-#: Nuovo documento di testo.py:1711 plugin - Copia.py:1748 plugin.py:1749
+#: plugin.py:1828
 msgid "Choose Directory:"
 msgstr "Scegli Cartella"
 
-#: Nuovo documento di testo.py:1712 plugin - Copia.py:1749 plugin.py:1750
+#: plugin.py:1829
 msgid "Choose Directory"
 msgstr "Scegli Cartella"
 
-#: Nuovo documento di testo.py:1735 plugin - Copia.py:1772 plugin.py:1773
+#: plugin.py:1852
 msgid "M3u list folder not detected!"
 msgstr "Cartella dell'elenco M3u non rilevata!"
 
-#: Nuovo documento di testo.py:1743 plugin - Copia.py:1780 plugin.py:1781
+#: plugin.py:1860
 msgid "Settings saved correctly!"
 msgstr "Impostazioni salvate correttamente!"
 
-#: Nuovo documento di testo.py:1767 plugin - Copia.py:1804 plugin.py:1805
+#: plugin.py:1884
 msgid "Really close without saving the settings?"
 msgstr "Uscire senza salvare le impostazioni?"
-
-#: Nuovo documento di testo.py:1808 plugin - Copia.py:1845 plugin.py:1846
-msgid "Question"
-msgstr "Question"
-
-#: Nuovo documento di testo.py:1809 plugin - Copia.py:1846 plugin.py:1847
-msgid "Information"
-msgstr "Information"
-
-#: Nuovo documento di testo.py:1810 plugin - Copia.py:1847 plugin.py:1848
-msgid "Warning"
-msgstr "Warning"
-
-#: Nuovo documento di testo.py:1811 plugin - Copia.py:1848 plugin.py:1849
-msgid "Error"
-msgstr "Error"
-
-#: Nuovo documento di testo.py:1811 plugin - Copia.py:1848 plugin.py:1849
-msgid "Message"
-msgstr "Message"
-
-#: Nuovo documento di testo.py:1816 testo.py:1818 plugin - Copia.py:1853
-#: Copia.py:1855 plugin.py:1854 plugin.py:1856
-msgid "Yes"
-msgstr "Yes"
-
-#: Nuovo documento di testo.py:1816 testo.py:1818 plugin - Copia.py:1853
-#: Copia.py:1855 plugin.py:1854 plugin.py:1856
-msgid "No"
-msgstr "No"
-
-#: getpics.py:282
-msgid "..:: S.T.V.C.L. ::.."
-msgstr ""
