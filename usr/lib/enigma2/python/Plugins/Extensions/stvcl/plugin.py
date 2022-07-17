@@ -5,7 +5,7 @@
 ****************************************
 *        coded by Lululla              *
 *             skin by MMark            *
-*             10/05/2022               *
+*             10/07/2022               *
 *   Thank's                            *
 *      stvcl, Levi45, KiddaC           *
 ****************************************
@@ -23,28 +23,43 @@ title_plug = 'Smart Tv Channels List'
 name_plug = '..:: Smart Tv Channels List  V.%s ::.. ' % currversion
 plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('stvcl'))
 
-try:
-    if Utils.checkInternet():
-        try:
-            from . import Update 
-            Update.upd_done()
-        except:
-            pass
-    else:
-        Utils.web_info("No Internet")
-except:
-    import traceback
-    traceback.print_exc()
+def intCheck():
+    import socket
+    try:
+        socket.setdefaulttimeout(1)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(("8.8.8.8", 53))
+        return True
+    except:
+        return False
 
 def mainw(session, **kwargs):
     try:
-        from six.moves import reload_module
-        reload_module(Utils)
-        reload_module(main)        
-        session.open(main.StvclMain)
+        if intCheck():
+                from . import Update
+                Update.upd_done()
+                from six.moves import reload_module
+                reload_module(Utils)
+                reload_module(main)        
+                session.open(main.StvclMain)
+
+        else:
+            from Screens.MessageBox import MessageBox
+            from Tools.Notifications import AddPopup
+            AddPopup(_("Sorry but No Internet :("),MessageBox.TYPE_INFO, 10, 'Sorry')  
     except:
         import traceback
-        traceback.print_exc()
+        traceback.print_exc() 
+        pass
+
+# def mainw(session, **kwargs):
+    # try:
+        # from six.moves import reload_module
+        # reload_module(Utils)
+        # reload_module(main)        
+        # session.open(main.StvclMain)
+    # except:
+        # import traceback
+        # traceback.print_exc()
 
 def cfgmain(menuid):
     if menuid == 'mainmenu':
