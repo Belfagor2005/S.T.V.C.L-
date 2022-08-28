@@ -10,7 +10,7 @@
 Info http://t.me/tivustream
 '''
 from __future__ import print_function
-from . import _
+from .__init__ import _
 import os
 import re
 import sys

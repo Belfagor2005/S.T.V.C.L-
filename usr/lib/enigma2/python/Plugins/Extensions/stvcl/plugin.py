@@ -23,18 +23,9 @@ title_plug = 'Smart Tv Channels List'
 name_plug = '..:: Smart Tv Channels List  V.%s ::.. ' % currversion
 plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('stvcl'))
 
-def intCheck():
-	import socket
-	try:
-		socket.setdefaulttimeout(1)
-		socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(("8.8.8.8", 53))
-		return True
-	except:
-		return False
-
 def mainw(session, **kwargs):
 	try:
-		if intCheck():
+		if Utils.zCheckInternet(0):
 				from . import Update
 				Update.upd_done()
 				from six.moves import reload_module
@@ -50,16 +41,6 @@ def mainw(session, **kwargs):
 		import traceback
 		traceback.print_exc()
 		pass
-
-# def mainw(session, **kwargs):
-	# try:
-		# from six.moves import reload_module
-		# reload_module(Utils)
-		# reload_module(main)
-		# session.open(main.StvclMain)
-	# except:
-		# import traceback
-		# traceback.print_exc()
 
 def cfgmain(menuid):
 	if menuid == 'mainmenu':

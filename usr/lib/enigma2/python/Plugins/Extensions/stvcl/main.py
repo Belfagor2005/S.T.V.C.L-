@@ -5,11 +5,11 @@ Info http://t.me/tivustream
 ****************************************
 *		 coded by Lululla			   *
 *									   *
-*			  10/05/2022			   *
+*			  10/08/2022			   *
 ****************************************
 '''
 from __future__ import print_function
-from . import _
+from .__init__ import _
 from . import Utils
 from . import plugin
 from .getpics import getpics, GridMain
