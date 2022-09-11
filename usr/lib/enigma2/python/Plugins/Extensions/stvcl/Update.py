@@ -2,7 +2,6 @@ import os, re, six
 from twisted.web.client import downloadPage
 print("stvcl.py")
 def upd_done():        
-    from twisted.web.client import downloadPage
     print( "In upd_done")
     xfile ='http://patbuweb.com/stvcl/stvcl.tar'
     print('xfile: ', xfile)

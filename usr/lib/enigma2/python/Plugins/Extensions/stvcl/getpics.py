@@ -49,7 +49,16 @@ try:
 	from PIL import Image
 except:
 	import Image
+    
+def getDesktopSize():
+	from enigma import getDesktop
+	s = getDesktop(0).size()
+	return (s.width(), s.height())
 
+def isFHD():
+	desktopSize = getDesktopSize()
+	return desktopSize[0] == 1920
+    
 if isFHD():
 	skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/skins/fhd/")
 	defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
@@ -61,15 +70,6 @@ else:
 if os.path.exists('/var/lib/dpkg/status'):
 	skin_path = skin_path + 'dreamOs/'
 
-
-def getDesktopSize():
-	from enigma import getDesktop
-	s = getDesktop(0).size()
-	return (s.width(), s.height())
-
-def isFHD():
-	desktopSize = getDesktopSize()
-	return desktopSize[0] == 1920
 
 pos = []
 if isFHD():
