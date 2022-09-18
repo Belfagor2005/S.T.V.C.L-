@@ -1,10 +1,12 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import os, re, six
 from twisted.web.client import downloadPage
 print("stvcl.py")
 def upd_done():        
     print( "In upd_done")
     xfile ='http://patbuweb.com/stvcl/stvcl.tar'
-    print('xfile: ', xfile)
     if PY3:
         xfile = b"http://patbuweb.com/stvcl/stvcl.tar"
         print("Update.py in PY3")
