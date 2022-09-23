@@ -6,7 +6,7 @@ Info http://t.me/tivustream
 ****************************************
 *        coded by Lululla              *
 *                                      *
-*             10/08/2022               *
+*             22/09/2022               *
 ****************************************
 '''
 from __future__ import print_function
@@ -16,17 +16,16 @@ from . import plugin
 from .getpics import getpics, GridMain
 from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
-from Components.config import *
+from Components.config import config, ConfigSubsection, ConfigSelection, getConfigListEntry
+from Components.config import ConfigDirectory, ConfigYesNo, configfile, ConfigEnableDisable
 from Components.Button import Button
 from Components.ConfigList import ConfigListScreen
-# from Components.HTMLComponent import HTMLComponent
 from Components.Input import Input
 from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaTest
-from Components.Pixmap import Pixmap, MultiPixmap
+from Components.Pixmap import Pixmap
 from Components.PluginComponent import plugins
-from Components.PluginList import *
 from Components.ProgressBar import ProgressBar
 from Components.ScrollLabel import ScrollLabel
 from Components.SelectionList import SelectionList
@@ -42,75 +41,52 @@ from Screens.ChoiceBox import ChoiceBox
 from Screens.Console import Console
 from Screens.InfoBar import InfoBar
 from Screens.InfoBar import MoviePlayer
-from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarMoviePlayerSummarySupport, \
-    InfoBarSubtitleSupport, InfoBarSummarySupport, InfoBarServiceErrorPopupSupport, InfoBarNotifications
-from Screens.InputBox import InputBox
+from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarSubtitleSupport, InfoBarNotifications
 from Screens.LocationBox import LocationBox
 from Screens.MessageBox import MessageBox
-from Screens.PluginBrowser import PluginBrowser
 from Screens.Screen import Screen
-from Screens.Standby import TryQuitMainloop, Standby
 from Screens.VirtualKeyBoard import VirtualKeyBoard
-from ServiceReference import ServiceReference
-from Tools.Directories import SCOPE_PLUGINS, resolveFilename#, fileExists
+from Tools.Directories import SCOPE_PLUGINS, resolveFilename
 from Tools.Downloader import downloadWithProgress
 from Tools.LoadPixmap import LoadPixmap
-from enigma import *
-from enigma import RT_HALIGN_CENTER, RT_VALIGN_CENTER
-from enigma import RT_HALIGN_LEFT, RT_HALIGN_RIGHT
+from enigma import RT_VALIGN_CENTER
+from enigma import RT_HALIGN_LEFT
 from enigma import eListbox, eListboxPythonMultiContent
 from enigma import eTimer
-from enigma import ePicLoad, gPixmapPtr
+from enigma import ePicLoad
 from enigma import eServiceCenter
 from enigma import eServiceReference
-from enigma import eSize, ePicLoad
 from enigma import iServiceInformation
 from enigma import loadPNG, gFont
-from enigma import quitMainloop
 from enigma import iPlayableService
 from os.path import splitext
-from sys import version_info
 from time import sleep
 from twisted.web.client import downloadPage, getPage
-from xml.dom import Node, minidom
 import base64
-import glob
 import os
 import re
-import shutil
 import six
 import ssl
 import sys
-import time
 
 PY3 = False
 
 try:
-    import http.cookiejar as cookielib
-    from urllib.parse import urlencode
     from urllib.parse import quote
     from urllib.parse import urlparse
     from urllib.request import Request
     from urllib.request import urlopen
     from urllib.error import URLError, HTTPError
-    PY3 = True; unicode = str; unichr = chr; long = int; xrange = range
+    PY3 = True
+    unicode = str
+    unichr = chr
+    long = int
+    xrange = range
 except:
-    import cookielib
-    from urllib import urlencode
     from urllib import quote
     from urlparse import urlparse
     from urllib2 import Request
     from urllib2 import urlopen, URLError, HTTPError
-
-try:
-    import io
-except:
-    import StringIO
-
-try:
-    import httplib
-except:
-    import http.client
 
 if sys.version_info >= (2, 7, 9):
     try:
@@ -137,17 +113,19 @@ if sslverify:
                 ClientTLSOptions(self.hostname, ctx)
             return ctx
 
+
 def ssl_urlopen(url):
     if sslContext:
         return urlopen(url, context=sslContext)
     else:
         return urlopen(url)
 
+
 def downloadFilest(url, target):
     try:
-        req=Request(url)
-        req.add_header('User-Agent','Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-        response=ssl_urlopen(req)
+        req = Request(url)
+        req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
+        response = ssl_urlopen(req)
         with open(target, 'w') as output:
             if PY3:
                 output.write(response.read().decode('utf-8'))
@@ -156,15 +134,14 @@ def downloadFilest(url, target):
             print('response: ', response)
         return True
     except HTTPError as e:
-        print('HTTP Error code: ',e.code)
+        print('HTTP Error code: ', e.code)
     except URLError as e:
-        print('URL Error: ',e.reason)
+        print('URL Error: ', e.reason)
 
 
-#================
+# ================
 global Path_Movies, defpic
-
-#================
+# ================
 Maintainer2 = 'Maintener @Lululla'
 plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('stvcl'))
 dir_enigma2 = '/etc/enigma2/'
@@ -191,7 +168,7 @@ config.plugins.stvcl.pthm3uf = ConfigDirectory(default='/media/hdd/movie/')
 try:
     from Components.UsageConfig import defaultMoviePath
     downloadpath = defaultMoviePath()
-    config.plugins.stvcl.pthm3uf  = ConfigDirectory(default=downloadpath)
+    config.plugins.stvcl.pthm3uf = ConfigDirectory(default=downloadpath)
 except:
     if os.path.exists("/usr/bin/apt-get"):
         config.plugins.stvcl.pthm3uf = ConfigDirectory(default='/media/hdd/movie/')
@@ -218,14 +195,15 @@ if not os.path.exists(tmpfold):
 if not os.path.exists(picfold):
     os.system("mkdir " + picfold)
 
-skin_path=plugin_path + '/res/skins/hd/'
+skin_path = plugin_path + '/res/skins/hd/'
 if Utils.isFHD():
     skin_path = plugin_path + '/res/skins/fhd/'
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
 if os.path.exists('/var/lib/dpkg/status'):
-    skin_path=skin_path + '/dreamOs/'
+    skin_path = skin_path + '/dreamOs/'
 
-#================Gui list
+# ================Gui list
+
 
 class mainList(MenuList):
     def __init__(self, list):
@@ -239,6 +217,7 @@ class mainList(MenuList):
             textfont = int(50)
             self.l.setFont(0, gFont('Regular', textfont))
 
+
 class tvList(MenuList):
     def __init__(self, list):
         MenuList.__init__(self, list, False, eListboxPythonMultiContent)
@@ -250,6 +229,7 @@ class tvList(MenuList):
             self.l.setItemHeight(60)
             textfont = int(24)
             self.l.setFont(0, gFont('Regular', textfont))
+
 
 def m3ulistEntry(download):
     res = [download]
@@ -279,6 +259,7 @@ def m3ulist(data, list):
         mlist.append(m3ulistEntry(name))
         icount = icount + 1
     list.setList(mlist)
+
 
 def tvListEntry(name, png):
     res = [name]
@@ -310,7 +291,7 @@ class StvclMain(Screen):
         self.setTitle(plugin.name_plug)
         self['title'] = Label(plugin.name_plug)
         self['Maintainer2'] = Label(Maintainer2)
-        self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
+        self['path'] = Label(_('Folder path %s' % str(Path_Movies)))
         self['key_red'] = Button(_('Exit'))
         self['key_green'] = Button(_('Select'))
         self['key_yellow'] = Button(_(''))
@@ -319,16 +300,16 @@ class StvclMain(Screen):
         self["key_yellow"].hide()
         self["key_blue"].hide()
         self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions', 'TimerEditActions'],
-         {'ok': self.okRun,
-         'menu': self.scsetup,
-         'red': self.exit,
-         # 'green': self.messagereload,
-         'info': self.exit,
-         # 'yellow': self.messagedellist,
-         'blue': self.msgdeleteBouquets,
-         'back': self.exit,
-         'cancel': self.exit}, -1)
-        # self.onFirstExecBegin.append(self.updateMenuList)
+                                         {'ok': self.okRun,
+                                          'menu': self.scsetup,
+                                          'red': self.exit,
+                                          # 'green': self.messagereload,
+                                          'info': self.exit,
+                                          # 'yellow': self.messagedellist,
+                                          'blue': self.msgdeleteBouquets,
+                                          'back': self.exit,
+                                          'cancel': self.exit}, -1)
+                                          # self.onFirstExecBegin.append(self.updateMenuList)
         self.onLayoutFinish.append(self.updateMenuList)
 
     def updateMenuList(self):
@@ -359,7 +340,7 @@ class StvclMain(Screen):
         self.downlist(sel, url)
 
     def msgdeleteBouquets(self):
-        self.session.openWithCallback(self.deleteBouquets, MessageBox, _("Remove all S.T.V.C.L. Favorite Bouquet ?") , MessageBox.TYPE_YESNO, timeout=5, default=True)
+        self.session.openWithCallback(self.deleteBouquets, MessageBox, _("Remove all S.T.V.C.L. Favorite Bouquet ?"), MessageBox.TYPE_YESNO, timeout=5, default=True)
 
     def deleteBouquets(self, result):
         """
@@ -394,7 +375,6 @@ class StvclMain(Screen):
                 print(str(ex))
                 raise
 
-
     def downloadProgress(self, recvbytes, totalbytes):
         self["progress"].show()
         self['progress'].value = int(100 * recvbytes / float(totalbytes))
@@ -423,12 +403,12 @@ class StvclMain(Screen):
             fileTitle = re.sub(r' ', '_', fileTitle)
             fileTitle = re.sub(r'_+', '_', fileTitle)
             fileTitle = fileTitle.replace("(", "_").replace(")", "_").replace("#", "").replace("+", "_").replace("\'", "_").replace("'", "_").replace("!", "_").replace("&", "_")
-            fileTitle = fileTitle.lower() # + ext
+            fileTitle = fileTitle.lower()  # + ext
             in_tmp = str(Path_Movies) + str(fileTitle) + '.m3u'
             if os.path.isfile(in_tmp):
                 os.remove(in_tmp)
-            print('in tmp' , in_tmp)
-            downloadFilest(urlm3u,in_tmp)
+            print('in tmp', in_tmp)
+            downloadFilest(urlm3u, in_tmp)
             sleep(3)
             self.session.open(ListM3u1, namem3u, urlm3u)
         except Exception as e:
@@ -440,6 +420,7 @@ class StvclMain(Screen):
     def exit(self):
         Utils.deletetmp()
         self.close()
+
 
 class ListM3u1(Screen):
     def __init__(self, session, namem3u, url):
@@ -455,7 +436,7 @@ class ListM3u1(Screen):
         SREF = self.session.nav.getCurrentlyPlayingServiceReference()
         self['title'] = Label(plugin.title_plug + ' ' + namem3u)
         self['Maintainer2'] = Label(Maintainer2)
-        self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
+        self['path'] = Label(_('Folder path %s' % str(Path_Movies)))
         self['progress'] = ProgressBar()
         self['progresstext'] = StaticText('')
         self["progress"].hide()
@@ -471,12 +452,12 @@ class ListM3u1(Screen):
         self["key_yellow"].hide()
         self["key_blue"].hide()
         self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions'],
-        {
-         # 'green': self.message2,
-         # 'yellow': self.message1,
-         # 'blue': self.message1,
-         'cancel': self.cancel,
-         'ok': self.runList}, -2)
+                                        {
+                                         # 'green': self.message2,
+                                         # 'yellow': self.message1,
+                                         # 'blue': self.message1,
+                                         'cancel': self.cancel,
+                                         'ok': self.runList}, -2)
         if not os.path.exists(Path_Movies):
             self.mbox = self.session.open(MessageBox, _('Check in your Config Plugin - Path Movie'), MessageBox.TYPE_INFO, timeout=5)
             self.scsetup()
@@ -495,12 +476,12 @@ class ListM3u1(Screen):
         self.names = []
         self.urls = []
         if sys.version_info.major == 3:
-             import urllib.request as urllib2
+            import urllib.request as urllib2
         elif sys.version_info.major == 2:
-             import urllib2
+            import urllib2
         req = urllib2.Request(self.url)
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')
-        r = urllib2.urlopen(req,None,15)
+        r = urllib2.urlopen(req, None, 15)
         link = r.read()
         r.close()
         content = link
@@ -508,24 +489,24 @@ class ListM3u1(Screen):
             try:
                 content = content.decode("utf-8")
             except Exception as e:
-                   print("Error: ", str(e))
+                print("Error: ", str(e))
 
         # content = ReadUrl(self.url)
         # if six.PY3:
             # content = six.ensure_str(content)
-        print('content: ',content)
+        print('content: ', content)
         try:
             regexvideo = '<a href="(.*?)">'
             match = re.compile(regexvideo, re.DOTALL).findall(content)
             print('ListM3u match = ', match)
-            items = []
+            # items = []
             for url in match:
                 if '..' in url:
                     continue
                 if 'DONATE' in url:
                     continue
                 name = url.replace('/', '')
-                url = self.url + url #+ '/'
+                url = self.url + url  # + '/'
                 # item = name + "###" + url
                 print('ListM3u url-name Items sort: ', url)
                 # items.append(item)
@@ -543,7 +524,7 @@ class ListM3u1(Screen):
 
     def runList(self):
         i = len(self.names)
-        print('iiiiii= ',i)
+        print('iiiiii= ', i)
         if i < 1:
             return
         idx = self["list"].getSelectionIndex()
@@ -553,6 +534,7 @@ class ListM3u1(Screen):
 
     def cancel(self):
         self.close()
+
 
 class ListM3u(Screen):
     def __init__(self, session, namem3u, url):
@@ -568,7 +550,7 @@ class ListM3u(Screen):
         SREF = self.session.nav.getCurrentlyPlayingServiceReference()
         self['title'] = Label(plugin.title_plug + ' ' + namem3u)
         self['Maintainer2'] = Label(Maintainer2)
-        self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
+        self['path'] = Label(_('Folder path %s' % str(Path_Movies)))
         self['progress'] = ProgressBar()
         self['progresstext'] = StaticText('')
         self["progress"].hide()
@@ -583,13 +565,12 @@ class ListM3u(Screen):
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
-        self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions'],
-        {
-         # 'green': self.message2,
-         # 'yellow': self.message1,
-         # 'blue': self.message1,
-         'cancel': self.cancel,
-         'ok': self.runList}, -2)
+        self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions'], {
+                                           # 'green': self.message2,
+                                           # 'yellow': self.message1,
+                                           # 'blue': self.message1,
+                                           'cancel': self.cancel,
+                                           'ok': self.runList}, -2)
         if not os.path.exists(Path_Movies):
             self.mbox = self.session.open(MessageBox, _('Check in your Config Plugin - Path Movie'), MessageBox.TYPE_INFO, timeout=5)
             self.scsetup()
@@ -609,12 +590,12 @@ class ListM3u(Screen):
         self.urls = []
         try:
             if sys.version_info.major == 3:
-                 import urllib.request as urllib2
+                import urllib.request as urllib2
             elif sys.version_info.major == 2:
-                 import urllib2
+                import urllib2
             req = urllib2.Request(self.url)
             req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')
-            r = urllib2.urlopen(req,None,15)
+            r = urllib2.urlopen(req, None, 15)
             link = r.read()
             r.close()
             content = link
@@ -622,11 +603,11 @@ class ListM3u(Screen):
                 try:
                     content = content.decode("utf-8")
                 except Exception as e:
-                       print("Error: ", str(e))
+                    print("Error: ", str(e))
             # content = ReadUrl(self.url)
             # if six.PY3:
                 # content = six.ensure_str(content)
-            print('content: ',content)
+            print('content: ', content)
             # <a href="br.xml.gz">br.xml.gz</a> 21-Oct-2021 07:05   108884
             # <a href="raw-radio.m3u8">raw-radio.m3u8</a>   22-Oct-2021 06:08   9639
 
@@ -655,7 +636,7 @@ class ListM3u(Screen):
 
     def runList(self):
         i = len(self.names)
-        print('iiiiii= ',i)
+        print('iiiiii= ', i)
         if i < 1:
             return
         idx = self["list"].getSelectionIndex()
@@ -666,8 +647,9 @@ class ListM3u(Screen):
     def cancel(self):
         self.close()
 
+
 class ChannelList(Screen):
-    def __init__(self, session, name, url ):
+    def __init__(self, session, name, url):
         Screen.__init__(self, session)
         self.session = session
         skin = skin_path + '/ChannelList.xml'
@@ -681,7 +663,7 @@ class ChannelList(Screen):
         self.setTitle(plugin.title_plug + ' ' + name)
         self['title'] = Label(plugin.title_plug + ' ' + name)
         self['Maintainer2'] = Label(Maintainer2)
-        self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
+        self['path'] = Label(_('Folder path %s' % str(Path_Movies)))
         service = config.plugins.stvcl.services.value
         self['service'] = Label(_('Service Reference used %s') % service)
         self['live'] = Label('')
@@ -712,20 +694,20 @@ class ChannelList(Screen):
         self.urls = []
         self.pics = []
         self['setupActions'] = ActionMap(['SetupActions', 'DirectionActions', 'ColorActions', 'MenuActions', 'TimerEditActions', 'InfobarInstantRecord'], {'red': self.cancel,
-         # 'green': self.runRec,
-         'menu': self.AdjUrlFavo,
-         'green': self.message2,
-         'yellow': self.message1,
-         'cancel': self.cancel,
-         'up': self.up,
-         'down': self.down,
-         'left': self.left,
-         'right': self.right,
-         "blue": self.search_m3u,
-         "rec": self.runRec,
-         "instantRecord": self.runRec,
-         "ShortRecord": self.runRec,
-         'ok': self.runChannel}, -2)
+                                           # 'green': self.runRec,
+                                           'menu': self.AdjUrlFavo,
+                                           'green': self.message2,
+                                           'yellow': self.message1,
+                                           'cancel': self.cancel,
+                                           'up': self.up,
+                                           'down': self.down,
+                                           'left': self.left,
+                                           'right': self.right,
+                                           'blue': self.search_m3u,
+                                           'rec': self.runRec,
+                                           'instantRecord': self.runRec,
+                                           'ShortRecord': self.runRec,
+                                           'ok': self.runChannel}, -2)
         # if 'http' in self.url:
         self.currentList = 'list'
         self.onLayoutFinish.append(self.downlist)
@@ -738,21 +720,21 @@ class ChannelList(Screen):
 
     def message1(self):
         i = len(self.names)
-        print('iiiiii= ',i)
+        print('iiiiii= ', i)
         if i < 1:
             return
         # global servicx
-        idx = self['list'].getSelectionIndex()
+        # idx = self['list'].getSelectionIndex()
         self.servicx = 'iptv'
         self.session.openWithCallback(self.check10, MessageBox, _("Do you want to Convert Bouquet IPTV?"), MessageBox.TYPE_YESNO)
 
     def message2(self):
         i = len(self.names)
-        print('iiiiii= ',i)
+        print('iiiiii= ', i)
         if i < 1:
             return
         # global servicx
-        idx = self['list'].getSelectionIndex()
+        # idx = self['list'].getSelectionIndex()
         self.servicx = 'gst'
         self.session.openWithCallback(self.check10, MessageBox, _("Do you want to Convert Bouquet GSTREAMER?"), MessageBox.TYPE_YESNO)
 
@@ -765,7 +747,7 @@ class ChannelList(Screen):
             self.convert = True
             # userbouquet.it-dec-2021-amuse-animation.tv
             name = self.name + ' ' + self.names[idx]
-            namebouquett = self.name.replace(' ','_').replace('-','_').strip()
+            namebouquett = self.name.replace(' ', '_').replace('-', '_').strip()
             print('namebouquett in folder tmp : ', namebouquett)
             try:
                 sleep(3)
@@ -774,7 +756,7 @@ class ChannelList(Screen):
                     bqtname = 'userbouquet.stvcl_%s.tv' % namebouquett.lower()
                     desk_tmp = ''
                     in_bouquets = 0
-                    with open('%s%s' % (dir_enigma2,bqtname), 'w') as outfile:
+                    with open('%s%s' % (dir_enigma2, bqtname), 'w') as outfile:
                         outfile.write('#NAME %s\r\n' % namebouquett.capitalize())
                         if self.servicx == 'iptv':
                             for line in open(in_tmp):
@@ -809,10 +791,6 @@ class ChannelList(Screen):
                                             desk_tmp = '%s\r\n' % line.split('<')[1].split('>')[1]
                         outfile.close()
                     self.mbox = self.session.open(MessageBox, _('Check out the favorites list ...'), MessageBox.TYPE_INFO, timeout=5)
-
-
-
-
                     if os.path.isfile('/etc/enigma2/bouquets.tv'):
                         for line in open('/etc/enigma2/bouquets.tv'):
                             if bqtname in line:
@@ -835,17 +813,16 @@ class ChannelList(Screen):
                 print('error convert iptv ', str(e))
 
     def cancel(self):
-        if search_ok == True:
+        if search_ok is True:
             self.resetSearch()
         else:
             self.close()
 
     def search_m3u(self):
-        text = ''
         self.session.openWithCallback(
             self.filterM3u,
             VirtualKeyBoard,
-            title = _("Filter this category..."),
+            title=_("Filter this category..."),
             text=self.search)
 
     def filterM3u(self, result):
@@ -860,7 +837,7 @@ class ChannelList(Screen):
                 fpage = f1.read()
                 regexcat = "EXTINF.*?,(.*?)\\n(.*?)\\n"
                 match = re.compile(regexcat, re.DOTALL).findall(fpage)
-                for  name, url in match:
+                for name, url in match:
                     if str(search).lower() in name.lower():
                         global search_ok
                         search_ok = True
@@ -869,7 +846,7 @@ class ChannelList(Screen):
                         self.names.append(name)
                         self.urls.append(url)
                         self.pics.append(pic)
-                if search_ok == True:
+                if search_ok is True:
                     m3ulist(self.names, self["list"])
                     self["live"].setText('N.' + str(len(self.names)) + " Stream")
                 else:
@@ -890,19 +867,19 @@ class ChannelList(Screen):
 
     def runRec(self):
         i = len(self.names)
-        print('iiiiii= ',i)
+        print('iiiiii= ', i)
         if i < 1:
             return
         global urlm3u, namem3u
         idx = self["list"].getSelectionIndex()
         namem3u = self.names[idx]
         urlm3u = self.urls[idx]
-        if self.downloading == True:
+        if self.downloading is True:
             self.session.open(MessageBox, _('You are already downloading!!!'), MessageBox.TYPE_INFO, timeout=5)
         else:
-            if '.mp4' in urlm3u or '.mkv' in urlm3u or '.flv' in urlm3u or '.avi' in urlm3u :
+            if '.mp4' in urlm3u or '.mkv' in urlm3u or '.flv' in urlm3u or '.avi' in urlm3u:
                 self.downloading = True
-                self.session.openWithCallback(self.download_m3u, MessageBox, _("DOWNLOAD VIDEO?" ) , type=MessageBox.TYPE_YESNO, timeout = 10, default = False)
+                self.session.openWithCallback(self.download_m3u, MessageBox, _("DOWNLOAD VIDEO?"), type=MessageBox.TYPE_YESNO, timeout=10, default=False)
             else:
                 self.downloading = False
                 self.session.open(MessageBox, _('Only VOD Movie allowed or not .ext Filtered!!!'), MessageBox.TYPE_INFO, timeout=5)
@@ -911,7 +888,7 @@ class ChannelList(Screen):
         if result:
             global in_tmp
             try:
-                if self.downloading == True:
+                if self.downloading is True:
                     idx = self["list"].getSelectionIndex()
                     namem3u = self.names[idx]
                     urlm3u = self.urls[idx]
@@ -1019,7 +996,7 @@ class ChannelList(Screen):
                         if url.startswith('http'):
                             url = url.replace(' ', '%20')
                             url = url.replace('\\n', '')
-                            if 'samsung' in self.url.lower() or config.plugins.stvcl.filter.value == True:
+                            if 'samsung' in self.url.lower() or config.plugins.stvcl.filter.value is True:
                                 regexcat = '(.*?).m3u8'
                                 match = re.compile(regexcat, re.DOTALL).findall(url)
                                 for url in match:
@@ -1048,7 +1025,7 @@ class ChannelList(Screen):
                         if url.startswith('http'):
                             url = url.replace(' ', '%20')
                             url = url.replace('\\n', '')
-                            if 'samsung' in self.url.lower() or config.plugins.stvcl.filter.value == True:
+                            if 'samsung' in self.url.lower() or config.plugins.stvcl.filter.value is True:
                                 regexcat = '(.*?).m3u8'
                                 match = re.compile(regexcat, re.DOTALL).findall(url)
                                 for url in match:
@@ -1067,7 +1044,7 @@ class ChannelList(Screen):
                         self.urls.append(url)
                         self.pics.append(Utils.checkStr(pic))
 
-            if config.plugins.stvcl.thumb.value == True:
+            if config.plugins.stvcl.thumb.value is True:
                 self["live"].setText('N.' + str(len(self.names)) + " Stream")
                 self.gridmaint = eTimer()
                 try:
@@ -1080,7 +1057,7 @@ class ChannelList(Screen):
                 m3ulist(self.names, self['list'])
                 # self.load_poster()
                 self["live"].setText('N.' + str(len(self.names)) + " Stream")
-            # if config.plugins.stvcl.thumb.value == False:
+            # if config.plugins.stvcl.thumb.value is False:
                 self.load_poster()
 
                 self["key_green"].show()
@@ -1096,7 +1073,7 @@ class ChannelList(Screen):
 
     def runChannel(self):
         i = len(self.names)
-        print('iiiiii= ',i)
+        print('iiiiii= ', i)
         if i < 1:
             return
         idx = self['list'].getSelectionIndex()
@@ -1114,7 +1091,7 @@ class ChannelList(Screen):
 
     def allow2(self):
         from Screens.InputBox import PinInput
-        self.session.openWithCallback(self.pinEntered2, PinInput, pinList = [config.ParentalControl.setuppin.value], triesEntry = config.ParentalControl.retries.servicepin, title = _("Please enter the parental control pin code"), windowTitle = _("Enter pin code"))
+        self.session.openWithCallback(self.pinEntered2, PinInput, pinList=[config.ParentalControl.setuppin.value], triesEntry=config.ParentalControl.retries.servicepin, title=_("Please enter the parental control pin code"), windowTitle=_("Enter pin code"))
 
     def pinEntered2(self, result):
         if not result:
@@ -1150,7 +1127,7 @@ class ChannelList(Screen):
 
     def AdjUrlFavo(self):
         i = len(self.names)
-        print('iiiiii= ',i)
+        print('iiiiii= ', i)
         if i < 1:
             return
         idx = self['list'].getSelectionIndex()
@@ -1180,7 +1157,7 @@ class ChannelList(Screen):
 
     def load_poster(self):
         i = len(self.pics)
-        print('iiiiii= ',i)
+        print('iiiiii= ', i)
         if i < 1:
             return
         idx = self['list'].getSelectionIndex()
@@ -1245,12 +1222,13 @@ class ChannelList(Screen):
             else:
                 self.picload.startDecode(pixmaps, 0, 0, False)
             ptr = self.picload.getData()
-            if ptr != None:
+            if ptr is not None:
                 self['poster'].instance.setPixmap(ptr)
                 self['poster'].show()
             else:
                 print('no cover.. error')
             return
+
 
 class TvInfoBarShowHide():
     """ InfoBar show/hide control, accepts toggleShow and hide actions, might start
@@ -1262,8 +1240,7 @@ class TvInfoBarShowHide():
     skipToggleShow = False
 
     def __init__(self):
-        self["ShowHideActions"] = ActionMap(["InfobarShowHideActions"], {"toggleShow": self.OkPressed,
-         "hide": self.hide}, 0)
+        self["ShowHideActions"] = ActionMap(["InfobarShowHideActions"], {"toggleShow": self.OkPressed, "hide": self.hide}, 0)
         self.__event_tracker = ServiceEventTracker(screen=self, eventmap={iPlayableService.evStart: self.serviceStarted})
         self.__state = self.STATE_SHOWN
         self.__locked = 0
@@ -1290,6 +1267,7 @@ class TvInfoBarShowHide():
         else:
             self.hide()
             self.startHideTimer()
+
     def serviceStarted(self):
         if self.execing:
             if config.usage.show_infobar_on_zap.value:
@@ -1308,6 +1286,7 @@ class TvInfoBarShowHide():
 
     def __onHide(self):
         self.__state = self.STATE_HIDDEN
+
     def doShow(self):
         self.hideTimer.stop()
         self.show()
@@ -1338,8 +1317,9 @@ class TvInfoBarShowHide():
         if self.execing:
             self.startHideTimer()
 
-    def debug(obj, text = ""):
+    def debug(obj, text=""):
         print(text + " %s\n" % obj)
+
 
 class M3uPlay2(
     InfoBarBase,
@@ -1357,12 +1337,12 @@ class M3uPlay2(
     ENABLE_RESUME_SUPPORT = True
     ALLOW_SUSPEND = True
     screen_timeout = 5000
+
     def __init__(self, session, name, url):
         global streaml
         Screen.__init__(self, session)
         self.session = session
         self.skinName = 'MoviePlayer'
-        title = name
         streaml = False
         for x in InfoBarBase, \
                 InfoBarMenu, \
@@ -1378,32 +1358,29 @@ class M3uPlay2(
             self.init_aspect = 0
         self.new_aspect = self.init_aspect
         self['actions'] = ActionMap(['MoviePlayerActions',
-
-         'MovieSelectionActions',
-         'MediaPlayerActions',
-         'EPGSelectActions',
-         'MediaPlayerSeekActions',
-         'SetupActions',
-         'ColorActions',
-         'InfobarShowHideActions',
-         'InfobarActions',
-         'InfobarSeekActions'], {'leavePlayer': self.cancel,
-         'epg': self.showIMDB,
-         'info': self.showIMDB,
-         # 'info': self.cicleStreamType,
-         'tv': self.cicleStreamType,
-         'stop': self.cancel,
-         'cancel': self.cancel,
-         'back': self.cancel}, -1)
+                                     'MovieSelectionActions',
+                                     'MediaPlayerActions',
+                                     'EPGSelectActions',
+                                     'MediaPlayerSeekActions',
+                                     'SetupActions',
+                                     'ColorActions',
+                                     'InfobarShowHideActions',
+                                     'InfobarActions',
+                                     'InfobarSeekActions'], {'leavePlayer': self.cancel,
+                                     'epg': self.showIMDB,
+                                     'info': self.showIMDB,
+                                     # 'info': self.cicleStreamType,
+                                     'tv': self.cicleStreamType,
+                                     'stop': self.cancel,
+                                     'cancel': self.cancel,
+                                     'back': self.cancel}, -1)
         self.allowPiP = False
         self.service = None
-        service = None
         self.url = url
         self.pcip = 'None'
         self.name = Utils.decodeHtml(name)
         self.state = self.STATE_PLAYING
-        global SREF
-        SREF = self.session.nav.getCurrentlyPlayingServiceReference()
+        self.srefInit = self.session.nav.getCurrentlyPlayingServiceReference()
         if '8088' in str(self.url):
             self.onFirstExecBegin.append(self.slinkPlay)
         else:
@@ -1415,21 +1392,21 @@ class M3uPlay2(
 
     def getAspectString(self, aspectnum):
         return {0: _('4:3 Letterbox'),
-         1: _('4:3 PanScan'),
-         2: _('16:9'),
-         3: _('16:9 always'),
-         4: _('16:10 Letterbox'),
-         5: _('16:10 PanScan'),
-         6: _('16:9 Letterbox')}[aspectnum]
+                1: _('4:3 PanScan'),
+                2: _('16:9'),
+                3: _('16:9 always'),
+                4: _('16:10 Letterbox'),
+                5: _('16:10 PanScan'),
+                6: _('16:9 Letterbox')}[aspectnum]
 
     def setAspect(self, aspect):
         map = {0: '4_3_letterbox',
-         1: '4_3_panscan',
-         2: '16_9',
-         3: '16_9_always',
-         4: '16_10_letterbox',
-         5: '16_10_panscan',
-         6: '16_9_letterbox'}
+               1: '4_3_panscan',
+               2: '16_9',
+               3: '16_9_always',
+               4: '16_10_letterbox',
+               5: '16_10_panscan',
+               6: '16_9_letterbox'}
         config.av.aspectratio.setValue(map[aspect])
         try:
             AVSwitch().setAspectRatio(aspect)
@@ -1445,24 +1422,29 @@ class M3uPlay2(
         self.setAspect(temp)
 
     def showinfo(self):
+        from ServiceReference import ServiceReference
+        sref = self.srefInit
+        p = ServiceReference(sref)
+        servicename = str(p.getServiceName())
+        serviceurl = str(p.getPath())
         sTitle = ''
         sServiceref = ''
         try:
-            servicename, serviceurl = getserviceinfo(sref)
-            if servicename != None:
+            if servicename is not None:
                 sTitle = servicename
             else:
                 sTitle = ''
-            if serviceurl != None:
+            if serviceurl is not None:
                 sServiceref = serviceurl
             else:
                 sServiceref = ''
             currPlay = self.session.nav.getCurrentService()
-            sTagCodec = currPlay.info().getInfoString(iServiceInformation.sTagCodec)
-            sTagVideoCodec = currPlay.info().getInfoString(iServiceInformation.sTagVideoCodec)
-            sTagAudioCodec = currPlay.info().getInfoString(iServiceInformation.sTagAudioCodec)
-            message = 'stitle:' + str(sTitle) + '\n' + 'sServiceref:' + str(sServiceref) + '\n' + 'sTagCodec:' + str(sTagCodec) + '\n' + 'sTagVideoCodec:' + str(sTagVideoCodec) + '\n' + 'sTagAudioCodec: ' + str(sTagAudioCodec)
-            self.mbox = self.session.open(MessageBox, message, MessageBox.TYPE_INFO)
+            if currPlay:
+                sTagCodec = currPlay.info().getInfoString(iServiceInformation.sTagCodec)
+                sTagVideoCodec = currPlay.info().getInfoString(iServiceInformation.sTagVideoCodec)
+                sTagAudioCodec = currPlay.info().getInfoString(iServiceInformation.sTagAudioCodec)
+                message = 'stitle:' + str(sTitle) + '\n' + 'sServiceref:' + str(sServiceref) + '\n' + 'sTagCodec:' + str(sTagCodec) + '\n' + 'sTagVideoCodec:' + str(sTagVideoCodec) + '\n' + 'sTagAudioCodec: ' + str(sTagAudioCodec)
+                self.mbox = self.session.open(MessageBox, message, MessageBox.TYPE_INFO)
         except:
             pass
         return
@@ -1497,7 +1479,7 @@ class M3uPlay2(
         name = self.name
         ref = "{0}:0:0:0:0:0:0:0:0:0:{1}:{2}".format(servicetype, url.replace(":", "%3a"), name.replace(":", "%3a"))
         print('reference:   ', ref)
-        if streaml == True:
+        if streaml is True:
             url = 'http://127.0.0.1:8088/' + str(url)
             ref = "{0}:0:1:0:0:0:0:0:0:0:{1}:{2}".format(servicetype, url.replace(":", "%3a"), name.replace(":", "%3a"))
             print('streaml reference:   ', ref)
@@ -1523,7 +1505,7 @@ class M3uPlay2(
             # self.mbox = self.session.open(MessageBox, _('For Stream Youtube coming soon!'), MessageBox.TYPE_INFO, timeout=5)
             # return
         if Utils.isStreamlinkAvailable():
-            streamtypelist.append("5002") #ref = '5002:0:1:0:0:0:0:0:0:0:http%3a//127.0.0.1%3a8088/' + url
+            streamtypelist.append("5002")  # ref = '5002:0:1:0:0:0:0:0:0:0:http%3a//127.0.0.1%3a8088/' + url
             streaml = True
         if os.path.exists("/usr/bin/gstplayer"):
             streamtypelist.append("5001")
@@ -1555,7 +1537,7 @@ class M3uPlay2(
     def showVideoInfo(self):
         if self.shown:
             self.hideInfobar()
-        if self.infoCallback != None:
+        if self.infoCallback is not None:
             self.infoCallback()
         return
 
@@ -1564,10 +1546,11 @@ class M3uPlay2(
             self.doShow()
 
     def cancel(self):
+        srefinit = self.srefInit
         if os.path.isfile('/tmp/hls.avi'):
             os.remove('/tmp/hls.avi')
         self.session.nav.stopService()
-        self.session.nav.playService(SREF)
+        self.session.nav.playService(srefinit)
         if not self.new_aspect == self.init_aspect:
             try:
                 self.setAspect(self.init_aspect)
@@ -1578,6 +1561,7 @@ class M3uPlay2(
 
     def leavePlayer(self):
         self.close()
+
 
 class AddIpvStream(Screen):
     def __init__(self, session, name, url):
@@ -1598,9 +1582,9 @@ class AddIpvStream(Screen):
         self["key_yellow"].hide()
         self["key_blue"].hide()
         self['actions'] = ActionMap(['SetupActions', 'ColorActions'], {'ok': self.keyOk,
-         'cancel': self.keyCancel,
-         'green': self.keyOk,
-         'red': self.keyCancel}, -2)
+                                     'cancel': self.keyCancel,
+                                     'green': self.keyOk,
+                                     'red': self.keyCancel}, -2)
         self['statusbar'] = Label('')
         self.list = []
         self['menu'] = MenuList([])
@@ -1619,7 +1603,6 @@ class AddIpvStream(Screen):
         self.setTitle(_('Add Stream IPTV'))
         self.initSelectionList()
         self.list = []
-        tmpList = []
         self.list = self.getBouquetList()
         self['menu'].setList(self.list)
         self['statusbar'].setText(_('Select the Bouquet and press OK to add'))
@@ -1667,24 +1650,24 @@ class AddIpvStream(Screen):
             self.addServiceToBouquet(self.list[self['menu'].getSelectedIndex()][1], ref)
             self.close()
 
-    def addServiceToBouquet(self, dest, service = None):
+    def addServiceToBouquet(self, dest, service=None):
         mutableList = self.getMutableList(dest)
-        if mutableList != None:
+        if mutableList is not None:
             if service is None:
                 return
             if not mutableList.addService(service):
                 mutableList.flushChanges()
         return
 
-    def getMutableList(self, root = eServiceReference()):
-        if self.mutableList != None:
+    def getMutableList(self, root=eServiceReference()):
+        if self.mutableList is not None:
             return self.mutableList
         else:
             serviceHandler = eServiceCenter.getInstance()
             if not root.valid():
                 root = self.getRoot()
             list = root and serviceHandler.list(root)
-            if list != None:
+            if list is not None:
                 return list.startEdit()
             return
             return
@@ -1695,206 +1678,206 @@ class AddIpvStream(Screen):
     def keyCancel(self):
         self.close()
 
+
 class OpenConfig(Screen, ConfigListScreen):
-        def __init__(self, session):
-            Screen.__init__(self, session)
-            self.session = session
-            skin = skin_path + '/OpenConfig.xml'
-            f = open(skin, 'r')
-            self.skin = f.read()
-            f.close()
-            self.setup_title = _("stvcl Config")
-            self.onChangedEntry = [ ]
-            self.list = []
-            info = '***YOUR SETUP***'
-            self.setTitle(plugin.title_plug + ' ' + info)
-            self['title'] = Label(plugin.title_plug + ' SETUP')
-            self['Maintainer2'] = Label(Maintainer2)
-            self["paypal"] = Label()
-            # self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
-            self['key_red'] = Button(_('Back'))
-            self['key_green'] = Button(_('Save'))
-            self["key_blue"] = Button(_('Empty Pic Cache'))
-            self['key_yellow'] = Button(_(''))
-            self['key_yellow'].hide()
-            # self["key_blue"].hide()
-            self['text'] = Label(info)
-            self["description"] = Label('')
-            self['actions'] = ActionMap(["SetupActions", "ColorActions", "VirtualKeyboardActions"  ], {
-                'cancel': self.extnok,
-                "red": self.extnok,
-                "green": self.cfgok,
-                "blue": self.cachedel,
-                # 'yellow': self.msgupdt1,
-                'showVirtualKeyboard': self.KeyText,
-                'ok': self.Ok_edit,
-            }, -2)
+    def __init__(self, session):
+        Screen.__init__(self, session)
+        self.session = session
+        skin = skin_path + '/OpenConfig.xml'
+        f = open(skin, 'r')
+        self.skin = f.read()
+        f.close()
+        self.setup_title = _("stvcl Config")
+        self.onChangedEntry = []
+        self.list = []
+        info = '***YOUR SETUP***'
+        self.setTitle(plugin.title_plug + ' ' + info)
+        self['title'] = Label(plugin.title_plug + ' SETUP')
+        self['Maintainer2'] = Label(Maintainer2)
+        self["paypal"] = Label()
+        # self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
+        self['key_red'] = Button(_('Back'))
+        self['key_green'] = Button(_('Save'))
+        self["key_blue"] = Button(_('Empty Pic Cache'))
+        self['key_yellow'] = Button(_(''))
+        self['key_yellow'].hide()
+        # self["key_blue"].hide()
+        self['text'] = Label(info)
+        self["description"] = Label('')
+        self['actions'] = ActionMap(["SetupActions", "ColorActions", "VirtualKeyboardActions"], {
+                                    'cancel': self.extnok,
+                                    "red": self.extnok,
+                                    "green": self.cfgok,
+                                    "blue": self.cachedel,
+                                    # 'yellow': self.msgupdt1,
+                                    'showVirtualKeyboard': self.KeyText,
+                                    'ok': self.Ok_edit}, -2)
 
-            ConfigListScreen.__init__(self, self.list, session = self.session, on_change = self.changedEntry)
-            self.createSetup()
-            # self.onLayoutFinish.append(self.checkUpdate)
-            self.onLayoutFinish.append(self.layoutFinished)
-            if self.setInfo not in self['config'].onSelectionChanged:
-                self['config'].onSelectionChanged.append(self.setInfo)
+        ConfigListScreen.__init__(self, self.list, session=self.session, on_change=self.changedEntry)
+        self.createSetup()
+        # self.onLayoutFinish.append(self.checkUpdate)
+        self.onLayoutFinish.append(self.layoutFinished)
+        if self.setInfo not in self['config'].onSelectionChanged:
+            self['config'].onSelectionChanged.append(self.setInfo)
 
-        def paypal2(self):
-            conthelp = "If you like what I do you\n"
-            conthelp += " can contribute with a coffee\n\n"
-            conthelp += "scan the qr code and donate € 1.00"
-            return conthelp
+    def paypal2(self):
+        conthelp = "If you like what I do you\n"
+        conthelp += " can contribute with a coffee\n\n"
+        conthelp += "scan the qr code and donate € 1.00"
+        return conthelp
 
-        def layoutFinished(self):
-            paypal = self.paypal2()
-            self["paypal"].setText(paypal)
-            self.setTitle(self.setup_title)
+    def layoutFinished(self):
+        paypal = self.paypal2()
+        self["paypal"].setText(paypal)
+        self.setTitle(self.setup_title)
 
-        def cachedel(self):
-            fold = config.plugins.stvcl.cachefold.value + "stvcl"
-            cmd = "rm -rf " + tvstrvl + "/*"
-            if os.path.exists(fold):
-                os.system(cmd)
-            self.mbox = self.session.open(MessageBox, _('All cache fold are empty!'), MessageBox.TYPE_INFO, timeout=5)
+    def cachedel(self):
+        fold = config.plugins.stvcl.cachefold.value + "stvcl"
+        cmd = "rm -rf " + tvstrvl + "/*"
+        if os.path.exists(fold):
+            os.system(cmd)
+        self.mbox = self.session.open(MessageBox, _('All cache fold are empty!'), MessageBox.TYPE_INFO, timeout=5)
 
-        def createSetup(self):
-            self.editListEntry = None
-            self.list = []
-            self.list.append(getConfigListEntry(_('IPTV bouquets location '), config.plugins.stvcl.bouquettop, _("Configure position of the bouquets of the converted lists")))
-            self.list.append(getConfigListEntry(_('Player folder List <.m3u>:'), config.plugins.stvcl.pthm3uf, _("Folder path containing the .m3u files")))
-            self.list.append(getConfigListEntry(_('Services Player Reference type'), config.plugins.stvcl.services, _("Configure Service Player Reference")))
-            self.list.append(getConfigListEntry(_('Filter M3U link regex type'), config.plugins.stvcl.filter, _("Set On for line link m3u full")))
-            self.list.append(getConfigListEntry(_('Show thumpics?'), config.plugins.stvcl.thumb,  _("Show Thumbpics ? Enigma restart required")))
-            if config.plugins.stvcl.thumb.value == True:
-                self.list.append(getConfigListEntry(_('Download thumpics?'), config.plugins.stvcl.thumbpic, _("Download thumpics in Player M3U (is very Slow)?")))
-            self.list.append(getConfigListEntry(_('Folder Cache for Thumbpics:'), config.plugins.stvcl.cachefold, _("Configure position folder for temporary Thumbpics")))
-            self.list.append(getConfigListEntry(_('Link in Extensions Menu:'), config.plugins.stvcl.strtext, _("Show Plugin in Extensions Menu")))
-            self.list.append(getConfigListEntry(_('Link in Main Menu:'), config.plugins.stvcl.strtmain, _("Show Plugin in Main Menu")))
-            self['config'].list = self.list
-            self["config"].setList(self.list)
-            self.setInfo()
+    def createSetup(self):
+        self.editListEntry = None
+        self.list = []
+        self.list.append(getConfigListEntry(_('IPTV bouquets location '), config.plugins.stvcl.bouquettop, _("Configure position of the bouquets of the converted lists")))
+        self.list.append(getConfigListEntry(_('Player folder List <.m3u>:'), config.plugins.stvcl.pthm3uf, _("Folder path containing the .m3u files")))
+        self.list.append(getConfigListEntry(_('Services Player Reference type'), config.plugins.stvcl.services, _("Configure Service Player Reference")))
+        self.list.append(getConfigListEntry(_('Filter M3U link regex type'), config.plugins.stvcl.filter, _("Set On for line link m3u full")))
+        self.list.append(getConfigListEntry(_('Show thumpics?'), config.plugins.stvcl.thumb,  _("Show Thumbpics ? Enigma restart required")))
+        if config.plugins.stvcl.thumb.value is True:
+            self.list.append(getConfigListEntry(_('Download thumpics?'), config.plugins.stvcl.thumbpic, _("Download thumpics in Player M3U (is very Slow)?")))
+        self.list.append(getConfigListEntry(_('Folder Cache for Thumbpics:'), config.plugins.stvcl.cachefold, _("Configure position folder for temporary Thumbpics")))
+        self.list.append(getConfigListEntry(_('Link in Extensions Menu:'), config.plugins.stvcl.strtext, _("Show Plugin in Extensions Menu")))
+        self.list.append(getConfigListEntry(_('Link in Main Menu:'), config.plugins.stvcl.strtmain, _("Show Plugin in Main Menu")))
+        self['config'].list = self.list
+        self["config"].setList(self.list)
+        self.setInfo()
 
-        def setInfo(self):
-            entry = str(self.getCurrentEntry())
-            if entry == _('IPTV bouquets location '):
-                self['description'].setText(_("Configure position of the bouquets of the converted lists"))
-                return
-            if entry == _('Player folder List <.m3u>:'):
-                self['description'].setText(_("Folder path containing the .m3u files"))
-                return
-            if entry == _('Filter M3U link regex type'):
-                self['description'].setText(_("Set On for line link m3u full"))
-                return
-            if entry == _('Services Player Reference type'):
-                self['description'].setText(_("Configure Service Player Reference"))
-                return
-            if entry == _('Show thumpics?'):
-                self['description'].setText(_("Show Thumbpics ? Enigma restart required"))
-                return
-            if entry == _('Download thumpics?'):
-                self['description'].setText(_("Download thumpics in Player M3U (is very Slow)?"))
-                return
-            if entry == _('Folder Cache for Thumbpics:'):
-                self['description'].setText(_("Configure position folder for temporary Thumbpics"))
-                return
-            if entry == _('Link in Extensions Menu:'):
-                self['description'].setText(_("Show Plugin in Extensions Menu"))
-                return
-            if entry == _('Link in Main Menu:'):
-                self['description'].setText(_("Show Plugin in Main Menu"))
+    def setInfo(self):
+        entry = str(self.getCurrentEntry())
+        if entry == _('IPTV bouquets location '):
+            self['description'].setText(_("Configure position of the bouquets of the converted lists"))
             return
-
-        def changedEntry(self):
-            sel = self['config'].getCurrent()
-            for x in self.onChangedEntry:
-                x()
-            try:
-                if isinstance(self['config'].getCurrent()[1], ConfigEnableDisable) or isinstance(self['config'].getCurrent()[1], ConfigYesNo) or isinstance(self['config'].getCurrent()[1], ConfigSelection):
-                    self.createSetup()
-            except:
-                pass
-
-        def getCurrentEntry(self):
-            return self['config'].getCurrent() and self['config'].getCurrent()[0] or ''
-
-        def getCurrentValue(self):
-            return self['config'].getCurrent() and str(self['config'].getCurrent()[1].getText()) or ''
-
-        def createSummary(self):
-            from Screens.Setup import SetupSummary
-            return SetupSummary
-
-        def Ok_edit(self):
-            ConfigListScreen.keyOK(self)
-            sel = self['config'].getCurrent()[1]
-            if sel and sel == config.plugins.stvcl.pthm3uf:
-                self.setting = 'pthm3uf'
-                self.openDirectoryBrowser(config.plugins.stvcl.pthm3uf.value)
-            elif sel and sel == config.plugins.stvcl.cachefold:
-                self.setting = 'cachefold'
-                self.openDirectoryBrowser(config.plugins.stvcl.cachefold.value)
-            else:
-                pass
-
-        def openDirectoryBrowser(self, path):
-            try:
-                self.session.openWithCallback(
-                 self.openDirectoryBrowserCB,
-                 LocationBox,
-                 windowTitle=_('Choose Directory:'),
-                 text=_('Choose Directory'),
-                 currDir=str(path),
-                 bookmarks=config.movielist.videodirs,
-                 autoAdd=False,
-                 editDir=True,
-                 inhibitDirs=['/bin', '/boot', '/dev', '/home', '/lib', '/proc', '/run', '/sbin', '/sys', '/var'],
-                 minFree=15)
-            except Exception as e:
-                print('error: ', str(e))
-
-        def openDirectoryBrowserCB(self, path):
-            if path != None:
-                if self.setting == 'pthm3uf':
-                    config.plugins.stvcl.pthm3uf.setValue(path)
-                elif self.setting == 'cachefold':
-                    config.plugins.stvcl.cachefold.setValue(path)
+        if entry == _('Player folder List <.m3u>:'):
+            self['description'].setText(_("Folder path containing the .m3u files"))
             return
+        if entry == _('Filter M3U link regex type'):
+            self['description'].setText(_("Set On for line link m3u full"))
+            return
+        if entry == _('Services Player Reference type'):
+            self['description'].setText(_("Configure Service Player Reference"))
+            return
+        if entry == _('Show thumpics?'):
+            self['description'].setText(_("Show Thumbpics ? Enigma restart required"))
+            return
+        if entry == _('Download thumpics?'):
+            self['description'].setText(_("Download thumpics in Player M3U (is very Slow)?"))
+            return
+        if entry == _('Folder Cache for Thumbpics:'):
+            self['description'].setText(_("Configure position folder for temporary Thumbpics"))
+            return
+        if entry == _('Link in Extensions Menu:'):
+            self['description'].setText(_("Show Plugin in Extensions Menu"))
+            return
+        if entry == _('Link in Main Menu:'):
+            self['description'].setText(_("Show Plugin in Main Menu"))
+        return
 
-        def cfgok(self):
-            self.save()
+    def changedEntry(self):
+        sel = self['config'].getCurrent()
+        for x in self.onChangedEntry:
+            x()
+        try:
+            if isinstance(self['config'].getCurrent()[1], ConfigEnableDisable) or isinstance(self['config'].getCurrent()[1], ConfigYesNo) or isinstance(self['config'].getCurrent()[1], ConfigSelection):
+                self.createSetup()
+        except:
+            pass
 
-        def save(self):
-            if not os.path.exists(config.plugins.stvcl.pthm3uf.value):
-                self.mbox = self.session.open(MessageBox, _('M3u list folder not detected!'), MessageBox.TYPE_INFO, timeout=4)
-                return
-            if self['config'].isChanged():
-                for x in self['config'].list:
-                    x[1].save()
-                configfile.save()
-                plugins.clearPluginList()
-                plugins.readPluginList(resolveFilename(SCOPE_PLUGINS))
-                self.mbox = self.session.open(MessageBox, _('Settings saved correctly!'), MessageBox.TYPE_INFO, timeout=5)
-                self.close()
-            else:
-                self.close()
+    def getCurrentEntry(self):
+        return self['config'].getCurrent() and self['config'].getCurrent()[0] or ''
 
-        def VirtualKeyBoardCallback(self, callback = None):
-            if callback != None and len(callback):
-                self["config"].getCurrent()[1].setValue(callback)
-                self["config"].invalidate(self["config"].getCurrent())
+    def getCurrentValue(self):
+        return self['config'].getCurrent() and str(self['config'].getCurrent()[1].getText()) or ''
 
-        def KeyText(self):
-            sel = self['config'].getCurrent()
-            if sel:
-                self.session.openWithCallback(self.VirtualKeyBoardCallback, VirtualKeyBoard, title=self['config'].getCurrent()[0], text=self['config'].getCurrent()[1].value)
+    def createSummary(self):
+        from Screens.Setup import SetupSummary
+        return SetupSummary
 
-        def cancelConfirm(self, result):
-            if not result:
-                return
+    def Ok_edit(self):
+        ConfigListScreen.keyOK(self)
+        sel = self['config'].getCurrent()[1]
+        if sel and sel == config.plugins.stvcl.pthm3uf:
+            self.setting = 'pthm3uf'
+            self.openDirectoryBrowser(config.plugins.stvcl.pthm3uf.value)
+        elif sel and sel == config.plugins.stvcl.cachefold:
+            self.setting = 'cachefold'
+            self.openDirectoryBrowser(config.plugins.stvcl.cachefold.value)
+        else:
+            pass
+
+    def openDirectoryBrowser(self, path):
+        try:
+            self.session.openWithCallback(
+             self.openDirectoryBrowserCB,
+             LocationBox,
+             windowTitle=_('Choose Directory:'),
+             text=_('Choose Directory'),
+             currDir=str(path),
+             bookmarks=config.movielist.videodirs,
+             autoAdd=False,
+             editDir=True,
+             inhibitDirs=['/bin', '/boot', '/dev', '/home', '/lib', '/proc', '/run', '/sbin', '/sys', '/var'],
+             minFree=15)
+        except Exception as e:
+            print('error: ', str(e))
+
+    def openDirectoryBrowserCB(self, path):
+        if path is not None:
+            if self.setting == 'pthm3uf':
+                config.plugins.stvcl.pthm3uf.setValue(path)
+            elif self.setting == 'cachefold':
+                config.plugins.stvcl.cachefold.setValue(path)
+        return
+
+    def cfgok(self):
+        self.save()
+
+    def save(self):
+        if not os.path.exists(config.plugins.stvcl.pthm3uf.value):
+            self.mbox = self.session.open(MessageBox, _('M3u list folder not detected!'), MessageBox.TYPE_INFO, timeout=4)
+            return
+        if self['config'].isChanged():
             for x in self['config'].list:
-                x[1].cancel()
+                x[1].save()
+            configfile.save()
+            plugins.clearPluginList()
+            plugins.readPluginList(resolveFilename(SCOPE_PLUGINS))
+            self.mbox = self.session.open(MessageBox, _('Settings saved correctly!'), MessageBox.TYPE_INFO, timeout=5)
+            self.close()
+        else:
             self.close()
 
-        def extnok(self):
-            if self['config'].isChanged():
-                self.session.openWithCallback(self.cancelConfirm, MessageBox, _('Really close without saving the settings?'))
-            else:
-                self.close()
+    def VirtualKeyBoardCallback(self, callback=None):
+        if callback is not None and len(callback):
+            self["config"].getCurrent()[1].setValue(callback)
+            self["config"].invalidate(self["config"].getCurrent())
+
+    def KeyText(self):
+        sel = self['config'].getCurrent()
+        if sel:
+            self.session.openWithCallback(self.VirtualKeyBoardCallback, VirtualKeyBoard, title=self['config'].getCurrent()[0], text=self['config'].getCurrent()[1].value)
+
+    def cancelConfirm(self, result):
+        if not result:
+            return
+        for x in self['config'].list:
+            x[1].cancel()
+        self.close()
+
+    def extnok(self):
+        if self['config'].isChanged():
+            self.session.openWithCallback(self.cancelConfirm, MessageBox, _('Really close without saving the settings?'))
+        else:
+            self.close()

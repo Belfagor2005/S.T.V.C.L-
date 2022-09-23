@@ -23,33 +23,36 @@ title_plug = 'Smart Tv Channels List'
 name_plug = '..:: Smart Tv Channels List  V.%s ::.. ' % currversion
 plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('stvcl'))
 
+
 def mainw(session, **kwargs):
     try:
         if Utils.zCheckInternet(1):
-                from . import Update
-                Update.upd_done()
-                from six.moves import reload_module
-                reload_module(Utils)
-                reload_module(main)
-                session.open(main.StvclMain)
+            from . import Update
+            Update.upd_done()
+            from six.moves import reload_module
+            reload_module(Utils)
+            reload_module(main)
+            session.open(main.StvclMain)
 
         else:
             from Screens.MessageBox import MessageBox
             from Tools.Notifications import AddPopup
-            AddPopup(_("Sorry but No Internet :("),MessageBox.TYPE_INFO, 10, 'Sorry')
+            AddPopup(_("Sorry but No Internet :("), MessageBox.TYPE_INFO, 10, 'Sorry')
     except:
         import traceback
         traceback.print_exc()
         pass
 
+
 def cfgmain(menuid):
     if menuid == 'mainmenu':
         return [(title_plug,
-         mainw,
-         name_plug,
-         44)]
+                 mainw,
+                 name_plug,
+                 44)]
     else:
         return []
+
 
 def Plugins(**kwargs):
     piclogox = 'logo.png'
