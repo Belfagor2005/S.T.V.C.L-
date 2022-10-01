@@ -13,56 +13,45 @@ from __future__ import print_function
 from .__init__ import _
 from . import Utils
 from . import plugin
-from .getpics import getpics, GridMain
+from .getpics import GridMain
 from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
 from Components.config import config, ConfigSubsection, ConfigSelection, getConfigListEntry
 from Components.config import ConfigDirectory, ConfigYesNo, configfile, ConfigEnableDisable
 from Components.Button import Button
 from Components.ConfigList import ConfigListScreen
-from Components.Input import Input
 from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaTest
 from Components.Pixmap import Pixmap
 from Components.PluginComponent import plugins
 from Components.ProgressBar import ProgressBar
-from Components.ScrollLabel import ScrollLabel
-from Components.SelectionList import SelectionList
 from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
 from Components.ServiceList import ServiceList
-from Components.Sources.List import List
 from Components.Sources.Progress import Progress
-from Components.Sources.Source import Source
 from Components.Sources.StaticText import StaticText
 from os.path import exists as file_exists
-from Plugins.Plugin import PluginDescriptor
-from Screens.ChoiceBox import ChoiceBox
-from Screens.Console import Console
-from Screens.InfoBar import InfoBar
 from Screens.InfoBar import MoviePlayer
-from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarSubtitleSupport, InfoBarNotifications
+from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection
+from Screens.InfoBarGenerics import InfoBarSubtitleSupport, InfoBarNotifications
 from Screens.LocationBox import LocationBox
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 from Tools.Directories import SCOPE_PLUGINS, resolveFilename
 from Tools.Downloader import downloadWithProgress
-from Tools.LoadPixmap import LoadPixmap
 from enigma import RT_VALIGN_CENTER
 from enigma import RT_HALIGN_LEFT
-from enigma import eListbox, eListboxPythonMultiContent
+from enigma import eListboxPythonMultiContent
 from enigma import eTimer
 from enigma import ePicLoad
 from enigma import eServiceCenter
 from enigma import eServiceReference
-from enigma import iServiceInformation
 from enigma import loadPNG, gFont
 from enigma import iPlayableService
 from os.path import splitext
 from time import sleep
-from twisted.web.client import downloadPage, getPage
-import base64
+from twisted.web.client import downloadPage
 import os
 import re
 import six
@@ -299,17 +288,19 @@ class StvclMain(Screen):
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
-        self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions', 'TimerEditActions'],
-                                         {'ok': self.okRun,
-                                          'menu': self.scsetup,
-                                          'red': self.exit,
-                                          # 'green': self.messagereload,
-                                          'info': self.exit,
-                                          # 'yellow': self.messagedellist,
-                                          'blue': self.msgdeleteBouquets,
-                                          'back': self.exit,
-                                          'cancel': self.exit}, -1)
-                                          # self.onFirstExecBegin.append(self.updateMenuList)
+        self['setupActions'] = ActionMap(['SetupActions',
+                                          'ColorActions',
+                                          'MenuActions',
+                                          'TimerEditActions'], {'ok': self.okRun,
+                                                                'menu': self.scsetup,
+                                                                'red': self.exit,
+                                                                # 'green': self.messagereload,
+                                                                'info': self.exit,
+                                                                # 'yellow': self.messagedellist,
+                                                                'blue': self.msgdeleteBouquets,
+                                                                'back': self.exit,
+                                                                'cancel': self.exit}, -1)
+        # self.onFirstExecBegin.append(self.updateMenuList)
         self.onLayoutFinish.append(self.updateMenuList)
 
     def updateMenuList(self):
@@ -451,13 +442,10 @@ class ListM3u1(Screen):
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
-        self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions'],
-                                        {
-                                         # 'green': self.message2,
-                                         # 'yellow': self.message1,
-                                         # 'blue': self.message1,
-                                         'cancel': self.cancel,
-                                         'ok': self.runList}, -2)
+        self['setupActions'] = ActionMap(['SetupActions',
+                                          'ColorActions',
+                                          'MenuActions'], {'cancel': self.cancel,
+                                                           'ok': self.runList}, -2)
         if not os.path.exists(Path_Movies):
             self.mbox = self.session.open(MessageBox, _('Check in your Config Plugin - Path Movie'), MessageBox.TYPE_INFO, timeout=5)
             self.scsetup()
@@ -565,12 +553,10 @@ class ListM3u(Screen):
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
-        self['setupActions'] = ActionMap(['SetupActions', 'ColorActions', 'MenuActions'], {
-                                           # 'green': self.message2,
-                                           # 'yellow': self.message1,
-                                           # 'blue': self.message1,
-                                           'cancel': self.cancel,
-                                           'ok': self.runList}, -2)
+        self['setupActions'] = ActionMap(['SetupActions',
+                                          'ColorActions',
+                                          'MenuActions'], {'cancel': self.cancel,
+                                                           'ok': self.runList}, -2)
         if not os.path.exists(Path_Movies):
             self.mbox = self.session.open(MessageBox, _('Check in your Config Plugin - Path Movie'), MessageBox.TYPE_INFO, timeout=5)
             self.scsetup()
@@ -610,7 +596,6 @@ class ListM3u(Screen):
             print('content: ', content)
             # <a href="br.xml.gz">br.xml.gz</a> 21-Oct-2021 07:05   108884
             # <a href="raw-radio.m3u8">raw-radio.m3u8</a>   22-Oct-2021 06:08   9639
-
             regexvideo = '<a href="(.*?)">.*?</a>.*?-(.*?)-(.*?) '
             match = re.compile(regexvideo, re.DOTALL).findall(content)
             print('ListM3u match = ', match)
@@ -693,22 +678,26 @@ class ChannelList(Screen):
         self.names = []
         self.urls = []
         self.pics = []
-        self['setupActions'] = ActionMap(['SetupActions', 'DirectionActions', 'ColorActions', 'MenuActions', 'TimerEditActions', 'InfobarInstantRecord'], {'red': self.cancel,
-                                           # 'green': self.runRec,
-                                           'menu': self.AdjUrlFavo,
-                                           'green': self.message2,
-                                           'yellow': self.message1,
-                                           'cancel': self.cancel,
-                                           'up': self.up,
-                                           'down': self.down,
-                                           'left': self.left,
-                                           'right': self.right,
-                                           'blue': self.search_m3u,
-                                           'rec': self.runRec,
-                                           'instantRecord': self.runRec,
-                                           'ShortRecord': self.runRec,
-                                           'ok': self.runChannel}, -2)
-        # if 'http' in self.url:
+        self['setupActions'] = ActionMap(['SetupActions',
+                                          'DirectionActions',
+                                          'ColorActions',
+                                          'MenuActions',
+                                          'TimerEditActions',
+                                          'InfobarInstantRecord'], {'red': self.cancel,
+                                                                    # 'green': self.runRec,
+                                                                    'menu': self.AdjUrlFavo,
+                                                                    'green': self.message2,
+                                                                    'yellow': self.message1,
+                                                                    'cancel': self.cancel,
+                                                                    'up': self.up,
+                                                                    'down': self.down,
+                                                                    'left': self.left,
+                                                                    'right': self.right,
+                                                                    'blue': self.search_m3u,
+                                                                    'rec': self.runRec,
+                                                                    'instantRecord': self.runRec,
+                                                                    'ShortRecord': self.runRec,
+                                                                    'ok': self.runChannel}, -2)
         self.currentList = 'list'
         self.onLayoutFinish.append(self.downlist)
         # self.onFirstExecBegin.append(self.downlist)
@@ -723,8 +712,6 @@ class ChannelList(Screen):
         print('iiiiii= ', i)
         if i < 1:
             return
-        # global servicx
-        # idx = self['list'].getSelectionIndex()
         self.servicx = 'iptv'
         self.session.openWithCallback(self.check10, MessageBox, _("Do you want to Convert Bouquet IPTV?"), MessageBox.TYPE_YESNO)
 
@@ -733,8 +720,6 @@ class ChannelList(Screen):
         print('iiiiii= ', i)
         if i < 1:
             return
-        # global servicx
-        # idx = self['list'].getSelectionIndex()
         self.servicx = 'gst'
         self.session.openWithCallback(self.check10, MessageBox, _("Do you want to Convert Bouquet GSTREAMER?"), MessageBox.TYPE_YESNO)
 
@@ -745,8 +730,6 @@ class ChannelList(Screen):
             if idx == -1 or None or '':
                 return
             self.convert = True
-            # userbouquet.it-dec-2021-amuse-animation.tv
-            name = self.name + ' ' + self.names[idx]
             namebouquett = self.name.replace(' ', '_').replace('-', '_').strip()
             print('namebouquett in folder tmp : ', namebouquett)
             try:
@@ -960,12 +943,10 @@ class ChannelList(Screen):
             downloadFilest(urlm3u, in_tmp)
             sleep(3)
             self.playList()
-
             # self.download = downloadWithProgress(urlm3u, in_tmp)
             # self.download.addProgress(self.downloadProgress)
             # self.download.start().addCallback(self.check).addErrback(self.showError)
             print('ChannelList Downlist sleep 3 - 2')        # return
-
         except Exception as e:
             print('error: ', str(e))
             # self.mbox = self.session.open(MessageBox, _('DOWNLOAD ERROR'), MessageBox.TYPE_INFO, timeout=5)
@@ -1367,13 +1348,13 @@ class M3uPlay2(
                                      'InfobarShowHideActions',
                                      'InfobarActions',
                                      'InfobarSeekActions'], {'leavePlayer': self.cancel,
-                                     'epg': self.showIMDB,
-                                     'info': self.showIMDB,
-                                     # 'info': self.cicleStreamType,
-                                     'tv': self.cicleStreamType,
-                                     'stop': self.cancel,
-                                     'cancel': self.cancel,
-                                     'back': self.cancel}, -1)
+                                                             'epg': self.showIMDB,
+                                                             'info': self.showIMDB,
+                                                             # 'info': self.cicleStreamType,
+                                                             'tv': self.cicleStreamType,
+                                                             'stop': self.cancel,
+                                                             'cancel': self.cancel,
+                                                             'back': self.cancel}, -1)
         self.allowPiP = False
         self.service = None
         self.url = url
@@ -1421,49 +1402,26 @@ class M3uPlay2(
         self.new_aspect = temp
         self.setAspect(temp)
 
-    def showinfo(self):
-        from ServiceReference import ServiceReference
-        sref = self.srefInit
-        p = ServiceReference(sref)
-        servicename = str(p.getServiceName())
-        serviceurl = str(p.getPath())
-        sTitle = ''
-        sServiceref = ''
-        try:
-            if servicename is not None:
-                sTitle = servicename
-            else:
-                sTitle = ''
-            if serviceurl is not None:
-                sServiceref = serviceurl
-            else:
-                sServiceref = ''
-            currPlay = self.session.nav.getCurrentService()
-            if currPlay:
-                sTagCodec = currPlay.info().getInfoString(iServiceInformation.sTagCodec)
-                sTagVideoCodec = currPlay.info().getInfoString(iServiceInformation.sTagVideoCodec)
-                sTagAudioCodec = currPlay.info().getInfoString(iServiceInformation.sTagAudioCodec)
-                message = 'stitle:' + str(sTitle) + '\n' + 'sServiceref:' + str(sServiceref) + '\n' + 'sTagCodec:' + str(sTagCodec) + '\n' + 'sTagVideoCodec:' + str(sTagVideoCodec) + '\n' + 'sTagAudioCodec: ' + str(sTagAudioCodec)
-                self.mbox = self.session.open(MessageBox, message, MessageBox.TYPE_INFO)
-        except:
-            pass
-        return
-
     def showIMDB(self):
-        TMDB = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('TMDB'))
-        IMDb = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('IMDb'))
-        if os.path.exists(TMDB):
-            from Plugins.Extensions.TMBD.plugin import TMBD
-            text_clear = self.name
-            text = Utils.charRemove(text_clear)
-            self.session.open(TMBD, text, False)
-        elif os.path.exists(IMDb):
-            from Plugins.Extensions.IMDb.plugin import IMDB
-            text_clear = self.name
-            text = Utils.charRemove(text_clear)
-            self.session.open(IMDB, text)
+        text_clear = self.name
+        if Utils.is_tmdb:
+            try:
+                from Plugins.Extensions.TMBD.plugin import TMBD
+                text = Utils.badcar(text_clear)
+                text = Utils.charRemove(text_clear)
+                _session.open(TMBD.tmdbScreen, text, 0)
+            except Exception as ex:
+                print("[XCF] Tmdb: ", str(ex))
+        elif Utils.is_imdb:
+            try:
+                from Plugins.Extensions.IMDb.plugin import main as imdb
+                text = Utils.badcar(text_clear)
+                text = Utils.charRemove(text_clear)
+                imdb(_session, text)
+                # _session.open(imdb, text)
+            except Exception as ex:
+                print("[XCF] imdb: ", str(ex))
         else:
-            text_clear = self.name
             self.session.open(MessageBox, text_clear, MessageBox.TYPE_INFO)
 
     def slinkPlay(self, url):
@@ -1581,10 +1539,11 @@ class AddIpvStream(Screen):
         self["key_blue"] = Button(_(''))
         self["key_yellow"].hide()
         self["key_blue"].hide()
-        self['actions'] = ActionMap(['SetupActions', 'ColorActions'], {'ok': self.keyOk,
-                                     'cancel': self.keyCancel,
-                                     'green': self.keyOk,
-                                     'red': self.keyCancel}, -2)
+        self['actions'] = ActionMap(['SetupActions',
+                                     'ColorActions'], {'ok': self.keyOk,
+                                                       'cancel': self.keyCancel,
+                                                       'green': self.keyOk,
+                                                       'red': self.keyCancel}, -2)
         self['statusbar'] = Label('')
         self.list = []
         self['menu'] = MenuList([])
@@ -1704,14 +1663,15 @@ class OpenConfig(Screen, ConfigListScreen):
         # self["key_blue"].hide()
         self['text'] = Label(info)
         self["description"] = Label('')
-        self['actions'] = ActionMap(["SetupActions", "ColorActions", "VirtualKeyboardActions"], {
-                                    'cancel': self.extnok,
-                                    "red": self.extnok,
-                                    "green": self.cfgok,
-                                    "blue": self.cachedel,
-                                    # 'yellow': self.msgupdt1,
-                                    'showVirtualKeyboard': self.KeyText,
-                                    'ok': self.Ok_edit}, -2)
+        self['actions'] = ActionMap(["SetupActions",
+                                     "ColorActions",
+                                     "VirtualKeyboardActions"], {'cancel': self.extnok,
+                                                                 'red': self.extnok,
+                                                                 'green': self.cfgok,
+                                                                 'blue': self.cachedel,
+                                                                 # 'yellow': self.msgupdt1,
+                                                                 'showVirtualKeyboard': self.KeyText,
+                                                                 'ok': self.Ok_edit}, -2)
 
         ConfigListScreen.__init__(self, self.list, session=self.session, on_change=self.changedEntry)
         self.createSetup()
@@ -1786,7 +1746,6 @@ class OpenConfig(Screen, ConfigListScreen):
         return
 
     def changedEntry(self):
-        sel = self['config'].getCurrent()
         for x in self.onChangedEntry:
             x()
         try:

@@ -7,5 +7,6 @@ Maintainer: @lululla
 Description: stvcl is smart tv plugin 
 Source: @lululla
 Homepage: tivustream.com
+Depends: python-imaging | python3-imaging, python-requests | python3-requests
 OE: 2.0-2.2-2.5
 License: O.S.
