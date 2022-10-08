@@ -27,8 +27,11 @@ plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('stvcl'))
 def mainw(session, **kwargs):
     try:
         if Utils.zCheckInternet(1):
-            from . import Update
-            Update.upd_done()
+            try:
+                from . import Update
+                Update.upd_done()
+            except Exception as e:
+                print(str(e))
             from six.moves import reload_module
             reload_module(Utils)
             reload_module(main)

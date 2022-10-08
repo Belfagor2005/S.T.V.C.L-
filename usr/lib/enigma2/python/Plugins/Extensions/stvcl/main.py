@@ -10,9 +10,9 @@ Info http://t.me/tivustream
 ****************************************
 '''
 from __future__ import print_function
-from .__init__ import _
+# from .__init__ import _
+from . import _
 from . import Utils
-from . import plugin
 from .getpics import GridMain
 from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
@@ -131,8 +131,11 @@ def downloadFilest(url, target):
 # ================
 global Path_Movies, defpic
 # ================
-Maintainer2 = 'Maintener @Lululla'
+currversion = '1.2'
+title_plug = 'Smart Tv Channels List'
+name_plug = '..:: Smart Tv Channels List  V.%s ::.. ' % currversion
 plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('stvcl'))
+Maintainer2 = 'Maintener @Lululla'
 dir_enigma2 = '/etc/enigma2/'
 service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 31) || (type == 134) || (type == 195)'
 defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
@@ -277,8 +280,8 @@ class StvclMain(Screen):
         self['progresstext'] = StaticText('')
         self["progress"].hide()
         self.downloading = False
-        self.setTitle(plugin.name_plug)
-        self['title'] = Label(plugin.name_plug)
+        self.setTitle(name_plug)
+        self['title'] = Label(name_plug)
         self['Maintainer2'] = Label(Maintainer2)
         self['path'] = Label(_('Folder path %s' % str(Path_Movies)))
         self['key_red'] = Button(_('Exit'))
@@ -425,7 +428,7 @@ class ListM3u1(Screen):
         self['list'] = tvList([])
         global SREF
         SREF = self.session.nav.getCurrentlyPlayingServiceReference()
-        self['title'] = Label(plugin.title_plug + ' ' + namem3u)
+        self['title'] = Label(title_plug + ' ' + namem3u)
         self['Maintainer2'] = Label(Maintainer2)
         self['path'] = Label(_('Folder path %s' % str(Path_Movies)))
         self['progress'] = ProgressBar()
@@ -536,7 +539,7 @@ class ListM3u(Screen):
         self['list'] = tvList([])
         global SREF
         SREF = self.session.nav.getCurrentlyPlayingServiceReference()
-        self['title'] = Label(plugin.title_plug + ' ' + namem3u)
+        self['title'] = Label(title_plug + ' ' + namem3u)
         self['Maintainer2'] = Label(Maintainer2)
         self['path'] = Label(_('Folder path %s' % str(Path_Movies)))
         self['progress'] = ProgressBar()
@@ -645,8 +648,8 @@ class ChannelList(Screen):
         self.picload = ePicLoad()
         self.scale = AVSwitch().getFramebufferScale()
         self['list'] = tvList([])
-        self.setTitle(plugin.title_plug + ' ' + name)
-        self['title'] = Label(plugin.title_plug + ' ' + name)
+        self.setTitle(title_plug + ' ' + name)
+        self['title'] = Label(title_plug + ' ' + name)
         self['Maintainer2'] = Label(Maintainer2)
         self['path'] = Label(_('Folder path %s' % str(Path_Movies)))
         service = config.plugins.stvcl.services.value
@@ -1529,8 +1532,8 @@ class AddIpvStream(Screen):
         f = open(skin, 'r')
         self.skin = f.read()
         f.close()
-        self.setTitle(plugin.title_plug + ' ' + name)
-        self['title'] = Label(plugin.title_plug + ' ' + name)
+        self.setTitle(title_plug + ' ' + name)
+        self['title'] = Label(title_plug + ' ' + name)
         self['Maintainer2'] = Label(Maintainer2)
         # self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
         self['key_red'] = Button(_('Back'))
@@ -1650,8 +1653,8 @@ class OpenConfig(Screen, ConfigListScreen):
         self.onChangedEntry = []
         self.list = []
         info = '***YOUR SETUP***'
-        self.setTitle(plugin.title_plug + ' ' + info)
-        self['title'] = Label(plugin.title_plug + ' SETUP')
+        self.setTitle(title_plug + ' ' + info)
+        self['title'] = Label(title_plug + ' SETUP')
         self['Maintainer2'] = Label(Maintainer2)
         self["paypal"] = Label()
         # self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
