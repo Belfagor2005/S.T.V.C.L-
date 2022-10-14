@@ -22,7 +22,8 @@ from Components.Button import Button
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components.MenuList import MenuList
-from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaTest
+from Components.MultiContent import MultiContentEntryText
+from Components.MultiContent import MultiContentEntryPixmapAlphaTest
 from Components.Pixmap import Pixmap
 from Components.PluginComponent import plugins
 from Components.ProgressBar import ProgressBar
@@ -32,8 +33,9 @@ from Components.Sources.Progress import Progress
 from Components.Sources.StaticText import StaticText
 from os.path import exists as file_exists
 from Screens.InfoBar import MoviePlayer
-from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection
-from Screens.InfoBarGenerics import InfoBarSubtitleSupport, InfoBarNotifications
+from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek
+from Screens.InfoBarGenerics import InfoBarAudioSelection, InfoBarNotifications
+from Screens.InfoBarGenerics import InfoBarSubtitleSupport
 from Screens.LocationBox import LocationBox
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
@@ -1715,7 +1717,7 @@ class OpenConfig(Screen, ConfigListScreen):
         self.list.append(getConfigListEntry(_('Link in Extensions Menu:'), config.plugins.stvcl.strtext, _("Show Plugin in Extensions Menu")))
         self.list.append(getConfigListEntry(_('Link in Main Menu:'), config.plugins.stvcl.strtmain, _("Show Plugin in Main Menu")))
         self['config'].list = self.list
-        self["config"].setList(self.list)
+        self["config"].l.setList(self.list)
         self.setInfo()
 
     def setInfo(self):

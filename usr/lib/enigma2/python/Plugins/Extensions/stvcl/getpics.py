@@ -11,45 +11,57 @@
 Info http://t.me/tivustream
 '''
 from __future__ import print_function
-from .__init__ import _
+from Components.AVSwitch import AVSwitch
+from Components.ActionMap import ActionMap
+from Components.Label import Label
+from Components.Pixmap import Pixmap, MovingPixmap
+from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
+from Components.Sources.List import List
+from Components.Sources.StaticText import StaticText
+from Components.config import config
+from Screens.InfoBarGenerics import InfoBarSubtitleSupport, InfoBarMenu
+from Screens.InfoBarGenerics import InfoBarSeek
+from Screens.InfoBarGenerics import InfoBarAudioSelection, InfoBarNotifications
+from Screens.InfoBar import MoviePlayer
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
+from Tools.Directories import SCOPE_PLUGINS
+from Tools.Directories import fileExists
+from Tools.Directories import resolveFilename
+from enigma import iPlayableService
+from enigma import eServiceReference
+from enigma import eTimer
+from time import sleep
 import os
 import sys
-import six
-from Screens.Screen import Screen
-from Components.Label import Label
-from Components.config import config
-from enigma import eTimer
-from Components.AVSwitch import AVSwitch
-from Components.Sources.List import List
-from Screens.MessageBox import MessageBox
-from Components.ActionMap import ActionMap
-from Screens.InfoBar import MoviePlayer, InfoBar
-from time import sleep
-from Components.Pixmap import Pixmap, MovingPixmap
-from Components.Sources.StaticText import StaticText
-from Tools.Directories import SCOPE_PLUGINS, resolveFilename, fileExists
-from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
-from enigma import iServiceInformation, iPlayableService, eServiceReference
-from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek, InfoBarAudioSelection, InfoBarNotifications, InfoBarSubtitleSupport
 from . import Utils
-from PIL import Image, ImageChops
+
+global skin_path, tmpfold, picfold
+global defpic, dblank
 
 
-plugin_fold = os.path.dirname(sys.modules[__name__].__file__)
+try:
+    import Image
+except:
+    from PIL import Image, ImageChops
 
+_session = None
 
-def getDesktopSize():
-    from enigma import getDesktop
-    s = getDesktop(0).size()
-    return (s.width(), s.height())
+PY3 = sys.version_info.major >= 3
+print('Py3: ', PY3)
 
+if PY3:
+    from urllib.request import Request
+    unicode = str
+    unichr = chr
+    long = int
+    PY3 = True
+else:
+    from urllib2 import Request
 
-def isFHD():
-    desktopSize = getDesktopSize()
-    return desktopSize[0] == 1920
+plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/{}/".format('stvcl'))
 
-
-if isFHD():
+if Utils.isFHD():
     skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/skins/fhd/")
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
     dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blankL.png'))
@@ -57,33 +69,35 @@ else:
     skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/skins/hd/")
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
     dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blank.png'))
-if os.path.exists('/var/lib/dpkg/status'):
+if Utils.DreamOS():
     skin_path = skin_path + 'dreamOs/'
 
+try:
+    from OpenSSL import SSL
+    from twisted.internet import ssl
+    from twisted.internet._sslverify import ClientTLSOptions
+    sslverify = True
+except:
+    sslverify = False
+if sslverify:
+    class SNIFactory(ssl.ClientContextFactory):
+        def __init__(self, hostname=None):
+            self.hostname = hostname
 
-pos = []
-if isFHD():
-    pos.append([35, 80])
-    pos.append([395, 80])
-    pos.append([755, 80])
-    pos.append([1115, 80])
-    pos.append([1475, 80])
-    pos.append([35, 530])
-    pos.append([395, 530])
-    pos.append([755, 530])
-    pos.append([1115, 530])
-    pos.append([1475, 530])
-else:
-    pos.append([20, 50])
-    pos.append([260, 50])
-    pos.append([500, 50])
-    pos.append([740, 50])
-    pos.append([980, 50])
-    pos.append([20, 350])
-    pos.append([260, 350])
-    pos.append([500, 350])
-    pos.append([740, 350])
-    pos.append([980, 350])
+        def getContext(self):
+            ctx = self._contextFactory(self.method)
+            if self.hostname:
+                ClientTLSOptions(self.hostname, ctx)
+            return ctx
+
+
+def cleanName(name):
+    name = name.strip()
+    # filter out non-allowed characters
+    non_allowed_characters = "/.\\:*?<>|\""
+    name = name.replace('\xc2\x86', '').replace('\xc2\x87', '')
+    name = ''.join(['_' if c in non_allowed_characters or ord(c) < 32 else c for c in name])
+    return name
 
 
 def getpics(names, pics, tmpfold, picfold):
@@ -91,10 +105,6 @@ def getpics(names, pics, tmpfold, picfold):
     defpic = defpic
     print("In getpics tmpfold =", tmpfold)
     print("In getpics picfold =", picfold)
-    if isFHD():
-        nw = 300
-    else:
-        nw = 200
     pix = []
     if config.plugins.stvcl.thumbpic.value is False:
         npic = len(pics)
@@ -112,22 +122,21 @@ def getpics(names, pics, tmpfold, picfold):
     while j < npic:
         name = names[j]
         print("In getpics name =", name)
-        if name is None:
+        if name is None or name == '':
             name = "Video"
-        try:
-            name = name.replace("&", "").replace(":", "").replace("(", "-")
-            name = name.replace(")", "").replace(" ", "").replace("'", "")
-            name = name.replace("/", "-")
-            name = Utils.decodeHtml(name)
-        except:
-            pass
+        name = cleanName(name)
+        print(name)
+        # test
+        name = name.replace(' ', '-').replace("'", '').replace('&', '').replace('(', '').replace(')', '')
+        print(name)
+        # end test
         url = pics[j]
         if url is None:
             url = ""
         url = url.replace(" ", "%20")
         url = url.replace("ExQ", "=")
         url = url.replace("AxNxD", "&")
-        print("In getpics url =", url)
+        # print("In getpics url =", url)
         ext = str(os.path.splitext(url)[-1])
         picf = picfold + "/" + name + ext
         tpicf = tmpfold + "/" + name + ext
@@ -143,7 +152,7 @@ def getpics(names, pics, tmpfold, picfold):
                 cmd = "rm " + tpicf
                 os.system(cmd)
         if not fileExists(picf):
-            if plugin_fold in url:
+            if plugin_path in url:
                 try:
                     cmd = "cp " + url + " " + tpicf
                     print("In getpics not fileExists(picf) cmd =", cmd)
@@ -156,137 +165,157 @@ def getpics(names, pics, tmpfold, picfold):
                         n3 = url.find("|", 0)
                         n1 = url.find("Referer", n3)
                         n2 = url.find("=", n1)
-                        url1 = url[:n3]
+                        url = url[:n3]
                         referer = url[n2:]
-                        p = Utils.getUrl2(url1, referer)
-                        f1 = open(tpicf, "wb")
-                        f1.write(p)
-                        f1.close()
+                        p = Utils.getUrl2(url, referer)
+                        # -----------------
+                        # f1 = open(tpicf, "wb")
+                        # f1.write(p)
+                        # f1.close()
+                        with open(tpicf, 'wb') as f1:
+                            f1.write(p)
                     else:
                         print("Going in urlopen url =", url)
-                        fpage = Utils.AdultUrl(url)
-                        f1 = open(tpicf, "wb")
-                        f1.write(fpage)
-                        f1.close()
-
+                        p = Utils.ReadUrl2(url)
+                        # p = p.decode('utf-8', 'ignore')
+                        with open(tpicf, 'wb') as f1:
+                            f1.write(p)
+                        # f1 = open(tpicf, "wb")
+                        # f1.write(p)
+                        # f1.close()
                 except:
                     cmd = "cp " + defpic + " " + tpicf
                     os.system(cmd)
 
         if not fileExists(tpicf):
-        # else:
             print("In getpics not fileExists(tpicf) tpicf=", tpicf)
             cmd = "cp " + defpic + " " + tpicf
             print("In getpics not fileExists(tpicf) cmd=", cmd)
             os.system(cmd)
+        if Utils.isFHD():
+            nw = 220
+        else:
+            nw = 150
+        if os.path.exists(tpicf):
             try:
-                # start kiddac code
-                size = [200, 200]
-                if isFHD():
-                    size = [300, 300]
-                im = Image.open(tpicf).convert('RGBA')
-                im.thumbnail(size, Image.ANTIALIAS)
-                # crop and center image
-                bg = Image.new('RGBA', size, (255, 255, 255, 0))
-                imagew, imageh = im.size
-                im_alpha = im.convert('RGBA').split()[-1]
-                bgwidth, bgheight = bg.size
-                bg_alpha = bg.convert('RGBA').split()[-1]
-                temp = Image.new('L', (bgwidth, bgheight), 0)
-                temp.paste(im_alpha, (int((bgwidth - imagew) / 2), int((bgheight - imageh) / 2)), im_alpha)
-                bg_alpha = ImageChops.screen(bg_alpha, temp)
-                bg.paste(im, (int((bgwidth - imagew) / 2), int((bgheight - imageh) / 2)))
-                im = bg
-                im.save(tpicf, 'PNG')
-
-            # end kiddac code
-                # im = Image.open(tpicf)#.convert('RGBA')
-                # # imode = im.mode
-                # # if im.mode == "JPEG":
-                    # # im.save(tpicf)
-                    # # # in most case, resulting jpg file is resized small one
-                # # if imode.mode in ["RGBA", "P"]:
-                    # # imode = imode.convert("RGB")
-                    # # rgb_im.save(tpicf)
-                # # if imode is not "P":
-                    # # im = im.convert("P")
-                # # if im.mode is not "P":
-                    # # im = im.convert("P")
-                # w = im.size[0]
-                # d = im.size[1]
-                # r = float(d)/float(w)
-                # d1 = r*nw
-                # if w is not nw:
-                    # x = int(nw)
-                    # y = int(d1)
-                    # im = im.resize((x,y), Image.ANTIALIAS)
-                # im.save(tpicf, quality=100, optimize=True)
+                im = Image.open(tpicf)  # .convert('RGBA')
+                # imode = im.mode
+                # if im.mode == "JPEG":
+                    # im.save(tpicf)
+                    # # in most case, resulting jpg file is resized small one
+                # if imode.mode in ["RGBA", "P"]:
+                    # imode = imode.convert("RGB")
+                    # rgb_im.save(tpicf)
+                # if imode != "P":
+                    # im = im.convert("P")
+                # if im.mode != "P":
+                    # im = im.convert("P")
+                w = im.size[0]
+                d = im.size[1]
+                r = float(d)/float(w)
+                d1 = r * nw
+                if w != nw:
+                    x = int(nw)
+                    y = int(d1)
+                    im = im.resize((x, y), Image.ANTIALIAS)
+                im.save(tpicf, quality=100, optimize=True)
+                # im.save(tpicf, 'PNG')
+                # im.save(tpicf, 'JPG')
+                # # im.save(tpicf)
             except Exception as e:
                 print("******* picon resize failed *******")
-                print(str(e))
+                print(e)
         else:
+            print("******* make picon failed *******")
             tpicf = defpic
+        # except:
+            # print("******* make picon failed *******")
+            # tpicf = defpic
         pix.append(j)
         pix[j] = picf
         j = j+1
-
     cmd1 = "cp " + tmpfold + "/* " + picfold + " && rm " + tmpfold + "/* &"
     # print("In getpics final cmd1=", cmd1)
     os.system(cmd1)
-    os.system('sleep 1')
+
     return pix
 
 
 class GridMain(Screen):
     def __init__(self, session, names, urls, pics=[]):
-        skin = skin_path + '/GridMain.xml'
-        f = open(skin, 'r')
-        self.skin = f.read()
-        f.close()
         Screen.__init__(self, session)
+        self.session = session
+        global _session
+        _session = session
+        skin = skin_path + 'GridMain.xml'
+        with open(skin, 'r') as f:
+            self.skin = f.read()
+        f.close()
         self['title'] = Label(_('..:: S.T.V.C.L. ::..'))
+        self.pos = []
+        if Utils.isFHD():
+            self.pos.append([30, 24])
+            self.pos.append([396, 24])
+            self.pos.append([764, 24])
+            self.pos.append([1134, 24])
+            self.pos.append([1504, 24])
+            self.pos.append([30, 468])
+            self.pos.append([396, 468])
+            self.pos.append([764, 468])
+            self.pos.append([1134, 468])
+            self.pos.append([1504, 468])
+        else:
+            self.pos.append([26, 15])
+            self.pos.append([272, 15])
+            self.pos.append([516, 15])
+            self.pos.append([756, 15])
+            self.pos.append([996, 15])
+            self.pos.append([26, 315])
+            self.pos.append([272, 315])
+            self.pos.append([516, 315])
+            self.pos.append([756, 315])
+            self.pos.append([996, 315])
+        print(" self.pos =", self.pos)
         tmpfold = config.plugins.stvcl.cachefold.value + "stvcl/tmp"
         picfold = config.plugins.stvcl.cachefold.value + "stvcl/pic"
+        # pics = getpics(names, pics, tmpfold, picfold)
+        self["info"] = Label()
         pics = getpics(names, pics, tmpfold, picfold)
+        print("In Gridmain pics = ", pics)
+        self.picsint = eTimer()
+        self.picsint.start(1000, True)
+        self.urls = urls
+        self.pics = pics
+        self.name = "stvcl"
+        self.names = names
         sleep(3)
         list = []
-
-        self.pos = []
-        self.pos = pos
-        print(" self.pos =", self.pos)
-        self.name = "stvcl"
-        self.pics = pics
-        self.urls = urls
-        self.names = names
-        self.names1 = names
         list = names
         self["info"] = Label()
         self["menu"] = List(list)
+        for x in list:
+            print("x in list =", x)
         self["frame"] = MovingPixmap()
         i = 0
-        while i < 16:
+        while i < 20:
             self["label" + str(i+1)] = StaticText()
             self["pixmap" + str(i+1)] = Pixmap()
             i = i+1
-        i = 0
-        ip = 0
         self.index = 0
         self.ipage = 1
-        self.icount = 0
-        ln = len(self.names1)
+        ln = len(self.names)
         self.npage = int(float(ln/10)) + 1
-        self["actions"] = ActionMap(["OkCancelActions", "MenuActions", "DirectionActions", "NumberActions"],
-                                    {
-                                    "ok": self.okClicked,
-                                    "cancel": self.cancel,
-                                    "left": self.key_left,
-                                    "right": self.key_right,
-                                    "up": self.key_up,
-                                    "down": self.key_down,
-                                    })
-        global SREF
-        self.initialservice = self.session.nav.getCurrentlyPlayingServiceReference()
-        SREF = self.initialservice
+        print("self.npage =", self.npage)
+        self["actions"] = ActionMap(["OkCancelActions",
+                                     "MenuActions",
+                                     "DirectionActions",
+                                     "NumberActions"], {"ok": self.okClicked,
+                                                        "cancel": self.cancel,
+                                                        "left": self.key_left,
+                                                        "right": self.key_right,
+                                                        "up": self.key_up,
+                                                        "down": self.key_down})
+        self.srefInit = self.session.nav.getCurrentlyPlayingServiceReference()
         self.onLayoutFinish.append(self.openTest)
         # self.onShown.append(self.openTest)
 
@@ -301,24 +330,29 @@ class GridMain(Screen):
         # if self.maxentry < self.index or self.index < 0:
         #     return
         print("In paintFrame self.ipage = ", self.ipage)
-        ifr = self.index - (10*(self.ipage-1))
-        print("ifr =", ifr)
-        ipos = self.pos[ifr]
-        print("ipos =", ipos)
-
-        inf = self.index
-        if inf is not None or inf != -1:
-            self["info"].setText(self.names1[inf])
-            print('infos: ', inf)
-        self["frame"].moveTo(ipos[0], ipos[1], 1)
-        self["frame"].startMoving()
+        try:
+            ifr = self.index - (10*(self.ipage-1))
+            print("ifr =", ifr)
+            ipos = self.pos[ifr]
+            print("ipos =", ipos)
+            inf = self.index
+            if inf:
+                try:
+                    self["info"].setText(self.infos[inf])
+                    print('infos: ', inf)
+                except:
+                    self["info"].setText('')
+                    print('except info')
+            self["frame"].moveTo(ipos[0], ipos[1], 1)
+            self["frame"].startMoving()
+        except Exception as e:
+            print('error  in paintframe: ', str(e))
 
     def openTest(self):
         print("self.index, openTest self.ipage, self.npage =", self.index, self.ipage, self.npage)
         if self.ipage < self.npage:
             self.maxentry = (10*self.ipage)-1
             self.minentry = (self.ipage-1)*10
-            # self.index 0-11
             print("self.ipage , self.minentry, self.maxentry =", self.ipage, self.minentry, self.maxentry)
         elif self.ipage == self.npage:
             print("self.ipage , len(self.pics) =", self.ipage, len(self.pics))
@@ -331,7 +365,7 @@ class GridMain(Screen):
                 self["label" + str(i1+1)].setText(" ")
                 self["pixmap" + str(i1+1)].instance.setPixmapFromFile(blpic)
                 i1 = i1+1
-        print("len(self.pics) , self.minentry, self.maxentry =", len(self.pics), self.minentry, self.maxentry)
+        print("len(self.pics), self.minentry, self.maxentry =", len(self.pics), self.minentry, self.maxentry)
         self.npics = len(self.pics)
         i = 0
         i1 = 0
@@ -341,8 +375,8 @@ class GridMain(Screen):
         while i < ln:
             idx = self.minentry + i
             print("i, idx =", i, idx)
-            print("self.names1[idx] B=", self.names1[idx])
-            self["label" + str(i+1)].setText(self.names1[idx])
+            print("self.names[idx] B=", self.names[idx])
+            self["label" + str(i+1)].setText(self.names[idx])
             print("idx, self.pics[idx]", idx, self.pics[idx])
             pic = self.pics[idx]
             print("pic =", pic)
@@ -352,7 +386,7 @@ class GridMain(Screen):
                 print("pic path exists not")
             picd = defpic
             try:
-                self["pixmap" + str(i+1)].instance.setPixmapFromFile(pic)  # ok
+                self["pixmap" + str(i+1)].instance.setPixmapFromFile(pic)
             except:
                 self["pixmap" + str(i+1)].instance.setPixmapFromFile(picd)
             i = i+1
@@ -364,7 +398,9 @@ class GridMain(Screen):
         self.index -= 1
         if self.index < 0:
             self.index = self.maxentry
-        self.paintFrame()
+            self.key_up()
+        else:
+            self.paintFrame()
 
     def key_right(self):
         i = self.npics - 1
@@ -375,7 +411,9 @@ class GridMain(Screen):
         self.index += 1
         if self.index > self.maxentry:
             self.index = 0
-        self.paintFrame()
+            self.key_down()
+        else:
+            self.paintFrame()
 
     def key_up(self):
         print("keyup self.index, self.minentry = ", self.index, self.minentry)
@@ -389,7 +427,8 @@ class GridMain(Screen):
             elif self.ipage == 1:
                 return
             else:
-                self.paintFrame()
+                self.index = 0
+            self.paintFrame()
         else:
             self.paintFrame()
 
@@ -398,24 +437,28 @@ class GridMain(Screen):
         self.index = self.index + 5
         print("keydown self.index, self.maxentry 2= ", self.index, self.maxentry)
         print("keydown self.ipage = ", self.ipage)
+
         if self.index > (self.maxentry):
             if self.ipage < self.npage:
                 self.ipage = self.ipage + 1
                 self.openTest()
+
             elif self.ipage == self.npage:
                 self.index = 0
                 self.ipage = 1
                 self.openTest()
+
             else:
                 print("keydown self.index, self.maxentry 3= ", self.index, self.maxentry)
-                self.paintFrame()
+                self.index = 0
+            self.paintFrame()
         else:
             self.paintFrame()
 
     def okClicked(self):
         itype = self.index
         url = self.urls[itype]
-        name = self.names1[itype]
+        name = self.names[itype]
         self.session.open(M3uPlay2, name, url)
         return
 
@@ -427,7 +470,6 @@ class TvInfoBarShowHide():
     STATE_HIDING = 1
     STATE_SHOWING = 2
     STATE_SHOWN = 3
-    # FLAG_CENTER_DVB_SUBS = 2048
     skipToggleShow = False
 
     def __init__(self):
@@ -480,7 +522,6 @@ class TvInfoBarShowHide():
         if self.skipToggleShow:
             self.skipToggleShow = False
             return
-
         if self.__state == self.STATE_HIDDEN:
             self.show()
             self.hideTimer.stop()
@@ -530,7 +571,7 @@ class M3uPlay2(
     screen_timeout = 4000
 
     def __init__(self, session, name, url):
-        global SREF, streaml
+        global streaml
         Screen.__init__(self, session)
         self.session = session
         global _session
@@ -560,13 +601,11 @@ class M3uPlay2(
                                      'InfobarShowHideActions',
                                      'InfobarActions',
                                      'InfobarSeekActions'], {'leavePlayer': self.cancel,
-                                     'epg': self.showIMDB,
-                                     'info': self.showIMDB,
-                                     # 'info': self.cicleStreamType,
-                                     'tv': self.cicleStreamType,
-                                     'stop': self.leavePlayer,
-                                     'cancel': self.leavePlayer,
-                                     'back': self.leavePlayer}, -1)
+                                                             'epg': self.showIMDB,
+                                                             'info': self.showIMDB,
+                                                             'stop': self.leavePlayer,
+                                                             'cancel': self.cancel,
+                                                             'back': self.cancel}, -1)
         self.allowPiP = False
         self.service = None
         self.pcip = 'None'
@@ -574,14 +613,15 @@ class M3uPlay2(
         self.url = url
         self.name = Utils.decodeHtml(name)
         self.state = self.STATE_PLAYING
-        SREF = self.session.nav.getCurrentlyPlayingServiceReference()
-        if '8088' in str(self.url):
-            # self.onLayoutFinish.append(self.slinkPlay)
-            self.onFirstExecBegin.append(self.slinkPlay)
-        else:
-            # self.onLayoutFinish.append(self.cicleStreamType)
-            self.onFirstExecBegin.append(self.cicleStreamType)
+        self.srefInit = self.session.nav.getCurrentlyPlayingServiceReference()
         self.onClose.append(self.cancel)
+        # if '8088' in str(self.url):
+            # # self.onLayoutFinish.append(self.slinkPlay)
+            # self.onFirstExecBegin.append(self.slinkPlay)
+        # else:
+            # # self.onLayoutFinish.append(self.cicleStreamType)
+            # self.onFirstExecBegin.append(self.cicleStreamType)
+        self.onLayoutFinish.append(self.openPlay)
 
     def getAspect(self):
         return AVSwitch().getAspectRatioSetting()
@@ -617,71 +657,61 @@ class M3uPlay2(
         self.new_aspect = temp
         self.setAspect(temp)
 
-    def showinfo(self):
-        from ServiceReference import ServiceReference
-        sref = self.srefInit
-        p = ServiceReference(sref)
-        servicename = str(p.getServiceName())
-        serviceurl = str(p.getPath())
-        sTitle = ''
-        sServiceref = ''
-        try:
-            if servicename is not None:
-                sTitle = servicename
-            else:
-                sTitle = ''
-            if serviceurl is not None:
-                sServiceref = serviceurl
-            else:
-                sServiceref = ''
-            currPlay = self.session.nav.getCurrentService()
-            if currPlay:
-                sTagCodec = currPlay.info().getInfoString(iServiceInformation.sTagCodec)
-                sTagVideoCodec = currPlay.info().getInfoString(iServiceInformation.sTagVideoCodec)
-                sTagAudioCodec = currPlay.info().getInfoString(iServiceInformation.sTagAudioCodec)
-                message = 'stitle:' + str(sTitle) + '\n' + 'sServiceref:' + str(sServiceref) + '\n' + 'sTagCodec:' + str(sTagCodec) + '\n' + 'sTagVideoCodec:' + str(sTagVideoCodec) + '\n' + 'sTagAudioCodec : ' + str(sTagAudioCodec)
-                self.mbox = self.session.open(MessageBox, message, MessageBox.TYPE_INFO)
-        except:
-            pass
-        return
-
     def showIMDB(self):
-        TMDB = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('TMDB'))
-        IMDb = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('IMDb'))
-        if os.path.exists(TMDB):
-            from Plugins.Extensions.TMBD.plugin import TMBD
-            text_clear = self.name
-
-            text = Utils.charRemove(text_clear)
-            self.session.open(TMBD, text, False)
-        elif os.path.exists(IMDb):
-            from Plugins.Extensions.IMDb.plugin import IMDB
-            text_clear = self.name
-
-            text = Utils.charRemove(text_clear)
-            HHHHH = text
-            self.session.open(IMDB, HHHHH)
-
+        i = len(self.names)
+        print('iiiiii= ', i)
+        if i < 1:
+            return
+        text_clear = self.name
+        if Utils.is_tmdb:
+            try:
+                from Plugins.Extensions.TMBD.plugin import TMBD
+                text = Utils.badcar(text_clear)
+                text = Utils.charRemove(text_clear)
+                _session.open(TMBD.tmdbScreen, text, 0)
+            except Exception as ex:
+                print("[XCF] Tmdb: ", str(ex))
+        elif Utils.is_imdb:
+            try:
+                from Plugins.Extensions.IMDb.plugin import main as imdb
+                text = Utils.badcar(text_clear)
+                text = Utils.charRemove(text_clear)
+                imdb(_session, text)
+                # _session.open(imdb, text)
+            except Exception as ex:
+                print("[XCF] imdb: ", str(ex))
         else:
-            text_clear = self.name
             self.session.open(MessageBox, text_clear, MessageBox.TYPE_INFO)
 
     def slinkPlay(self, url):
         name = self.name
-        ref = str(url)
-        ref = ref.replace(':', '%3a').replace(' ', '%20')
+        ref = "{0}:{1}".format(url.replace(":", "%3a"), name.replace(":", "%3a"))
         print('final reference:   ', ref)
         sref = eServiceReference(ref)
         sref.setName(name)
         self.session.nav.stopService()
         self.session.nav.playService(sref)
 
-    def openPlay(self, servicetype, url):
+    def openPlay(self):
+        url = str(self.url)
         name = self.name
-        url = url.replace(':', '%3a').replace(' ', '%20')
-        ref = str(servicetype) + ':0:1:0:0:0:0:0:0:0:' + str(url)
-        if streaml is True:
-            ref = str(servicetype) + ':0:1:0:0:0:0:0:0:0:http%3a//127.0.0.1%3a8088/' + str(url)
+        servicetype = '4097'
+        ref = '4097:0:1:0:0:0:0:0:0:0:' + url
+        if config.plugins.TivuStream.services.value == 'Gstreamer':
+            # ref = '5001:0:1:0:0:0:0:0:0:0:' + url
+            servicetype = '5001'
+        elif config.plugins.TivuStream.services.value == 'Exteplayer3':
+            # ref = '5002:0:1:0:0:0:0:0:0:0:' + url
+            servicetype = '5002'
+        elif config.plugins.TivuStream.services.value == 'eServiceUri':
+            # ref = '8193:0:1:0:0:0:0:0:0:0:' + url
+            servicetype = '8193'
+        elif config.plugins.TivuStream.services.value == 'Dvb':
+            ref = '1:0:1:0:0:0:0:0:0:0:' + url
+            servicetype = '1'
+        else:
+            # if config.plugins.TivuStream.services.value == 'Iptv':
+            ref = "{0}:0:0:0:0:0:0:0:0:0:{1}:{2}".format(servicetype, url.replace(":", "%3a"), name.replace(":", "%3a"))
         print('final reference:   ', ref)
         sref = eServiceReference(ref)
         sref.setName(name)
@@ -692,7 +722,7 @@ class M3uPlay2(
         global streaml
         streaml = False
         from itertools import cycle, islice
-        self.servicetype = str(config.plugins.stvcl.services.value) + ':0:1:0:0:0:0:0:0:0:'  # '4097'
+        self.servicetype = str(config.plugins.stvcl.services.value)  # +':0:1:0:0:0:0:0:0:0:'  # '4097'
         print('servicetype1: ', self.servicetype)
         url = str(self.url)
         if str(os.path.splitext(self.url)[-1]) == ".m3u8":
@@ -703,7 +733,7 @@ class M3uPlay2(
         # if "youtube" in str(self.url):
             # self.mbox = self.session.open(MessageBox, _('For Stream Youtube coming soon!'), MessageBox.TYPE_INFO, timeout=5)
             # return
-        if os.path.exists("/usr/sbin/streamlinksrv"):
+        if Utils.isStreamlinkAvailable():
             streamtypelist.append("5002")  # ref = '5002:0:1:0:0:0:0:0:0:0:http%3a//127.0.0.1%3a8088/' + url
             streaml = True
         if os.path.exists("/usr/bin/gstplayer"):
@@ -755,7 +785,7 @@ class M3uPlay2(
         if os.path.isfile('/tmp/hls.avi'):
             os.remove('/tmp/hls.avi')
         self.session.nav.stopService()
-        self.session.nav.playService(SREF)
+        self.session.nav.playService(self.srefInit)
         if not self.new_aspect == self.init_aspect:
             try:
                 self.setAspect(self.init_aspect)
