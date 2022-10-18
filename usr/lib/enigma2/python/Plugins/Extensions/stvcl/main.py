@@ -16,8 +16,10 @@ from . import Utils
 from .getpics import GridMain
 from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
-from Components.config import config, ConfigSubsection, ConfigSelection, getConfigListEntry
-from Components.config import ConfigDirectory, ConfigYesNo, configfile, ConfigEnableDisable
+from Components.config import config, ConfigSubsection
+from Components.config import ConfigSelection, getConfigListEntry
+from Components.config import ConfigDirectory, ConfigYesNo
+from Components.config import configfile, ConfigEnableDisable
 from Components.Button import Button
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
@@ -1551,7 +1553,7 @@ class AddIpvStream(Screen):
                                                        'red': self.keyCancel}, -2)
         self['statusbar'] = Label('')
         self.list = []
-        self['menu'] = MenuList([])
+        self['list'] = MenuList([])
         self.mutableList = None
         self.servicelist = ServiceList(None)
         self.onLayoutFinish.append(self.createTopMenu)
@@ -1561,14 +1563,14 @@ class AddIpvStream(Screen):
 
     def initSelectionList(self):
         self.list = []
-        self['menu'].setList(self.list)
+        self['list'].setList(self.list)
 
     def createTopMenu(self):
         self.setTitle(_('Add Stream IPTV'))
         self.initSelectionList()
         self.list = []
         self.list = self.getBouquetList()
-        self['menu'].setList(self.list)
+        self['list'].setList(self.list)
         self['statusbar'].setText(_('Select the Bouquet and press OK to add'))
 
     def getBouquetList(self):
@@ -1611,7 +1613,7 @@ class AddIpvStream(Screen):
             self.url = res
             str = '4097:0:0:0:0:0:0:0:0:0:%s:%s' % (quote(self.url), quote(self.name))
             ref = eServiceReference(str)
-            self.addServiceToBouquet(self.list[self['menu'].getSelectedIndex()][1], ref)
+            self.addServiceToBouquet(self.list[self['list'].getSelectedIndex()][1], ref)
             self.close()
 
     def addServiceToBouquet(self, dest, service=None):

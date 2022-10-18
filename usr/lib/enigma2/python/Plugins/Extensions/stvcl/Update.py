@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import os
 import sys
 PY3 = sys.version_info.major >= 3
 print("Update.py")
@@ -17,6 +16,7 @@ def upd_done():
         print("Update.py in PY3")
     import requests
     response = requests.head(xfile)
+    fdest = "/tmp/stvcl.tar"
     if response.status_code == 200:
         # print(response.headers['content-length'])
         print("Code 200 upd_done xfile =", xfile)
@@ -31,6 +31,7 @@ def upd_last(fplug):
     import time
     import os
     time.sleep(5)
+    fdest = "/tmp/stvcl.tar"
     if os.path.isfile(fdest) and os.stat(fdest).st_size > 10000:
         cmd = "tar -xvf /tmp/stvcl.tar -C /"
         print("cmd A =", cmd)
