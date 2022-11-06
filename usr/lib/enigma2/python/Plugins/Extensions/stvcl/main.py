@@ -135,7 +135,7 @@ def downloadFilest(url, target):
 # ================
 global Path_Movies, defpic
 # ================
-currversion = '1.2'
+currversion = '1.3'
 title_plug = 'Smart Tv Channels List'
 name_plug = '..:: Smart Tv Channels List  V.%s ::.. ' % currversion
 plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('stvcl'))
@@ -230,7 +230,6 @@ class tvList(MenuList):
 def m3ulistEntry(download):
     res = [download]
     # name = res[0]
-
     white = 16777215
     yellow = 16776960
     green = 3828297
@@ -238,6 +237,7 @@ def m3ulistEntry(download):
     backcol = 0
     blue = 4282611429
     png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting2.png'))
+    # png = pngassign(download)
     if Utils.isFHD():
         res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 10), size=(50, 40), png=loadPNG(png)))
         res.append(MultiContentEntryText(pos=(90, 0), size=(1200, 60), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
@@ -268,6 +268,32 @@ def tvListEntry(name, png):
         res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 0), size=(200, 200), png=loadPNG(png2)))
         res.append(MultiContentEntryText(pos=(230, 70), size=(1000, 50), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     return res
+
+
+def returnIMDB(text_clear):
+    TMDB = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('TMDB'))
+    IMDb = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('IMDb'))
+    if TMDB:
+        try:
+            from Plugins.Extensions.TMBD.plugin import TMBD
+            text = decodeHtml(text_clear)
+            _session.open(TMBD.tmdbScreen, text, 0)
+        except Exception as ex:
+            print("[XCF] Tmdb: ", str(ex))
+        return True
+    elif IMDb:
+        try:
+            from Plugins.Extensions.IMDb.plugin import main as imdb
+            text = decodeHtml(text_clear)
+            imdb(_session, text)
+        except Exception as ex:
+            print("[XCF] imdb: ", str(ex))
+        return True
+    else:
+        text_clear = decodeHtml(text_clear)
+        _session.open(MessageBox, text_clear, MessageBox.TYPE_INFO)
+        return True
+    return
 
 
 class StvclMain(Screen):
@@ -1330,6 +1356,8 @@ class M3uPlay2(
         global streaml
         Screen.__init__(self, session)
         self.session = session
+        global _session
+        _session = session
         self.skinName = 'MoviePlayer'
         streaml = False
         for x in InfoBarBase, \
@@ -1411,25 +1439,8 @@ class M3uPlay2(
 
     def showIMDB(self):
         text_clear = self.name
-        if Utils.is_tmdb:
-            try:
-                from Plugins.Extensions.TMBD.plugin import TMBD
-                text = Utils.badcar(text_clear)
-                text = Utils.charRemove(text_clear)
-                _session.open(TMBD.tmdbScreen, text, 0)
-            except Exception as ex:
-                print("[XCF] Tmdb: ", str(ex))
-        elif Utils.is_imdb:
-            try:
-                from Plugins.Extensions.IMDb.plugin import main as imdb
-                text = Utils.badcar(text_clear)
-                text = Utils.charRemove(text_clear)
-                imdb(_session, text)
-                # _session.open(imdb, text)
-            except Exception as ex:
-                print("[XCF] imdb: ", str(ex))
-        else:
-            self.session.open(MessageBox, text_clear, MessageBox.TYPE_INFO)
+        if returnIMDB(text_clear):
+            print('show imdb/tmdb')
 
     def slinkPlay(self, url):
         name = self.name
