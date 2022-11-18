@@ -58,21 +58,10 @@ def autostart(reason, session=None, **kwargs):
 
 def mainw(session, **kwargs):
     try:
-        # if Utils.zCheckInternet(1):
-            # try:
-                # from . import Update
-                # Update.upd_done()
-            # except Exception as e:
-                # print(str(e))
-            from six.moves import reload_module
-            reload_module(Utils)
-            reload_module(main)
-            session.open(main.StvclMain)
-
-        # else:
-            # from Screens.MessageBox import MessageBox
-            # from Tools.Notifications import AddPopup
-            # AddPopup(_("Sorry but No Internet :("), MessageBox.TYPE_INFO, 10, 'Sorry')
+        from six.moves import reload_module
+        reload_module(Utils)
+        reload_module(main)
+        session.open(main.StvclMain)
     except:
         import traceback
         traceback.print_exc()
