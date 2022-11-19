@@ -320,18 +320,18 @@ class StvclMain(Screen):
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
-        self['setupActions'] = ActionMap(['SetupActions',
-                                          'ColorActions',
-                                          'MenuActions',
-                                          'TimerEditActions'], {'ok': self.okRun,
-                                                                'menu': self.scsetup,
-                                                                'red': self.exit,
-                                                                # 'green': self.messagereload,
-                                                                'info': self.exit,
-                                                                # 'yellow': self.messagedellist,
-                                                                'blue': self.msgdeleteBouquets,
-                                                                'back': self.exit,
-                                                                'cancel': self.exit}, -1)
+        self['actions'] = ActionMap(['OkCancelActions',
+                                     'ColorActions',
+                                     'MenuActions',
+                                     'DirectionActions'], {'ok': self.okRun,
+                                                           'menu': self.scsetup,
+                                                           'red': self.exit,
+                                                           # 'green': self.messagereload,
+                                                           'info': self.exit,
+                                                           # 'yellow': self.messagedellist,
+                                                           'blue': self.msgdeleteBouquets,
+                                                           'back': self.exit,
+                                                           'cancel': self.exit}, -1)
         # self.onFirstExecBegin.append(self.updateMenuList)
         self.onLayoutFinish.append(self.updateMenuList)
 
@@ -474,9 +474,9 @@ class ListM3u1(Screen):
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
-        self['setupActions'] = ActionMap(['SetupActions',
-                                          'ColorActions',
-                                          'MenuActions'], {'cancel': self.cancel,
+        self['actions'] = ActionMap(['OkCancelActions',
+                                     'ColorActions',
+                                     'DirectionActions'], {'cancel': self.cancel,
                                                            'ok': self.runList}, -2)
         if not os.path.exists(Path_Movies):
             self.mbox = self.session.open(MessageBox, _('Check in your Config Plugin - Path Movie'), MessageBox.TYPE_INFO, timeout=5)
@@ -585,9 +585,9 @@ class ListM3u(Screen):
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
-        self['setupActions'] = ActionMap(['SetupActions',
-                                          'ColorActions',
-                                          'MenuActions'], {'cancel': self.cancel,
+        self['actions'] = ActionMap(['OkCancelActions',
+                                     'ColorActions',
+                                     'DirectionActions'], {'cancel': self.cancel,
                                                            'ok': self.runList}, -2)
         if not os.path.exists(Path_Movies):
             self.mbox = self.session.open(MessageBox, _('Check in your Config Plugin - Path Movie'), MessageBox.TYPE_INFO, timeout=5)
@@ -710,26 +710,26 @@ class ChannelList(Screen):
         self.names = []
         self.urls = []
         self.pics = []
-        self['setupActions'] = ActionMap(['SetupActions',
-                                          'DirectionActions',
-                                          'ColorActions',
-                                          'MenuActions',
-                                          'TimerEditActions',
-                                          'InfobarInstantRecord'], {'red': self.cancel,
-                                                                    # 'green': self.runRec,
-                                                                    'menu': self.AdjUrlFavo,
-                                                                    'green': self.message2,
-                                                                    'yellow': self.message1,
-                                                                    'cancel': self.cancel,
-                                                                    'up': self.up,
-                                                                    'down': self.down,
-                                                                    'left': self.left,
-                                                                    'right': self.right,
-                                                                    'blue': self.search_m3u,
-                                                                    'rec': self.runRec,
-                                                                    'instantRecord': self.runRec,
-                                                                    'ShortRecord': self.runRec,
-                                                                    'ok': self.runChannel}, -2)
+        self['actions'] = ActionMap(['OkCancelActions',
+                                     'ColorActions',
+                                     'InfobarInstantRecord',
+                                     'MenuActions',
+                                     'TimerEditActions',
+                                     'DirectionActions'], {'red': self.cancel,
+                                                            # 'green': self.runRec,
+                                                            'menu': self.AdjUrlFavo,
+                                                            'green': self.message2,
+                                                            'yellow': self.message1,
+                                                            'cancel': self.cancel,
+                                                            'up': self.up,
+                                                            'down': self.down,
+                                                            'left': self.left,
+                                                            'right': self.right,
+                                                            'blue': self.search_m3u,
+                                                            'rec': self.runRec,
+                                                            'instantRecord': self.runRec,
+                                                            'ShortRecord': self.runRec,
+                                                            'ok': self.runChannel}, -2)
         self.currentList = 'list'
         self.onLayoutFinish.append(self.downlist)
         # self.onFirstExecBegin.append(self.downlist)
@@ -1377,7 +1377,6 @@ class M3uPlay2(
                                      'MediaPlayerActions',
                                      'EPGSelectActions',
                                      'MediaPlayerSeekActions',
-                                     'SetupActions',
                                      'ColorActions',
                                      'InfobarShowHideActions',
                                      'InfobarActions',
@@ -1556,11 +1555,12 @@ class AddIpvStream(Screen):
         self["key_blue"] = Button(_(''))
         self["key_yellow"].hide()
         self["key_blue"].hide()
-        self['actions'] = ActionMap(['SetupActions',
-                                     'ColorActions'], {'ok': self.keyOk,
-                                                       'cancel': self.keyCancel,
-                                                       'green': self.keyOk,
-                                                       'red': self.keyCancel}, -2)
+        self['actions'] = ActionMap(['OkCancelActions',
+                                     'ColorActions',
+                                     'DirectionActions'], {'ok': self.keyOk,
+                                                           'cancel': self.keyCancel,
+                                                           'green': self.keyOk,
+                                                           'red': self.keyCancel}, -2)
         self['statusbar'] = Label('')
         self.list = []
         self['list'] = MenuList([])
