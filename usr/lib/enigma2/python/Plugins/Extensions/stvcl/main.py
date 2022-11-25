@@ -12,6 +12,7 @@ Info http://t.me/tivustream
 from __future__ import print_function
 from . import _
 from . import Utils
+from . import html_conv
 from .getpics import GridMain
 from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
@@ -145,10 +146,8 @@ defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('d
 dblank = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('blankL.png'))
 scramble = 'aHR0cHM6Ly9pLm1qaC5uei8='
 Panel_list = [('S.T.V.C.L.')]
-modechoices = [
-                ("4097", _("ServiceMp3(4097)")),
-                ("1", _("Hardware(1)")),
-                ]
+modechoices = [("4097", _("ServiceMp3(4097)")),
+               ("1", _("Hardware(1)"))]
 if os.path.exists("/usr/bin/gstplayer"):
     modechoices.append(("5001", _("Gstreamer(5001)")))
 if os.path.exists("/usr/bin/exteplayer3"):
@@ -196,6 +195,7 @@ if Utils.isFHD():
     defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
 if os.path.exists('/var/lib/dpkg/status'):
     skin_path = skin_path + '/dreamOs/'
+
 
 # ================Gui list
 
@@ -275,7 +275,7 @@ def returnIMDB(text_clear):
     if TMDB:
         try:
             from Plugins.Extensions.TMBD.plugin import TMBD
-            text = Utils.decodeHtml(text_clear)
+            text = html_conv.html_unescape(text_clear)
             _session.open(TMBD.tmdbScreen, text, 0)
         except Exception as ex:
             print("[XCF] Tmdb: ", str(ex))
@@ -283,13 +283,13 @@ def returnIMDB(text_clear):
     elif IMDb:
         try:
             from Plugins.Extensions.IMDb.plugin import main as imdb
-            text = Utils.decodeHtml(text_clear)
+            text = html_conv.html_unescape(text_clear)
             imdb(_session, text)
         except Exception as ex:
             print("[XCF] imdb: ", str(ex))
         return True
     else:
-        text_clear = Utils.decodeHtml(text_clear)
+        text_clear = html_conv.html_unescape(text_clear)
         _session.open(MessageBox, text_clear, MessageBox.TYPE_INFO)
         return True
     return
@@ -323,6 +323,7 @@ class StvclMain(Screen):
         self['actions'] = ActionMap(['OkCancelActions',
                                      'ColorActions',
                                      'MenuActions',
+                                     'ButtonSetupActions',
                                      'DirectionActions'], {'ok': self.okRun,
                                                            'menu': self.scsetup,
                                                            'red': self.exit,
@@ -476,6 +477,7 @@ class ListM3u1(Screen):
         self["key_blue"].hide()
         self['actions'] = ActionMap(['OkCancelActions',
                                      'ColorActions',
+                                     'ButtonSetupActions',
                                      'DirectionActions'], {'cancel': self.cancel,
                                                            'ok': self.runList}, -2)
         if not os.path.exists(Path_Movies):
@@ -587,6 +589,7 @@ class ListM3u(Screen):
         self["key_blue"].hide()
         self['actions'] = ActionMap(['OkCancelActions',
                                      'ColorActions',
+                                     'ButtonSetupActions',
                                      'DirectionActions'], {'cancel': self.cancel,
                                                            'ok': self.runList}, -2)
         if not os.path.exists(Path_Movies):
@@ -714,6 +717,7 @@ class ChannelList(Screen):
                                      'ColorActions',
                                      'InfobarInstantRecord',
                                      'MenuActions',
+                                     'ButtonSetupActions',
                                      'TimerEditActions',
                                      'DirectionActions'], {'red': self.cancel,
                                                             # 'green': self.runRec,
@@ -1378,6 +1382,7 @@ class M3uPlay2(
                                      'EPGSelectActions',
                                      'MediaPlayerSeekActions',
                                      'ColorActions',
+                                     'ButtonSetupActions',
                                      'InfobarShowHideActions',
                                      'InfobarActions',
                                      'InfobarSeekActions'], {'leavePlayer': self.cancel,
@@ -1392,7 +1397,7 @@ class M3uPlay2(
         self.service = None
         self.url = url
         self.pcip = 'None'
-        self.name = Utils.decodeHtml(name)
+        self.name = html_conv.html_unescape(name)
         self.state = self.STATE_PLAYING
         self.srefInit = self.session.nav.getCurrentlyPlayingServiceReference()
         if '8088' in str(self.url):
@@ -1557,6 +1562,7 @@ class AddIpvStream(Screen):
         self["key_blue"].hide()
         self['actions'] = ActionMap(['OkCancelActions',
                                      'ColorActions',
+                                     'ButtonSetupActions',
                                      'DirectionActions'], {'ok': self.keyOk,
                                                            'cancel': self.keyCancel,
                                                            'green': self.keyOk,
@@ -1682,6 +1688,7 @@ class OpenConfig(Screen, ConfigListScreen):
         self["description"] = Label('')
         self['actions'] = ActionMap(["SetupActions",
                                      "ColorActions",
+                                     'ButtonSetupActions',
                                      "VirtualKeyboardActions"], {'cancel': self.extnok,
                                                                  'red': self.extnok,
                                                                  'green': self.cfgok,

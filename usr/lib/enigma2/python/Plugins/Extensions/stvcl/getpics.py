@@ -35,7 +35,7 @@ from time import sleep
 import os
 import sys
 from . import Utils
-
+from . import html_conv
 global skin_path, tmpfold, picfold
 global defpic, dblank
 
@@ -309,6 +309,7 @@ class GridMain(Screen):
         self["actions"] = ActionMap(["OkCancelActions",
                                      "MenuActions",
                                      "DirectionActions",
+                                     'ButtonSetupActions',
                                      "NumberActions"], {"ok": self.okClicked,
                                                         "cancel": self.cancel,
                                                         "left": self.key_left,
@@ -596,7 +597,7 @@ class M3uPlay2(
                                      'MediaPlayerActions',
                                      'EPGSelectActions',
                                      'MediaPlayerSeekActions',
-                                     'SetupActions',
+                                     'ButtonSetupActions',
                                      'ColorActions',
                                      'InfobarShowHideActions',
                                      'InfobarActions',
@@ -611,7 +612,7 @@ class M3uPlay2(
         self.pcip = 'None'
         self.icount = 0
         self.url = url
-        self.name = Utils.decodeHtml(name)
+        self.name = html_conv.html_unescape(name)
         self.state = self.STATE_PLAYING
         self.srefInit = self.session.nav.getCurrentlyPlayingServiceReference()
         self.onClose.append(self.cancel)
