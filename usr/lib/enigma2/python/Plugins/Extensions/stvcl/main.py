@@ -217,11 +217,11 @@ class tvList(MenuList):
     def __init__(self, list):
         MenuList.__init__(self, list, False, eListboxPythonMultiContent)
         if Utils.isFHD():
-            self.l.setItemHeight(60)
-            textfont = int(34)
+            self.l.setItemHeight(50)
+            textfont = int(30)
             self.l.setFont(0, gFont('Regular', textfont))
         else:
-            self.l.setItemHeight(60)
+            self.l.setItemHeight(30)
             textfont = int(24)
             self.l.setFont(0, gFont('Regular', textfont))
 
@@ -238,13 +238,13 @@ def m3ulistEntry(download):
     png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting2.png'))
     # png = pngassign(download)
     if Utils.isFHD():
-        res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 10), size=(50, 40), png=loadPNG(png)))
-        res.append(MultiContentEntryText(pos=(90, 0), size=(1200, 60), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(40, 40), png=loadPNG(png)))
+        res.append(MultiContentEntryText(pos=(70, 0), size=(1000, 50), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     else:
-        res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 10), size=(50, 40), png=loadPNG(png)))
-        res.append(MultiContentEntryText(pos=(90, 0), size=(1000, 60), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(3, 3), size=(30, 30), png=loadPNG(png)))
+        res.append(MultiContentEntryText(pos=(50, 0), size=(500, 50), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     return res
-
+    
 
 def m3ulist(data, list):
     icount = 0
@@ -1383,6 +1383,7 @@ class M3uPlay2(
                                      'MediaPlayerSeekActions',
                                      'ColorActions',
                                      'ButtonSetupActions',
+                                     'OkCancelActions',
                                      'InfobarShowHideActions',
                                      'InfobarActions',
                                      'InfobarSeekActions'], {'leavePlayer': self.cancel,
@@ -1390,8 +1391,10 @@ class M3uPlay2(
                                                              'info': self.showIMDB,
                                                              # 'info': self.cicleStreamType,
                                                              'tv': self.cicleStreamType,
-                                                             'stop': self.cancel,
+                                                             'stop': self.leavePlayer,
                                                              'cancel': self.cancel,
+                                                             'exit': self.leavePlayer,
+                                                             'down': self.av,
                                                              'back': self.cancel}, -1)
         self.allowPiP = False
         self.service = None
