@@ -197,6 +197,13 @@ if os.path.exists('/var/lib/dpkg/status'):
     skin_path = skin_path + '/dreamOs/'
 
 
+def paypal():
+    conthelp = "If you like what I do you\n"
+    conthelp += "can contribute with a coffee\n"
+    conthelp += "scan the qr code and donate € 1.00"
+    return conthelp
+
+
 # ================Gui list
 
 
@@ -228,7 +235,6 @@ class tvList(MenuList):
 
 def m3ulistEntry(download):
     res = [download]
-    # name = res[0]
     white = 16777215
     yellow = 16776960
     green = 3828297
@@ -236,7 +242,6 @@ def m3ulistEntry(download):
     backcol = 0
     blue = 4282611429
     png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting2.png'))
-    # png = pngassign(download)
     if Utils.isFHD():
         res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(40, 40), png=loadPNG(png)))
         res.append(MultiContentEntryText(pos=(70, 0), size=(1000, 50), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
@@ -261,10 +266,10 @@ def tvListEntry(name, png):
     png1 = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
     png2 = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
     if Utils.isFHD():
-        res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 0), size=(300, 300), png=loadPNG(png1)))
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(300, 300), png=loadPNG(png1)))
         res.append(MultiContentEntryText(pos=(330, 100), size=(1200, 70), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     else:
-        res.append(MultiContentEntryPixmapAlphaTest(pos=(10, 0), size=(200, 200), png=loadPNG(png2)))
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(3, 3), size=(200, 200), png=loadPNG(png2)))
         res.append(MultiContentEntryText(pos=(230, 70), size=(1000, 50), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     return res
 
@@ -1707,17 +1712,11 @@ class OpenConfig(Screen, ConfigListScreen):
         if self.setInfo not in self['config'].onSelectionChanged:
             self['config'].onSelectionChanged.append(self.setInfo)
 
-    def paypal2(self):
-        conthelp = "If you like what I do you\n"
-        conthelp += " can contribute with a coffee\n\n"
-        conthelp += "scan the qr code and donate € 1.00"
-        return conthelp
-
     def layoutFinished(self):
-        paypal = self.paypal2()
-        self["paypal"].setText(paypal)
+        payp = paypal()
+        self["paypal"].setText(payp)
         self.setTitle(self.setup_title)
-
+        
     def cachedel(self):
         fold = config.plugins.stvcl.cachefold.value + "stvcl"
         cmd = "rm -rf " + tvstrvl + "/*"
