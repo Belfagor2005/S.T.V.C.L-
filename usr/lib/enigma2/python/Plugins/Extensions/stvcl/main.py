@@ -6,7 +6,7 @@ Info http://t.me/tivustream
 ****************************************
 *        coded by Lululla              *
 *                                      *
-*             10/10/2022               *
+*             10/01/2023               *
 ****************************************
 '''
 from __future__ import print_function
@@ -71,10 +71,10 @@ try:
     from urllib.request import urlopen
     from urllib.error import URLError, HTTPError
     PY3 = True
-    unicode = str
-    unichr = chr
-    long = int
-    xrange = range
+    # unicode = str
+    # unichr = chr
+    # long = int
+    # xrange = range
 except:
     from urllib import quote
     from urlparse import urlparse
@@ -211,11 +211,11 @@ class mainList(MenuList):
     def __init__(self, list):
         MenuList.__init__(self, list, False, eListboxPythonMultiContent)
         if Utils.isFHD():
-            self.l.setItemHeight(300)
+            self.l.setItemHeight(370)
             textfont = int(70)
             self.l.setFont(0, gFont('Regular', textfont))
         else:
-            self.l.setItemHeight(200)
+            self.l.setItemHeight(240)
             textfont = int(50)
             self.l.setFont(0, gFont('Regular', textfont))
 
@@ -266,11 +266,11 @@ def tvListEntry(name, png):
     png1 = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
     png2 = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
     if Utils.isFHD():
-        res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(300, 300), png=loadPNG(png1)))
-        res.append(MultiContentEntryText(pos=(330, 100), size=(1200, 70), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(250, 370), png=loadPNG(png1)))
+        res.append(MultiContentEntryText(pos=(280, 5), size=(1000, 70), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     else:
-        res.append(MultiContentEntryPixmapAlphaTest(pos=(3, 3), size=(200, 200), png=loadPNG(png2)))
-        res.append(MultiContentEntryText(pos=(230, 70), size=(1000, 50), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(3, 3), size=(165, 240), png=loadPNG(png2)))
+        res.append(MultiContentEntryText(pos=(175, 3), size=(500, 50), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     return res
 
 
@@ -534,13 +534,7 @@ class ListM3u1(Screen):
                     continue
                 name = url.replace('/', '')
                 url = self.url + url  # + '/'
-                # item = name + "###" + url
                 print('ListM3u url-name Items sort: ', url)
-                # items.append(item)
-            # items.sort()
-            # for item in items:
-                # name = item.split('###')[0]
-                # url = item.split('###')[1]
                 self.urls.append(Utils.checkStr(url.strip()))
                 self.names.append(Utils.checkStr(name.strip()))
 
@@ -708,7 +702,6 @@ class ChannelList(Screen):
         global search_ok
         global in_tmp
         global search_ok
-        # global servicx
         self.servicx = 'gst'
         search_ok = False
         in_tmp = Path_Movies
