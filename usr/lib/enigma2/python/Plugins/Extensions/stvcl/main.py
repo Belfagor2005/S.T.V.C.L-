@@ -189,12 +189,13 @@ if not os.path.exists(tmpfold):
 if not os.path.exists(picfold):
     os.system("mkdir " + picfold)
 
-skin_path = plugin_path + '/res/skins/hd/'
+
+skin_path = os.path.join(plugin_path, 'res/skins/hd/')
 if Utils.isFHD():
-    skin_path = plugin_path + '/res/skins/fhd/'
-    defpic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
+    skin_path = os.path.join(plugin_path, 'res/skins/fhd/')
+    defpic = os.path.join(plugin_path, 'res/pics/defaultL.png')
 if os.path.exists('/var/lib/dpkg/status'):
-    skin_path = skin_path + '/dreamOs/'
+    skin_path = os.path.join(plugin_path, 'dreamOs/')
 
 
 def paypal():
@@ -228,7 +229,7 @@ class tvList(MenuList):
             textfont = int(30)
             self.l.setFont(0, gFont('Regular', textfont))
         else:
-            self.l.setItemHeight(30)
+            self.l.setItemHeight(50)
             textfont = int(24)
             self.l.setFont(0, gFont('Regular', textfont))
 
@@ -241,15 +242,15 @@ def m3ulistEntry(download):
     col = 16777215
     backcol = 0
     blue = 4282611429
-    png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting2.png'))
+    png = os.path.join(plugin_path, 'res/pics/setting2.png')
     if Utils.isFHD():
         res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(40, 40), png=loadPNG(png)))
         res.append(MultiContentEntryText(pos=(70, 0), size=(1000, 50), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     else:
-        res.append(MultiContentEntryPixmapAlphaTest(pos=(3, 3), size=(30, 30), png=loadPNG(png)))
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(3, 10), size=(40, 40), png=loadPNG(png)))
         res.append(MultiContentEntryText(pos=(50, 0), size=(500, 50), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     return res
-    
+
 
 def m3ulist(data, list):
     icount = 0
@@ -263,8 +264,8 @@ def m3ulist(data, list):
 
 def tvListEntry(name, png):
     res = [name]
-    png1 = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('defaultL.png'))
-    png2 = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
+    png1 = os.path.join(plugin_path, 'res/pics/defaultL.png')
+    png2 = os.path.join(plugin_path, 'res/pics/default.png')
     if Utils.isFHD():
         res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(250, 370), png=loadPNG(png1)))
         res.append(MultiContentEntryText(pos=(280, 5), size=(1000, 70), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
@@ -304,10 +305,9 @@ class StvclMain(Screen):
     def __init__(self, session):
         Screen.__init__(self, session)
         self.session = session
-        skin = skin_path + '/StvclMain.xml'
-        f = open(skin, 'r')
-        self.skin = f.read()
-        # f.close()
+        skin = os.path.join(skin_path, 'StvclMain.xml')
+        with open(skin, 'r') as f:
+            self.skin = f.read()
         self['list'] = mainList([])
         self.icount = 0
         self['progress'] = ProgressBar()
@@ -347,7 +347,7 @@ class StvclMain(Screen):
             del self.menu_list[0]
         list = []
         idx = 0
-        png = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('setting.png'))
+        png = os.path.join(plugin_path, 'res/pics/setting.png')
         for x in Panel_list:
             list.append(tvListEntry(x, png))
             self.menu_list.append(x)
@@ -455,10 +455,9 @@ class ListM3u1(Screen):
     def __init__(self, session, namem3u, url):
         Screen.__init__(self, session)
         self.session = session
-        skin = skin_path + '/ListM3u.xml'
-        f = open(skin, 'r')
-        self.skin = f.read()
-        # f.close()
+        skin = os.path.join(skin_path, 'SListM3u.xml')
+        with open(skin, 'r') as f:
+            self.skin = f.read()
         self.list = []
         self['list'] = tvList([])
         global SREF
@@ -546,7 +545,7 @@ class ListM3u1(Screen):
     def runList(self):
         i = len(self.names)
         print('iiiiii= ', i)
-        if i < 1:
+        if i < 0:
             return
         idx = self["list"].getSelectionIndex()
         sel = self.names[idx]
@@ -561,10 +560,9 @@ class ListM3u(Screen):
     def __init__(self, session, namem3u, url):
         Screen.__init__(self, session)
         self.session = session
-        skin = skin_path + '/ListM3u.xml'
-        f = open(skin, 'r')
-        self.skin = f.read()
-        # f.close()
+        skin = os.path.join(skin_path, 'ListM3u.xml')
+        with open(skin, 'r') as f:
+            self.skin = f.read()
         self.list = []
         self['list'] = tvList([])
         global SREF
@@ -656,7 +654,7 @@ class ListM3u(Screen):
     def runList(self):
         i = len(self.names)
         print('iiiiii= ', i)
-        if i < 1:
+        if i < 0:
             return
         idx = self["list"].getSelectionIndex()
         sel = self.names[idx]
@@ -671,10 +669,9 @@ class ChannelList(Screen):
     def __init__(self, session, name, url):
         Screen.__init__(self, session)
         self.session = session
-        skin = skin_path + '/ChannelList.xml'
-        f = open(skin, 'r')
-        self.skin = f.read()
-        # f.close()
+        skin = os.path.join(skin_path, 'ChannelList.xml')
+        with open(skin, 'r') as f:
+            self.skin = f.read()
         self.list = []
         self.picload = ePicLoad()
         self.scale = AVSwitch().getFramebufferScale()
@@ -744,7 +741,7 @@ class ChannelList(Screen):
     def message1(self):
         i = len(self.names)
         print('iiiiii= ', i)
-        if i < 1:
+        if i < 0:
             return
         self.servicx = 'iptv'
         self.session.openWithCallback(self.check10, MessageBox, _("Do you want to Convert Bouquet IPTV?"), MessageBox.TYPE_YESNO)
@@ -752,7 +749,7 @@ class ChannelList(Screen):
     def message2(self):
         i = len(self.names)
         print('iiiiii= ', i)
-        if i < 1:
+        if i < 0:
             return
         self.servicx = 'gst'
         self.session.openWithCallback(self.check10, MessageBox, _("Do you want to Convert Bouquet GSTREAMER?"), MessageBox.TYPE_YESNO)
@@ -885,7 +882,7 @@ class ChannelList(Screen):
     def runRec(self):
         i = len(self.names)
         print('iiiiii= ', i)
-        if i < 1:
+        if i < 0:
             return
         global urlm3u, namem3u
         idx = self["list"].getSelectionIndex()
@@ -1089,7 +1086,7 @@ class ChannelList(Screen):
     def runChannel(self):
         i = len(self.names)
         print('iiiiii= ', i)
-        if i < 1:
+        if i < 0:
             return
         idx = self['list'].getSelectionIndex()
         self.pin = True
@@ -1143,7 +1140,7 @@ class ChannelList(Screen):
     def AdjUrlFavo(self):
         i = len(self.names)
         print('iiiiii= ', i)
-        if i < 1:
+        if i < 0:
             return
         idx = self['list'].getSelectionIndex()
         name = self.names[idx]
@@ -1173,7 +1170,7 @@ class ChannelList(Screen):
     def load_poster(self):
         i = len(self.pics)
         print('iiiiii= ', i)
-        if i < 1:
+        if i < 0:
             return
         idx = self['list'].getSelectionIndex()
         pic = self.pics[idx]
@@ -1411,22 +1408,26 @@ class M3uPlay2(
         return AVSwitch().getAspectRatioSetting()
 
     def getAspectString(self, aspectnum):
-        return {0: _('4:3 Letterbox'),
-                1: _('4:3 PanScan'),
-                2: _('16:9'),
-                3: _('16:9 always'),
-                4: _('16:10 Letterbox'),
-                5: _('16:10 PanScan'),
-                6: _('16:9 Letterbox')}[aspectnum]
+        return {
+            0: '4:3 Letterbox',
+            1: '4:3 PanScan',
+            2: '16:9',
+            3: '16:9 always',
+            4: '16:10 Letterbox',
+            5: '16:10 PanScan',
+            6: '16:9 Letterbox'
+        }[aspectnum]
 
     def setAspect(self, aspect):
-        map = {0: '4_3_letterbox',
-               1: '4_3_panscan',
-               2: '16_9',
-               3: '16_9_always',
-               4: '16_10_letterbox',
-               5: '16_10_panscan',
-               6: '16_9_letterbox'}
+        map = {
+            0: '4_3_letterbox',
+            1: '4_3_panscan',
+            2: '16_9',
+            3: '16_9_always',
+            4: '16_10_letterbox',
+            5: '16_10_panscan',
+            6: '16_9_letterbox'
+        }
         config.av.aspectratio.setValue(map[aspect])
         try:
             AVSwitch().setAspectRatio(aspect)
@@ -1547,10 +1548,9 @@ class AddIpvStream(Screen):
     def __init__(self, session, name, url):
         Screen.__init__(self, session)
         self.session = session
-        skin = skin_path + '/AddIpvStream.xml'
-        f = open(skin, 'r')
-        self.skin = f.read()
-        f.close()
+        skin = os.path.join(skin_path, 'AddIpvStream.xml')
+        with open(skin, 'r') as f:
+            self.skin = f.read()
         self.setTitle(title_plug + ' ' + name)
         self['title'] = Label(title_plug + ' ' + name)
         self['Maintainer2'] = Label(Maintainer2)
@@ -1666,10 +1666,9 @@ class OpenConfig(Screen, ConfigListScreen):
     def __init__(self, session):
         Screen.__init__(self, session)
         self.session = session
-        skin = skin_path + '/OpenConfig.xml'
-        f = open(skin, 'r')
-        self.skin = f.read()
-        f.close()
+        skin = os.path.join(skin_path, 'OpenConfig.xml')
+        with open(skin, 'r') as f:
+            self.skin = f.read()
         self.setup_title = _("stvcl Config")
         self.onChangedEntry = []
         self.list = []
@@ -1709,7 +1708,7 @@ class OpenConfig(Screen, ConfigListScreen):
         payp = paypal()
         self["paypal"].setText(payp)
         self.setTitle(self.setup_title)
-        
+
     def cachedel(self):
         fold = config.plugins.stvcl.cachefold.value + "stvcl"
         cmd = "rm -rf " + tvstrvl + "/*"
