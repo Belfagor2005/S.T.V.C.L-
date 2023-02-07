@@ -195,7 +195,7 @@ if Utils.isFHD():
     skin_path = os.path.join(plugin_path, 'res/skins/fhd/')
     defpic = os.path.join(plugin_path, 'res/pics/defaultL.png')
 if os.path.exists('/var/lib/dpkg/status'):
-    skin_path = os.path.join(plugin_path, 'dreamOs/')
+    skin_path = os.path.join(skin_path, 'dreamOs/')
 
 
 def paypal():
@@ -455,7 +455,7 @@ class ListM3u1(Screen):
     def __init__(self, session, namem3u, url):
         Screen.__init__(self, session)
         self.session = session
-        skin = os.path.join(skin_path, 'SListM3u.xml')
+        skin = os.path.join(skin_path, 'ListM3u.xml')
         with open(skin, 'r') as f:
             self.skin = f.read()
         self.list = []
@@ -1485,13 +1485,13 @@ class M3uPlay2(
         # if "youtube" in str(self.url):
             # self.mbox = self.session.open(MessageBox, _('For Stream Youtube coming soon!'), MessageBox.TYPE_INFO, timeout=5)
             # return
-        if Utils.isStreamlinkAvailable():
-            streamtypelist.append("5002")  # ref = '5002:0:1:0:0:0:0:0:0:0:http%3a//127.0.0.1%3a8088/' + url
-            streaml = True
-        if os.path.exists("/usr/bin/gstplayer"):
-            streamtypelist.append("5001")
-        if os.path.exists("/usr/bin/exteplayer3"):
-            streamtypelist.append("5002")
+        # if Utils.isStreamlinkAvailable():
+            # streamtypelist.append("5002")  # ref = '5002:0:1:0:0:0:0:0:0:0:http%3a//127.0.0.1%3a8088/' + url
+            # streaml = True
+        # if os.path.exists("/usr/bin/gstplayer"):
+            # streamtypelist.append("5001")
+        # if os.path.exists("/usr/bin/exteplayer3"):
+            # streamtypelist.append("5002")
         if os.path.exists("/usr/bin/apt-get"):
             streamtypelist.append("8193")
         for index, item in enumerate(streamtypelist, start=0):
