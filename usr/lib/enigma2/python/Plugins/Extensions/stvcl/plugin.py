@@ -15,7 +15,7 @@ from __future__ import absolute_import
 from Plugins.Plugin import PluginDescriptor
 from Tools.Directories import SCOPE_PLUGINS, resolveFilename
 from Components.config import config
-from . import main
+from . import mainx
 from . import Utils
 import os
 
@@ -60,8 +60,8 @@ def mainw(session, **kwargs):
     try:
         from six.moves import reload_module
         reload_module(Utils)
-        reload_module(main)
-        session.open(main.StvclMain)
+        reload_module(mainx)
+        session.open(mainx.StvclMain)
     except:
         import traceback
         traceback.print_exc()
