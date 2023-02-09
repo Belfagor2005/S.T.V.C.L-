@@ -2105,7 +2105,7 @@ class GridMain(Screen):
         self["info"] = Label()
         list = []
         list = names
-
+        from Components.Sources.List import List
         self["menu"] = List(list)
         for x in list:
             print("x in list =", x)
