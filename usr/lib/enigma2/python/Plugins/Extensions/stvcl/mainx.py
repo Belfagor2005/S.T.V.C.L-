@@ -33,6 +33,7 @@ from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
 from Components.ServiceList import ServiceList
 from Components.Sources.Progress import Progress
 from Components.Sources.StaticText import StaticText
+from Components.Pixmap import Pixmap, MovingPixmap
 from os.path import exists as file_exists
 from Screens.InfoBar import MoviePlayer
 from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek
