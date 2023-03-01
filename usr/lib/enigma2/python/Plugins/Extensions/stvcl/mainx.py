@@ -1878,18 +1878,19 @@ def threadGetPage(url=None, file=None, key=None, success=None, fail=None, *args,
 def getpics(names, pics, tmpfold, picfold):
     global defpic
     defpic = defpic
-    # print("In getpics tmpfold =", tmpfold)
-    # print("In getpics picfold =", picfold)
     pix = []
-    if str(cfg.thumbpic) is False:
+
+    if cfg.thumbpic.value == "False":
         npic = len(pics)
         i = 0
         while i < npic:
             pix.append(defpic)
-            i = i+1
+            i += 1
         return pix
+
     cmd = "rm " + tmpfold + "/*"
     os.system(cmd)
+
     npic = len(pics)
     j = 0
 
@@ -1901,16 +1902,23 @@ def getpics(names, pics, tmpfold, picfold):
         ext = str(os.path.splitext(url)[-1])
         picf = os.path.join(picfold, str(name + ext))
         tpicf = os.path.join(tmpfold, str(name + ext))
+
         if os.path.exists(picf):
             if ('stagione') in str(name.lower()):
                 cmd = "rm " + picf
                 os.system(cmd)
+
             cmd = "cp " + picf + " " + tmpfold
             print("In getpics fileExists(picf) cmd =", cmd)
             os.system(cmd)
+
+        # test remove this
+        # if os.path.exists(tpicf):
+            # cmd = "rm " + tpicf
+            # os.system(cmd)
+
         if not os.path.exists(picf):
-            if plugin_path in url:
-            # if piccons in url:
+            if THISPLUG in url:
                 try:
                     cmd = "cp " + url + " " + tpicf
                     print("In getpics not fileExists(picf) cmd =", cmd)
@@ -1923,6 +1931,8 @@ def getpics(names, pics, tmpfold, picfold):
                     url = url.replace(" ", "%20").replace("ExQ", "=").replace("AxNxD", "&")
                     poster = Utils.checkRedirect(url)
                     if poster:
+                        # if PY3:
+                            # poster = poster.encode()
 
                         if "|" in url:
                             n3 = url.find("|", 0)
@@ -1940,21 +1950,20 @@ def getpics(names, pics, tmpfold, picfold):
                                 # with open(tpicf, 'wb') as f1:
                                     # f1.write(p)
                                 try:
-                                    import requests
                                     with open(tpicf, 'wb') as f:
                                         f.write(requests.get(url, stream=True, allow_redirects=True).content)
                                     print('=============11111111=================\n')
                                 except Exception as e:
                                     print("Error: Exception")
                                     print('===========2222222222=================\n')
-                                    if PY3:
-                                        poster = poster.encode()
+                                    # if PY3:
+                                        # poster = poster.encode()
                                     callInThread(threadGetPage, url=poster, file=tpicf, success=downloadPic, fail=downloadError)
 
-                                '''
-                                print(str(e))
-                                open(tpicf, 'wb').write(requests.get(poster, stream=True, allow_redirects=True).content)
-                                '''
+                                    '''
+                                    print(str(e))
+                                    open(tpicf, 'wb').write(requests.get(poster, stream=True, allow_redirects=True).content)
+                                    '''
                             except Exception as e:
                                 print("Error: Exception 2")
                                 print(str(e))
@@ -1962,6 +1971,7 @@ def getpics(names, pics, tmpfold, picfold):
                 except:
                     cmd = "cp " + defpic + " " + tpicf
                     os.system(cmd)
+                    print('cp defpic tpicf')
 
         if not os.path.exists(tpicf):
             cmd = "cp " + defpic + " " + tpicf
@@ -1986,7 +1996,6 @@ def getpics(names, pics, tmpfold, picfold):
                     try:
                         if imagew < size[0]:
                             ratio = size[0] / imagew
-
                             try:
                                 im = im.resize((int(imagew * ratio), int(imageh * ratio)), Image.Resampling.LANCZOS)
                             except:
@@ -1995,32 +2004,30 @@ def getpics(names, pics, tmpfold, picfold):
                             imagew, imageh = im.size
                     except Exception as e:
                         print(e)
-
-                    # crop and center image
-                    bg = Image.new("RGBA", size, (255, 255, 255, 0))
-                    im_alpha = im.convert("RGBA").split()[-1]
-                    bgwidth, bgheight = bg.size
-                    bg_alpha = bg.convert("RGBA").split()[-1]
-                    temp = Image.new("L", (bgwidth, bgheight), 0)
-                    temp.paste(im_alpha, (int((bgwidth - imagew) / 2), int((bgheight - imageh) / 2)), im_alpha)
-                    bg_alpha = ImageChops.screen(bg_alpha, temp)
-                    bg.paste(im, (int((bgwidth - imagew) / 2), int((bgheight - imageh) / 2)))
-                    im = bg
+                    # # no work on PY3
+                    # # crop and center image
+                    # bg = Image.new("RGBA", size, (255, 255, 255, 0))
+                    # im_alpha = im.convert("RGBA").split()[-1]
+                    # bgwidth, bgheight = bg.size
+                    # bg_alpha = bg.convert("RGBA").split()[-1]
+                    # temp = Image.new("L", (bgwidth, bgheight), 0)
+                    # temp.paste(im_alpha, (int((bgwidth - imagew) / 2), int((bgheight - imageh) / 2)), im_alpha)
+                    # bg_alpha = ImageChops.screen(bg_alpha, temp)
+                    # bg.paste(im, (int((bgwidth - imagew) / 2), int((bgheight - imageh) / 2)))
+                    # im = bg
                     im.save(file_name + ".png", "PNG")
                 except Exception as e:
                     print(e)
                     im = Image.open(tpicf)
-
                     try:
                         im.thumbnail(size, Image.Resampling.LANCZOS)
                     except:
                         im.thumbnail(size, Image.ANTIALIAS)
-
                     im.save(tpicf)
-
             except Exception as e:
                 print("******* picon resize failed *******")
                 print(e)
+                tpicf = defpic
         else:
             print("******* make picon failed *******")
             tpicf = defpic
@@ -2030,7 +2037,6 @@ def getpics(names, pics, tmpfold, picfold):
         j += 1
 
     cmd1 = "cp " + tmpfold + "/* " + picfold
-
     os.system(cmd1)
 
     cmd1 = "rm " + tmpfold + "/* &"
@@ -2055,7 +2061,6 @@ def downloadError(output):
 
 
 def savePoster(dwn_poster, url_poster):
-    import requests
     with open(dwn_poster, 'wb') as f:
         f.write(requests.get(url_poster, stream=True, allow_redirects=True).content)
         f.close()
