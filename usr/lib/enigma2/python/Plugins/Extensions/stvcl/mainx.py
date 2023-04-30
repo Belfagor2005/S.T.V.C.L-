@@ -142,7 +142,7 @@ dir_enigma2 = '/etc/enigma2/'
 service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 31) || (type == 134) || (type == 195)'
 defpic = os.path.join(plugin_path, 'res/pics/default.png')
 dblank = os.path.join(plugin_path, 'res/pics/blankL.png')
-scramble = 'https://i.mjh.nz/='
+scramble = 'aHR0cHM6Ly9pLm1qaC5uei8='
 Panel_list = [('S.T.V.C.L.')]
 modechoices = [("4097", _("ServiceMp3(4097)")),
                ("1", _("Hardware(1)"))]
