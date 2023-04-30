@@ -142,7 +142,7 @@ dir_enigma2 = '/etc/enigma2/'
 service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 31) || (type == 134) || (type == 195)'
 defpic = os.path.join(plugin_path, 'res/pics/default.png')
 dblank = os.path.join(plugin_path, 'res/pics/blankL.png')
-scramble = 'aHR0cHM6Ly9pLm1qaC5uei8='
+scramble = 'https://i.mjh.nz/='
 Panel_list = [('S.T.V.C.L.')]
 modechoices = [("4097", _("ServiceMp3(4097)")),
                ("1", _("Hardware(1)"))]
@@ -630,7 +630,7 @@ class ListM3u(Screen):
                     name = url.replace('.m3u8', '')
                     name = name + ' ' + mm + '-' + aa
                     url = self.url + url
-                    item = name + "###" + url
+                    item = name + "###" + url + '\n'
                     print('ListM3u url-name Items sort: ', item)
                     items.append(item)
             items.sort()
@@ -1009,7 +1009,7 @@ class ChannelList(Screen):
                                 pic = pic
                             else:
                                 pic = pic + '.png'
-                            item = name + "###" + url + "###" + pic
+                            item = name + "###" + url + "###" + pic + '\n'
                             print('url-name Items sort: ', item)
                             items.append(item)
                     items.sort()
@@ -1034,7 +1034,7 @@ class ChannelList(Screen):
                                 for url in match:
                                     url = url + '.m3u8'
                             pic = pic
-                            item = name + "###" + url + "###" + pic
+                            item = name + "###" + url + "###" + pic + '\n'
                             print('url-name Items sort: ', item)
                             items.append(item)
                     items.sort()
@@ -1450,7 +1450,7 @@ class M3uPlay2(
 
     def openPlay(self, servicetype, url):
         name = self.name
-        ref = "{0}:0:0:0:0:0:0:0:0:0:{1}:{2}".format(servicetype, url.replace(":", "%3a"), name.replace(":", "%3a"))
+        ref = "{0}:0:1:0:0:0:0:0:0:0:{1}:{2}".format(servicetype, url.replace(":", "%3a"), name.replace(":", "%3a"))
         print('reference:   ', ref)
         if streaml is True:
             url = 'http://127.0.0.1:8088/' + str(url)
@@ -1620,7 +1620,7 @@ class AddIpvStream(Screen):
     def addservice(self, res):
         if res:
             self.url = res
-            str = '4097:0:0:0:0:0:0:0:0:0:%s:%s' % (quote(self.url), quote(self.name))
+            str = '4097:0:1:0:0:0:0:0:0:0:%s:%s' % (quote(self.url), quote(self.name))
             ref = eServiceReference(str)
             self.addServiceToBouquet(self.list[self['list'].getSelectedIndex()][1], ref)
             self.close()
@@ -1860,7 +1860,7 @@ from twisted.internet.reactor import callInThread
 def threadGetPage(url=None, file=None, key=None, success=None, fail=None, *args, **kwargs):
     print('[tivustream][threadGetPage] url, file, key, args, kwargs', url, "   ", file, "   ", key, "   ", args, "   ", kwargs)
     try:
-        response = get(url)
+        response = get(url, verify=False)
         response.raise_for_status()
         if file is None:
             success(response.content)
