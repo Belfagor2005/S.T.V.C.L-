@@ -35,7 +35,7 @@ from Components.Sources.Progress import Progress
 from Components.Sources.StaticText import StaticText
 from Components.Pixmap import Pixmap, MovingPixmap
 from os.path import exists as file_exists
-from Screens.InfoBar import MoviePlayer
+# from Screens.InfoBar import MoviePlayer
 from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek
 from Screens.InfoBarGenerics import InfoBarAudioSelection, InfoBarNotifications
 from Screens.InfoBarGenerics import InfoBarSubtitleSupport
@@ -54,9 +54,16 @@ from enigma import eServiceCenter
 from enigma import eServiceReference
 from enigma import loadPNG, gFont
 from enigma import iPlayableService
+from enigma import getDesktop
 from os.path import splitext
 from time import sleep
 from twisted.web.client import downloadPage
+import requests
+
+from requests import get, exceptions
+from requests.exceptions import HTTPError
+from twisted.internet.reactor import callInThread
+
 import os
 import re
 import six
@@ -188,12 +195,24 @@ if not os.path.exists(picfold):
     os.system("mkdir " + picfold)
 
 
-if Utils.isFHD():
-    skin_path = os.path.join(plugin_path, 'res/skins/fhd/')
-    defpic = os.path.join(plugin_path, 'res/pics/defaultL.png')
+screenwidth = getDesktop(0).size()
+if screenwidth.width() == 2560:
+    skin_path = plugin_path + '/res/skins/uhd/'
+    defpic = plugin_path + '/res/pics/defaultL.png'
+
+elif screenwidth.width() == 1920:
+    skin_path = plugin_path + '/res/skins/fhd/'
+    defpic = plugin_path + '/res/pics/defaultL.png'
 else:
-    skin_path = os.path.join(plugin_path, 'res/skins/hd/')
-    defpic = os.path.join(plugin_path, 'res/pics/default.png')
+    skin_path = plugin_path + '/res/skins/hd/'
+    defpic = plugin_path + '/res/pics/default.png'
+
+# if Utils.isFHD() or Utils.isUHD():
+    # skin_path = os.path.join(plugin_path, 'res/skins/fhd/')
+    # defpic = os.path.join(plugin_path, 'res/pics/defaultL.png')
+# else:
+    # skin_path = os.path.join(plugin_path, 'res/skins/hd/')
+    # defpic = os.path.join(plugin_path, 'res/pics/default.png')
 if os.path.exists('/var/lib/dpkg/status'):
     skin_path = os.path.join(skin_path, 'dreamOs/')
 
@@ -211,7 +230,11 @@ def paypal():
 class mainList(MenuList):
     def __init__(self, list):
         MenuList.__init__(self, list, False, eListboxPythonMultiContent)
-        if Utils.isFHD():
+        if screenwidth.width() == 2560:
+            self.l.setItemHeight(450)
+            textfont = int(90)
+            self.l.setFont(0, gFont('Regular', textfont))
+        elif screenwidth.width() == 1920:
             self.l.setItemHeight(370)
             textfont = int(70)
             self.l.setFont(0, gFont('Regular', textfont))
@@ -224,7 +247,11 @@ class mainList(MenuList):
 class tvList(MenuList):
     def __init__(self, list):
         MenuList.__init__(self, list, False, eListboxPythonMultiContent)
-        if Utils.isFHD():
+        if screenwidth.width() == 2560:
+            self.l.setItemHeight(60)
+            textfont = int(42)
+            self.l.setFont(0, gFont('Regular', textfont))
+        elif screenwidth.width() == 1920:
             self.l.setItemHeight(50)
             textfont = int(30)
             self.l.setFont(0, gFont('Regular', textfont))
@@ -243,7 +270,10 @@ def m3ulistEntry(download):
     backcol = 0
     blue = 4282611429
     png = os.path.join(plugin_path, 'res/pics/setting2.png')
-    if Utils.isFHD():
+    if screenwidth.width() == 2560:
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(50, 50), png=loadPNG(png)))
+        res.append(MultiContentEntryText(pos=(90, 0), size=(1200, 50), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+    elif screenwidth.width() == 1920:
         res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(40, 40), png=loadPNG(png)))
         res.append(MultiContentEntryText(pos=(70, 0), size=(1000, 50), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     else:
@@ -266,7 +296,11 @@ def tvListEntry(name, png):
     res = [name]
     png1 = os.path.join(plugin_path, 'res/pics/defaultL.png')
     png2 = os.path.join(plugin_path, 'res/pics/default.png')
-    if Utils.isFHD():
+
+    if screenwidth.width() == 2560:
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(320, 450), png=loadPNG(png1)))
+        res.append(MultiContentEntryText(pos=(400, 5), size=(1200, 70), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+    elif screenwidth.width() == 1920:
         res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(250, 370), png=loadPNG(png1)))
         res.append(MultiContentEntryText(pos=(280, 5), size=(1000, 70), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     else:
@@ -708,20 +742,20 @@ class ChannelList(Screen):
                                      'ButtonSetupActions',
                                      'TimerEditActions',
                                      'DirectionActions'], {'red': self.cancel,
-                                                            # 'green': self.runRec,
-                                                            'menu': self.AdjUrlFavo,
-                                                            'green': self.message2,
-                                                            'yellow': self.message1,
-                                                            'cancel': self.cancel,
-                                                            'up': self.up,
-                                                            'down': self.down,
-                                                            'left': self.left,
-                                                            'right': self.right,
-                                                            'blue': self.search_m3u,
-                                                            'rec': self.runRec,
-                                                            'instantRecord': self.runRec,
-                                                            'ShortRecord': self.runRec,
-                                                            'ok': self.runChannel}, -2)
+                                                           # 'green': self.runRec,
+                                                           'menu': self.AdjUrlFavo,
+                                                           'green': self.message2,
+                                                           'yellow': self.message1,
+                                                           'cancel': self.cancel,
+                                                           'up': self.up,
+                                                           'down': self.down,
+                                                           'left': self.left,
+                                                           'right': self.right,
+                                                           'blue': self.search_m3u,
+                                                           'rec': self.runRec,
+                                                           'instantRecord': self.runRec,
+                                                           'ShortRecord': self.runRec,
+                                                           'ok': self.runChannel}, -2)
         self.currentList = 'list'
         self.onLayoutFinish.append(self.downlist)
         # self.onFirstExecBegin.append(self.downlist)
@@ -999,6 +1033,7 @@ class ChannelList(Screen):
                         if url.startswith('http'):
                             url = url.replace(' ', '%20')
                             url = url.replace('\\n', '')
+                            url = url.replace('%0A', '')
                             if 'samsung' in self.url.lower() or cfg.filter.value is True:
                                 regexcat = '(.*?).m3u8'
                                 match = re.compile(regexcat, re.DOTALL).findall(url)
@@ -1009,7 +1044,7 @@ class ChannelList(Screen):
                                 pic = pic
                             else:
                                 pic = pic + '.png'
-                            item = name + "###" + url + "###" + pic + '\n'
+                            item = name + "###" + url + "###" + pic  # + '\n'
                             print('url-name Items sort: ', item)
                             items.append(item)
                     items.sort()
@@ -1028,13 +1063,14 @@ class ChannelList(Screen):
                         if url.startswith('http'):
                             url = url.replace(' ', '%20')
                             url = url.replace('\\n', '')
+                            url = url.replace('%0A', '')
                             if 'samsung' in self.url.lower() or cfg.filter.value is True:
                                 regexcat = '(.*?).m3u8'
                                 match = re.compile(regexcat, re.DOTALL).findall(url)
                                 for url in match:
                                     url = url + '.m3u8'
                             pic = pic
-                            item = name + "###" + url + "###" + pic + '\n'
+                            item = name + "###" + url + "###" + pic  # + '\n'
                             print('url-name Items sort: ', item)
                             items.append(item)
                     items.sort()
@@ -1852,14 +1888,14 @@ class OpenConfig(Screen, ConfigListScreen):
             self.close()
 
 
-from requests import get, exceptions
-from requests.exceptions import HTTPError
-from twisted.internet.reactor import callInThread
-
-
 def threadGetPage(url=None, file=None, key=None, success=None, fail=None, *args, **kwargs):
     print('[tivustream][threadGetPage] url, file, key, args, kwargs', url, "   ", file, "   ", key, "   ", args, "   ", kwargs)
     try:
+
+        url = url.rstrip('\r\n')
+        url = url.rstrip()
+        url = url.replace("%0A", "")
+
         response = get(url, verify=False)
         response.raise_for_status()
         if file is None:
@@ -1870,12 +1906,13 @@ def threadGetPage(url=None, file=None, key=None, success=None, fail=None, *args,
             success(response.content, file)
     except HTTPError as httperror:
         print('[tivustream][threadGetPage] Http error: ', httperror)
-        fail(error)  # E0602 undefined name 'error'
+        # fail(error)  # E0602 undefined name 'error'
     except exceptions.RequestException as error:
         print(error)
 
 
 def getpics(names, pics, tmpfold, picfold):
+    from PIL import Image
     global defpic
     defpic = defpic
     pix = []
@@ -1918,7 +1955,7 @@ def getpics(names, pics, tmpfold, picfold):
             # os.system(cmd)
 
         if not os.path.exists(picf):
-            if THISPLUG in url:
+            if plugin_path in url:
                 try:
                     cmd = "cp " + url + " " + tpicf
                     print("In getpics not fileExists(picf) cmd =", cmd)
@@ -1928,7 +1965,8 @@ def getpics(names, pics, tmpfold, picfold):
             else:
                 # now download image
                 try:
-                    url = url.replace(" ", "%20").replace("ExQ", "=").replace("AxNxD", "&")
+                    url = url.replace(" ", "%20").replace("ExQ", "=")
+                    url = url.replace("AxNxD", "&").replace("%0A", "")
                     poster = Utils.checkRedirect(url)
                     if poster:
                         # if PY3:
@@ -1980,7 +2018,9 @@ def getpics(names, pics, tmpfold, picfold):
         if os.path.exists(tpicf):
             try:
                 size = [150, 220]
-                if Utils.isFHD():
+                if screenwidth.width() == 2560:
+                    size = [294, 440]
+                elif screenwidth.width() == 1920:
                     size = [220, 330]
 
                 file_name, file_extension = os.path.splitext(tpicf)
@@ -2051,7 +2091,7 @@ def downloadPic(output, poster):
             f.write(output)
             f.close()
     except Exception as e:
-        print('error ', str(e))
+        print('downloadPic error ', str(e))
     return
 
 
@@ -2077,7 +2117,20 @@ class GridMain(Screen):
             self.skin = f.read()
         self['title'] = Label('..:: S.T.V.C.L. ::..')
         self.pos = []
-        if Utils.isFHD():
+
+        if screenwidth.width() == 2560:
+            self.pos.append([180, 80])
+            self.pos.append([658, 80])
+            self.pos.append([834, 80])
+            self.pos.append([1134, 80])
+            self.pos.append([1610, 80])
+            self.pos.append([180, 720])
+            self.pos.append([658, 720])
+            self.pos.append([1134, 720])
+            self.pos.append([1610, 720])
+            self.pos.append([2084, 720])
+
+        elif screenwidth.width() == 1920:
             self.pos.append([122, 42])
             self.pos.append([478, 42])
             self.pos.append([834, 42])
@@ -2145,10 +2198,11 @@ class GridMain(Screen):
 
     def info(self):
         itype = self.index
-        self.inf = self.infos[itype]
-        self.inf = ''
+
+        self.inf = self.names[itype]
+        # self.inf = ''
         try:
-            self.inf = self.infos[itype]
+            self.inf = self.names[itype]
         except:
             pass
         if self.inf:
@@ -2289,4 +2343,3 @@ class GridMain(Screen):
         name = self.names[itype]
         self.session.open(M3uPlay2, name, url)
         return
-
