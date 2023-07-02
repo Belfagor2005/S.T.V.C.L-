@@ -6,14 +6,13 @@ Info http://t.me/tivustream
 ****************************************
 *        coded by Lululla              *
 *                                      *
-*             10/01/2023               *
+*             02/07/2023               *
 ****************************************
 '''
 from __future__ import print_function
 from . import _
 from . import Utils
 from . import html_conv
-# from .getpics import GridMain
 from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
 from Components.config import config, ConfigSubsection
@@ -36,6 +35,7 @@ from Components.Sources.StaticText import StaticText
 from Components.Pixmap import Pixmap, MovingPixmap
 from os.path import exists as file_exists
 # from Screens.InfoBar import MoviePlayer
+from PIL import Image, ImageChops, ImageFile
 from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek
 from Screens.InfoBarGenerics import InfoBarAudioSelection, InfoBarNotifications
 from Screens.InfoBarGenerics import InfoBarSubtitleSupport
@@ -288,7 +288,7 @@ def m3ulist(data, list):
     for line in data:
         name = data[icount]
         mlist.append(m3ulistEntry(name))
-        icount = icount + 1
+        icount += 1
     list.setList(mlist)
 
 
@@ -318,7 +318,7 @@ def returnIMDB(text_clear):
             text = html_conv.html_unescape(text_clear)
             _session.open(TMBD.tmdbScreen, text, 0)
         except Exception as e:
-            print("[XCF] Tmdb: ", str(e))
+            print("[XCF] Tmdb: ", e)
         return True
     elif os.path.exists(IMDb):
         try:
@@ -326,7 +326,7 @@ def returnIMDB(text_clear):
             text = html_conv.html_unescape(text_clear)
             imdb(_session, text)
         except Exception as e:
-            print("[XCF] imdb: ", str(e))
+            print("[XCF] imdb: ", e)
         return True
     else:
         text_clear = html_conv.html_unescape(text_clear)
@@ -469,7 +469,7 @@ class StvclMain(Screen):
             sleep(3)
             self.session.open(ListM3u1, namem3u, urlm3u)
         except Exception as e:
-            print('error : ', str(e))
+            print('error : ', e)
 
     def scsetup(self):
         self.session.open(OpenConfig)
@@ -543,7 +543,7 @@ class ListM3u1(Screen):
             try:
                 content = content.decode("utf-8")
             except Exception as e:
-                print("Error: ", str(e))
+                print("Error: ", e)
 
         # content = ReadUrl(self.url)
         # if six.PY3:
@@ -568,7 +568,7 @@ class ListM3u1(Screen):
             m3ulist(self.names, self['list'])
             self["key_green"].show()
         except Exception as e:
-            print('error: ', str(e))
+            print('error: ', e)
 
     def runList(self):
         i = len(self.names)
@@ -648,7 +648,7 @@ class ListM3u(Screen):
                 try:
                     content = content.decode("utf-8")
                 except Exception as e:
-                    print("Error: ", str(e))
+                    print("Error: ", e)
             # content = ReadUrl(self.url)
             # if six.PY3:
                 # content = six.ensure_str(content)
@@ -676,7 +676,7 @@ class ListM3u(Screen):
             self["key_green"].show()
             m3ulist(self.names, self['list'])
         except Exception as e:
-            print('error: ', str(e))
+            print('error: ', e)
 
     def runList(self):
         i = len(self.names)
@@ -851,7 +851,7 @@ class ChannelList(Screen):
                     return
             except Exception as e:
                 self.convert = False
-                print('error convert iptv ', str(e))
+                print('error convert iptv ', e)
 
     def cancel(self):
         if search_ok is True:
@@ -953,7 +953,7 @@ class ChannelList(Screen):
                     pass
                 return
             except Exception as e:
-                print('error m3u', str(e))
+                print('error m3u', e)
 
     def downloadProgress(self, recvbytes, totalbytes):
         self["progress"].show()
@@ -1004,7 +1004,7 @@ class ChannelList(Screen):
             # self.download.start().addCallback(self.check).addErrback(self.showError)
             print('ChannelList Downlist sleep 3 - 2')        # return
         except Exception as e:
-            print('error: ', str(e))
+            print('error: ', e)
             # self.mbox = self.session.open(MessageBox, _('DOWNLOAD ERROR'), MessageBox.TYPE_INFO, timeout=5)
         return
 
@@ -1104,7 +1104,7 @@ class ChannelList(Screen):
                 self["key_blue"].show()
 
         except Exception as e:
-            print('error: ', str(e))
+            print('error: ', e)
 
     def gridpic(self):
         self.session.open(GridMain, self.names, self.urls, self.pics)
@@ -1231,14 +1231,14 @@ class ChannelList(Screen):
                     else:
                         downloadPage(pixmaps, pictmp).addCallback(self.downloadPic, pictmp).addErrback(self.downloadError)
                 except Exception as e:
-                    print("Error: can't find file or read data ", str(e))
+                    print("Error: can't find file or read data ", e)
         return
 
     def downloadError(self, raw):
         try:
             self.poster_resize(defpic)
         except Exception as e:
-            print(str(e))
+            print(e)
             print('exe downloadError')
 
     def downloadPic(self, data, pictmp):
@@ -1246,7 +1246,7 @@ class ChannelList(Screen):
             try:
                 self.poster_resize(pictmp)
             except Exception as e:
-                print("* error ", str(e))
+                print("* error ", e)
                 pass
 
     def poster_resize(self, png):
@@ -1836,7 +1836,7 @@ class OpenConfig(Screen, ConfigListScreen):
              inhibitDirs=['/bin', '/boot', '/dev', '/home', '/lib', '/proc', '/run', '/sbin', '/sys', '/var'],
              minFree=15)
         except Exception as e:
-            print('error: ', str(e))
+            print('error: ', e)
 
     def openDirectoryBrowserCB(self, path):
         if path is not None:
@@ -1912,7 +1912,7 @@ def threadGetPage(url=None, file=None, key=None, success=None, fail=None, *args,
 
 
 def getpics(names, pics, tmpfold, picfold):
-    from PIL import Image
+    # from PIL import Image
     global defpic
     defpic = defpic
     pix = []
@@ -1999,12 +1999,12 @@ def getpics(names, pics, tmpfold, picfold):
                                     callInThread(threadGetPage, url=poster, file=tpicf, success=downloadPic, fail=downloadError)
 
                                     '''
-                                    print(str(e))
+                                    print(e)
                                     open(tpicf, 'wb').write(requests.get(poster, stream=True, allow_redirects=True).content)
                                     '''
                             except Exception as e:
                                 print("Error: Exception 2")
-                                print(str(e))
+                                print(e)
 
                 except:
                     cmd = "cp " + defpic + " " + tpicf
@@ -2091,7 +2091,7 @@ def downloadPic(output, poster):
             f.write(output)
             f.close()
     except Exception as e:
-        print('downloadPic error ', str(e))
+        print('downloadPic error ', e)
     return
 
 
@@ -2121,9 +2121,9 @@ class GridMain(Screen):
         if screenwidth.width() == 2560:
             self.pos.append([180, 80])
             self.pos.append([658, 80])
-            self.pos.append([834, 80])
             self.pos.append([1134, 80])
             self.pos.append([1610, 80])
+            self.pos.append([2084, 80])
             self.pos.append([180, 720])
             self.pos.append([658, 720])
             self.pos.append([1134, 720])
@@ -2226,7 +2226,7 @@ class GridMain(Screen):
             self["frame"].startMoving()
             self.info()
         except Exception as e:
-            print('error  in paintframe: ', str(e))
+            print('error  in paintframe: ', e)
 
     def openTest(self):
         print("self.index, openTest self.ipage, self.npage =", self.index, self.ipage, self.npage)
