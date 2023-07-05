@@ -1,4 +1,4 @@
-<screen name="GridMain" position="0,0" size="2560,1440" title="GridMain" backgroundColor="#000000">
+<screen name="GridMain" position="0,0" size="2560,1440" title="GridMain" backgroundColor="#ff000000" flags="wfNoBorder">
     <ePixmap position="0,0" zPosition="2" size="2560,1440" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/menu_plug.png"/>
     <widget name="title" position="115,1454" size="2355,107" zPosition="5" halign="center" valign="top" foregroundColor="#7bd7f7" backgroundColor="#000000" font="Regular;80" transparent="1"/>
     <widget name="frame" position="163,56" size="334,494" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/pic_frame2L.png" zPosition="5" scale="1"/>

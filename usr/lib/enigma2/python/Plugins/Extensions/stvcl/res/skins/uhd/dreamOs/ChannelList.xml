@@ -1,5 +1,5 @@
 <!-- Skin ChannelList 20/10/2021 -->
-<screen name="ChannelList" position="0,0" size="2560,1440" title="..::stvcl List Channel::.." backgroundColor="#10101010" flags="wfNoBorder">
+<screen name="ChannelList" position="0,0" size="2560,1440" title="..::stvcl List Channel::.." backgroundColor="#ff000000" flags="wfNoBorder">
 	<widget name="title" position="294,114" size="999,54" font="Regular;40" halign="left" valign="center" foregroundColor="#002a79b8" backgroundColor="black" transparent="1" zPosition="5" />
 	<widget name="Maintainer2" position="682,56" size="534,54" font="Regular;32" halign="left" foregroundColor="yellow" backgroundColor="#000000" transparent="1" zPosition="5" />
 	<widget name="path" position="292,1086" size="1100,71" font="Regular;40" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />
