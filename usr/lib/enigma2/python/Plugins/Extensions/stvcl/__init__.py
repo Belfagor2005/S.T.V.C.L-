@@ -10,6 +10,13 @@ PluginLanguageDomain = 'stvcl'
 PluginLanguagePath = 'Extensions/stvcl/res/locale'
 
 
+def paypal():
+    conthelp = "If you like what I do you\n"
+    conthelp += "can contribute with a coffee\n"
+    conthelp += "scan the qr code and donate € 1.00"
+    return conthelp
+
+
 def localeInit():
     if os.path.isfile('/var/lib/dpkg/status'):
         lang = language.getLanguage()[:2]  # getLanguage returns e.g. "fi_FI" for "language_country"

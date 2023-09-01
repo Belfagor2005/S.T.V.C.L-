@@ -10,13 +10,13 @@ Info http://t.me/tivustream
 ****************************************
 '''
 from __future__ import print_function
-from . import _
+from . import _, paypal
 from . import Utils
 from . import html_conv
 try:
-    from Components.AVSwitch import eAVSwitch
+    from Components.AVSwitch import eAVSwitch as AVSwitch
 except Exception:
-    from Components.AVSwitch import iAVSwitch as eAVSwitch
+    from Components.AVSwitch import iAVSwitch as AVSwitch
 from Components.ActionMap import ActionMap
 from Components.config import config, ConfigSubsection
 from Components.config import ConfigSelection, getConfigListEntry
@@ -209,22 +209,8 @@ elif screenwidth.width() == 1920:
 else:
     skin_path = plugin_path + '/res/skins/hd/'
     defpic = plugin_path + '/res/pics/default.png'
-
-# if Utils.isFHD() or Utils.isUHD():
-    # skin_path = os.path.join(plugin_path, 'res/skins/fhd/')
-    # defpic = os.path.join(plugin_path, 'res/pics/defaultL.png')
-# else:
-    # skin_path = os.path.join(plugin_path, 'res/skins/hd/')
-    # defpic = os.path.join(plugin_path, 'res/pics/default.png')
 if os.path.exists('/var/lib/dpkg/status'):
     skin_path = os.path.join(skin_path, 'dreamOs/')
-
-
-def paypal():
-    conthelp = "If you like what I do you\n"
-    conthelp += "can contribute with a coffee\n"
-    conthelp += "scan the qr code and donate € 1.00"
-    return conthelp
 
 
 # ================Gui list
@@ -575,7 +561,6 @@ class ListM3u1(Screen):
 
     def runList(self):
         i = len(self.names)
-        print('iiiiii= ', i)
         if i < 0:
             return
         idx = self["list"].getSelectionIndex()
@@ -656,8 +641,6 @@ class ListM3u(Screen):
             # if six.PY3:
                 # content = six.ensure_str(content)
             print('content: ', content)
-            # <a href="br.xml.gz">br.xml.gz</a> 21-Oct-2021 07:05   108884
-            # <a href="raw-radio.m3u8">raw-radio.m3u8</a>   22-Oct-2021 06:08   9639
             regexvideo = '<a href="(.*?)">.*?</a>.*?-(.*?)-(.*?) '
             match = re.compile(regexvideo, re.DOTALL).findall(content)
             print('ListM3u match = ', match)
@@ -683,7 +666,6 @@ class ListM3u(Screen):
 
     def runList(self):
         i = len(self.names)
-        print('iiiiii= ', i)
         if i < 0:
             return
         idx = self["list"].getSelectionIndex()
@@ -704,7 +686,7 @@ class ChannelList(Screen):
             self.skin = f.read()
         self.list = []
         self.picload = ePicLoad()
-        self.scale = eAVSwitch().getFramebufferScale()
+        self.scale = AVSwitch().getFramebufferScale()
         self['list'] = tvList([])
         self.setTitle(title_plug + ' ' + name)
         self['title'] = Label(title_plug + ' ' + name)
@@ -770,7 +752,6 @@ class ChannelList(Screen):
 
     def message1(self):
         i = len(self.names)
-        print('iiiiii= ', i)
         if i < 0:
             return
         self.servicx = 'iptv'
@@ -778,7 +759,6 @@ class ChannelList(Screen):
 
     def message2(self):
         i = len(self.names)
-        print('iiiiii= ', i)
         if i < 0:
             return
         self.servicx = 'gst'
@@ -791,6 +771,10 @@ class ChannelList(Screen):
             if idx == -1 or None or '':
                 return
             self.convert = True
+            if self.servicx == 'iptv':
+                service = '4097'
+            else:
+                service = '5002'
             namebouquett = self.name.replace(' ', '_').replace('-', '_').strip()
             print('namebouquett in folder tmp : ', namebouquett)
             try:
@@ -802,44 +786,27 @@ class ChannelList(Screen):
                     in_bouquets = 0
                     with open('%s%s' % (dir_enigma2, bqtname), 'w') as outfile:
                         outfile.write('#NAME %s\r\n' % namebouquett.capitalize())
-                        if self.servicx == 'iptv':
-                            for line in open(in_tmp):
-                                if line.startswith('http://') or line.startswith('https'):
-                                    outfile.write('#SERVICE 4097:0:1:1:0:0:0:0:0:0:%s' % line.replace(':', '%3a'))
-                                    outfile.write('#DESCRIPTION %s' % desk_tmp)
-                                elif line.startswith('#EXTINF'):
-                                    desk_tmp = '%s' % line.split(',')[-1]
-                                elif '<stream_url><![CDATA' in line:
-                                    outfile.write('#SERVICE 4097:0:1:1:0:0:0:0:0:0:%s\r\n' % line.split('[')[-1].split(']')[0].replace(':', '%3a'))
-                                    outfile.write('#DESCRIPTION %s\r\n' % desk_tmp)
-                                elif '<title>' in line:
-                                    if '<![CDATA[' in line:
-                                        desk_tmp = '%s\r\n' % line.split('[')[-1].split(']')[0]
-                                    else:
-                                        desk_tmp = '%s\r\n' % line.split('<')[1].split('>')[1]
-                        else:
-                            if self.servicx == 'gst':
-                                for line in open(in_tmp):
-                                    if line.startswith('http://') or line.startswith('https'):
-                                        outfile.write('#SERVICE 5002:0:1:1:0:0:0:0:0:0:%s' % line.replace(':', '%3a'))
-                                        outfile.write('#DESCRIPTION %s' % desk_tmp)
-                                    elif line.startswith('#EXTINF'):
-                                        desk_tmp = '%s' % line.split(',')[-1]
-                                    elif '<stream_url><![CDATA' in line:
-                                        outfile.write('#SERVICE 5002:0:1:1:0:0:0:0:0:0:%s\r\n' % line.split('[')[-1].split(']')[0].replace(':', '%3a'))
-                                        outfile.write('#DESCRIPTION %s\r\n' % desk_tmp)
-                                    elif '<title>' in line:
-                                        if '<![CDATA[' in line:
-                                            desk_tmp = '%s\r\n' % line.split('[')[-1].split(']')[0]
-                                        else:
-                                            desk_tmp = '%s\r\n' % line.split('<')[1].split('>')[1]
+                        # if self.servicx == 'iptv':
+                        for line in open(in_tmp):
+                            if line.startswith('http://') or line.startswith('https'):
+                                outfile.write('#SERVICE %s:0:1:1:0:0:0:0:0:0:%s' % (service, line.replace(':', '%3a')))
+                                outfile.write('#DESCRIPTION %s' % desk_tmp)
+                            elif line.startswith('#EXTINF'):
+                                desk_tmp = '%s' % line.split(',')[-1]
+                            elif '<stream_url><![CDATA' in line:
+                                outfile.write('#SERVICE %s:0:1:1:0:0:0:0:0:0:%s\r\n' % (service, line.split('[')[-1].split(']')[0].replace(':', '%3a')))
+                                outfile.write('#DESCRIPTION %s\r\n' % desk_tmp)
+                            elif '<title>' in line:
+                                if '<![CDATA[' in line:
+                                    desk_tmp = '%s\r\n' % line.split('[')[-1].split(']')[0]
+                                else:
+                                    desk_tmp = '%s\r\n' % line.split('<')[1].split('>')[1]
                         outfile.close()
                     self.mbox = self.session.open(MessageBox, _('Check out the favorites list ...'), MessageBox.TYPE_INFO, timeout=5)
                     if os.path.isfile('/etc/enigma2/bouquets.tv'):
                         for line in open('/etc/enigma2/bouquets.tv'):
                             if bqtname in line:
                                 in_bouquets = 1
-
                         if in_bouquets == 0:
                             if os.path.isfile('%s%s' % (dir_enigma2, bqtname)) and os.path.isfile('/etc/enigma2/bouquets.tv'):
                                 Utils.remove_line('/etc/enigma2/bouquets.tv', bqtname)
@@ -885,8 +852,7 @@ class ChannelList(Screen):
                     if str(search).lower() in name.lower():
                         global search_ok
                         search_ok = True
-                        url = url.replace(" ", "")
-                        url = url.replace("\\n", "")
+                        url = url.replace(" ", "").replace("\\n", "")
                         self.names.append(name)
                         self.urls.append(url)
                         self.pics.append(pic)
@@ -911,7 +877,6 @@ class ChannelList(Screen):
 
     def runRec(self):
         i = len(self.names)
-        print('iiiiii= ', i)
         if i < 0:
             return
         global urlm3u, namem3u
@@ -1116,7 +1081,6 @@ class ChannelList(Screen):
 
     def runChannel(self):
         i = len(self.names)
-        print('iiiiii= ', i)
         if i < 0:
             return
         idx = self['list'].getSelectionIndex()
@@ -1170,7 +1134,6 @@ class ChannelList(Screen):
 
     def AdjUrlFavo(self):
         i = len(self.names)
-        print('iiiiii= ', i)
         if i < 0:
             return
         idx = self['list'].getSelectionIndex()
@@ -1200,7 +1163,6 @@ class ChannelList(Screen):
 
     def load_poster(self):
         i = len(self.pics)
-        print('iiiiii= ', i)
         if i < 0:
             return
         idx = self['list'].getSelectionIndex()
@@ -1258,7 +1220,7 @@ class ChannelList(Screen):
         if file_exists(pixmaps):
             size = self['poster'].instance.size()
             self.picload = ePicLoad()
-            self.scale = eAVSwitch().getFramebufferScale()
+            self.scale = AVSwitch().getFramebufferScale()
             self.picload.setPara([size.width(), size.height(), self.scale[0], self.scale[1], 0, 1, '#00000000'])
             if os.path.exists('/var/lib/dpkg/status'):
                 self.picload.startDecode(pixmaps, False)
@@ -1436,7 +1398,7 @@ class M3uPlay2(
         self.onClose.append(self.cancel)
 
     def getAspect(self):
-        return eAVSwitch().getAspectRatioSetting()
+        return AVSwitch().getAspectRatioSetting()
 
     def getAspectString(self, aspectnum):
         return {
@@ -1461,7 +1423,7 @@ class M3uPlay2(
         }
         config.av.aspectratio.setValue(map[aspect])
         try:
-            eAVSwitch().setAspectRatio(aspect)
+            AVSwitch().setAspectRatio(aspect)
         except:
             pass
 
