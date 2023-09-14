@@ -13,10 +13,12 @@ from __future__ import print_function
 from . import _, paypal
 from . import Utils
 from . import html_conv
+import codecs
+from Components.AVSwitch import AVSwitch
 try:
-    from Components.AVSwitch import eAVSwitch as AVSwitch
-except Exception:
-    from Components.AVSwitch import iAVSwitch as AVSwitch
+    from Components.AVSwitch import iAVSwitch
+except:
+    from enigma import eAVSwitch
 from Components.ActionMap import ActionMap
 from Components.config import config, ConfigSubsection
 from Components.config import ConfigSelection, getConfigListEntry
@@ -321,6 +323,7 @@ def returnIMDB(text_clear):
         text_clear = html_conv.html_unescape(text_clear)
         _session.open(MessageBox, text_clear, MessageBox.TYPE_INFO)
         return True
+    return False
 
 
 class StvclMain(Screen):
@@ -328,7 +331,7 @@ class StvclMain(Screen):
         Screen.__init__(self, session)
         self.session = session
         skin = os.path.join(skin_path, 'StvclMain.xml')
-        with open(skin, 'r') as f:
+        with codecs.open(skin, "r", encoding="utf-8") as f:
             self.skin = f.read()
         self['list'] = mainList([])
         self.icount = 0
@@ -473,7 +476,7 @@ class ListM3u1(Screen):
         Screen.__init__(self, session)
         self.session = session
         skin = os.path.join(skin_path, 'ListM3u.xml')
-        with open(skin, 'r') as f:
+        with codecs.open(skin, "r", encoding="utf-8") as f:
             self.skin = f.read()
         self.list = []
         self['list'] = tvList([])
@@ -577,7 +580,7 @@ class ListM3u(Screen):
         Screen.__init__(self, session)
         self.session = session
         skin = os.path.join(skin_path, 'ListM3u.xml')
-        with open(skin, 'r') as f:
+        with codecs.open(skin, "r", encoding="utf-8") as f:
             self.skin = f.read()
         self.list = []
         self['list'] = tvList([])
@@ -682,11 +685,11 @@ class ChannelList(Screen):
         Screen.__init__(self, session)
         self.session = session
         skin = os.path.join(skin_path, 'ChannelList.xml')
-        with open(skin, 'r') as f:
+        with codecs.open(skin, "r", encoding="utf-8") as f:
             self.skin = f.read()
         self.list = []
-        self.picload = ePicLoad()
-        self.scale = AVSwitch().getFramebufferScale()
+        # self.picload = ePicLoad()
+        # self.scale = AVSwitch().getFramebufferScale()
         self['list'] = tvList([])
         self.setTitle(title_plug + ' ' + name)
         self['title'] = Label(title_plug + ' ' + name)
@@ -1126,7 +1129,7 @@ class ChannelList(Screen):
             ref = '5002:0:1:0:0:0:0:0:0:0:' + 'http%3a//127.0.0.1%3a8088/' + str(url)
             sref = eServiceReference(ref)
             print('SREF: ', sref)
-            sref.setName(name)
+            sref.setName(str(name))
             self.session.open(M3uPlay2, name, sref)
             self.close()
         else:
@@ -1398,34 +1401,34 @@ class M3uPlay2(
         self.onClose.append(self.cancel)
 
     def getAspect(self):
-        return AVSwitch().getAspectRatioSetting()
+        try:
+            aspect = iAVSwitch.getAspectRatioSetting()
+        except:
+            aspect = eAVSwitch.getAspectRatioSetting()
+        return aspect
 
     def getAspectString(self, aspectnum):
-        return {
-            0: '4:3 Letterbox',
-            1: '4:3 PanScan',
-            2: '16:9',
-            3: '16:9 always',
-            4: '16:10 Letterbox',
-            5: '16:10 PanScan',
-            6: '16:9 Letterbox'
-        }[aspectnum]
+        return {0: '4:3 Letterbox',
+                1: '4:3 PanScan',
+                2: '16:9',
+                3: '16:9 always',
+                4: '16:10 Letterbox',
+                5: '16:10 PanScan',
+                6: '16:9 Letterbox'}[aspectnum]
 
     def setAspect(self, aspect):
-        map = {
-            0: '4_3_letterbox',
-            1: '4_3_panscan',
-            2: '16_9',
-            3: '16_9_always',
-            4: '16_10_letterbox',
-            5: '16_10_panscan',
-            6: '16_9_letterbox'
-        }
+        map = {0: '4_3_letterbox',
+               1: '4_3_panscan',
+               2: '16_9',
+               3: '16_9_always',
+               4: '16_10_letterbox',
+               5: '16_10_panscan',
+               6: '16_9_letterbox'}
         config.av.aspectratio.setValue(map[aspect])
         try:
-            AVSwitch().setAspectRatio(aspect)
+            iAVSwitch.setAspectRatio(aspect)
         except:
-            pass
+            eAVSwitch.setAspectRatio(aspect)
 
     def av(self):
         temp = int(self.getAspect())
@@ -1445,7 +1448,7 @@ class M3uPlay2(
         ref = "{0}:{1}".format(url.replace(":", "%3a"), name.replace(":", "%3a"))
         print('final reference:   ', ref)
         sref = eServiceReference(ref)
-        sref.setName(name)
+        sref.setName(str(name))
         self.session.nav.stopService()
         self.session.nav.playService(sref)
 
@@ -1459,7 +1462,7 @@ class M3uPlay2(
             print('streaml reference:   ', ref)
         print('final reference:   ', ref)
         sref = eServiceReference(ref)
-        sref.setName(name)
+        sref.setName(str(name))
         self.session.nav.stopService()
         self.session.nav.playService(sref)
 
@@ -1542,7 +1545,7 @@ class AddIpvStream(Screen):
         Screen.__init__(self, session)
         self.session = session
         skin = os.path.join(skin_path, 'AddIpvStream.xml')
-        with open(skin, 'r') as f:
+        with codecs.open(skin, "r", encoding="utf-8") as f:
             self.skin = f.read()
         self.setTitle(title_plug + ' ' + name)
         self['title'] = Label(title_plug + ' ' + name)
@@ -1660,7 +1663,7 @@ class OpenConfig(Screen, ConfigListScreen):
         Screen.__init__(self, session)
         self.session = session
         skin = os.path.join(skin_path, 'OpenConfig.xml')
-        with open(skin, 'r') as f:
+        with codecs.open(skin, "r", encoding="utf-8") as f:
             self.skin = f.read()
         self.setup_title = _("stvcl Config")
         self.onChangedEntry = []
@@ -2078,7 +2081,7 @@ class GridMain(Screen):
         global _session
         _session = session
         skin = os.path.join(skin_path, 'GridMain.xml')
-        with open(skin, 'r') as f:
+        with codecs.open(skin, "r", encoding="utf-8") as f:
             self.skin = f.read()
         self['title'] = Label('..:: S.T.V.C.L. ::..')
         self.pos = []
