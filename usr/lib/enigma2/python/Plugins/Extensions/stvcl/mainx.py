@@ -1401,11 +1401,7 @@ class M3uPlay2(
         self.onClose.append(self.cancel)
 
     def getAspect(self):
-        try:
-            aspect = iAVSwitch().getAspectRatioSetting()
-        except:
-            aspect = eAVSwitch().getAspectRatioSetting()
-        return aspect
+        return AVSwitch().getAspectRatioSetting()
 
     def getAspectString(self, aspectnum):
         return {0: '4:3 Letterbox',
@@ -1426,9 +1422,9 @@ class M3uPlay2(
                6: '16_9_letterbox'}
         config.av.aspectratio.setValue(map[aspect])
         try:
-            iAVSwitch.setAspectRatio(aspect)
+            AVSwitch().setAspectRatio(aspect)
         except:
-            eAVSwitch.setAspectRatio(aspect)
+            pass
 
     def av(self):
         temp = int(self.getAspect())
