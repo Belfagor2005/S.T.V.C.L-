@@ -2,308 +2,311 @@ msgid ""
 msgstr ""
 "Project-Id-Version: stvcl\n"
 "Report-Msgid-Bugs-To: Lululla <ekekaz@gmail.com>\n"
-"POT-Creation-Date: 2022-05-09 21:14+0200\n"
-"PO-Revision-Date: 2022-05-09 21:14+0200\n"
+"POT-Creation-Date: 2024-07-12 20:27+0200\n"
+"PO-Revision-Date: 2024-07-12 20:27+0200\n"
 "Last-Translator: Lululla <ekekaz@gmail.com>\n"
 "Language-Team: lululla\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.7\n"
-"X-Poedit-Basepath: ../../../..\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.4.4\n"
+"X-Poedit-Basepath: ../../../..\n"
 "X-Poedit-SourceCharset: iso-8859-1\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: Utils.py:689
-#, python-format
-msgid "ReadUrl1:\n"
-"  url = %s"
-msgstr ""
-
-#: Utils.py:1200
-msgid "Stream already added to bouquet"
-msgstr ""
-
-#: Utils.py:1207
-msgid "Adding to bouquet failed"
-msgstr ""
-
-#: getpics.py:256
-msgid "..:: S.T.V.C.L. ::.."
-msgstr ""
-
-#: getpics.py:608 plugin.py:1402
-msgid "4:3 Letterbox"
-msgstr ""
-
-#: getpics.py:609 plugin.py:1403
-msgid "4:3 PanScan"
-msgstr ""
-
-#: getpics.py:610 plugin.py:1404
-msgid "16:9"
-msgstr ""
-
-#: getpics.py:611 plugin.py:1405
-msgid "16:9 always"
-msgstr ""
-
-#: getpics.py:612 plugin.py:1406
-msgid "16:10 Letterbox"
-msgstr ""
-
-#: getpics.py:613 plugin.py:1407
-msgid "16:10 PanScan"
-msgstr ""
-
-#: getpics.py:614 plugin.py:1408
-msgid "16:9 Letterbox"
-msgstr ""
-
-#: plugin.py:199
+#: mainx.py:168
 msgid "ServiceMp3(4097)"
 msgstr ""
 
-#: plugin.py:200
+#: mainx.py:169
 msgid "Hardware(1)"
 msgstr ""
 
-#: plugin.py:203
+#: mainx.py:171
 msgid "Gstreamer(5001)"
 msgstr ""
 
-#: plugin.py:205
+#: mainx.py:173
 msgid "Exteplayer3(5002)"
 msgstr ""
 
-#: plugin.py:207
+#: mainx.py:175
 msgid "Streamlink(5002)"
 msgstr ""
 
-#: plugin.py:209
+#: mainx.py:177
 msgid "eServiceUri(8193)"
 msgstr ""
 
-#: plugin.py:333 plugin.py:440 plugin.py:553 plugin.py:666
+#: mainx.py:354 mainx.py:569 mainx.py:673 mainx.py:779
 #, python-format
 msgid "Folder path %s"
 msgstr "Percorso cartella %s"
 
-#: plugin.py:334
+#: mainx.py:355
 msgid "Exit"
 msgstr "Uscire"
 
-#: plugin.py:335 plugin.py:449 plugin.py:562
-msgid "Select"
-msgstr "Seleziona"
+#: mainx.py:357
+msgid "Update"
+msgstr ""
 
-#: plugin.py:394 plugin.py:918 plugin.py:942
+#: mainx.py:358
+msgid "Remove"
+msgstr ""
+
+#: mainx.py:419
+#, python-format
+msgid ""
+"New version %s is available\n"
+"\n"
+"Changelog: %s\n"
+"\n"
+"Press info_long or yellow_long button to start force updating."
+msgstr ""
+
+#: mainx.py:424
+#, python-format
+msgid ""
+"New version %s is available.\n"
+"\n"
+"Changelog: %s \n"
+"\n"
+"Do you want to install it now?"
+msgstr ""
+
+#: mainx.py:426
+msgid "Congrats! You already have the latest version..."
+msgstr ""
+
+#: mainx.py:436
+#, python-format
+msgid "Do you want to install update ( %s ) now?"
+msgstr ""
+
+#: mainx.py:445
+msgid "Update Aborted!"
+msgstr ""
+
+#: mainx.py:479
+msgid "Remove all S.T.V.C.L. Favorite Bouquet ?"
+msgstr ""
+
+#: mainx.py:503
+msgid "HasBahCa Favorites List have been removed"
+msgstr ""
+
+#: mainx.py:523 mainx.py:1005 mainx.py:1029
 msgid "Download Failed!!!"
 msgstr ""
 
-#: plugin.py:448 plugin.py:561 plugin.py:671 plugin.py:1580 plugin.py:1701
+#: mainx.py:577 mainx.py:681 mainx.py:784 mainx.py:1632 mainx.py:1755
 msgid "Back"
 msgstr "Indietro"
 
-#: plugin.py:463 plugin.py:576
+#: mainx.py:578 mainx.py:682
+msgid "Select"
+msgstr "Seleziona"
+
+#: mainx.py:590 mainx.py:694
 msgid "Check in your Config Plugin - Path Movie"
 msgstr "Controlla nel Menu di configurazione - Path Movie"
 
-#: plugin.py:668
+#: mainx.py:781
 #, python-format
 msgid "Service Reference used %s"
 msgstr "Service Reference utilizzato %s"
 
-#: plugin.py:672
+#: mainx.py:785
 msgid "Convert ExtePlayer3"
 msgstr "Converti ExtePlayer3"
 
-#: plugin.py:673
+#: mainx.py:786
 msgid "Convert Gstreamer"
 msgstr "Converti Gstreamer"
 
-#: plugin.py:674
+#: mainx.py:787
 msgid "Search"
 msgstr "Cerca"
 
-#: plugin.py:729
+#: mainx.py:843
 msgid "Do you want to Convert Bouquet IPTV?"
 msgstr "Vuoi convertire Bouquet IPTV?"
 
-#: plugin.py:739
+#: mainx.py:850
 msgid "Do you want to Convert Bouquet GSTREAMER?"
 msgstr "Vuoi convertire Bouquet GSTREAMER?"
 
-#: plugin.py:793
+#: mainx.py:890
 msgid "Check out the favorites list ..."
 msgstr "Dai un'occhiata all'elenco dei preferiti ..."
 
-#: plugin.py:810
+#: mainx.py:902
 msgid "Shuffle Favorite List in Progress"
 msgstr "Riordino Liste favorite in corso"
 
-#: plugin.py:810
+#: mainx.py:902
 msgid "Wait please ..."
 msgstr "Attendere prego ..."
 
-#: plugin.py:813
+#: mainx.py:905
 msgid "Conversion Failed!!!"
 msgstr ""
 
-#: plugin.py:830
+#: mainx.py:921
 msgid "Filter this category..."
 msgstr "Filtra questa categoria..."
 
-#: plugin.py:883
+#: mainx.py:972
 msgid "You are already downloading!!!"
 msgstr "Stai già scaricando !!!"
 
-#: plugin.py:887
+#: mainx.py:976
 msgid "DOWNLOAD VIDEO?"
 msgstr ""
 
-#: plugin.py:890
+#: mainx.py:979
 msgid "Only VOD Movie allowed or not .ext Filtered!!!"
 msgstr "Solo film VOD consentito o nessun Filtro!!!"
 
-#: plugin.py:1101
+#: mainx.py:1186
 msgid "Please enter the parental control pin code"
 msgstr "Inserisci il codice PIN del controllo genitori"
 
-#: plugin.py:1101
+#: mainx.py:1186
 msgid "Enter pin code"
 msgstr "Inserisci il codice PIN"
 
-#: plugin.py:1106
+#: mainx.py:1191
 msgid "The pin code you entered is wrong."
 msgstr "Il codice PIN che hai inserito è sbagliato."
 
-#: plugin.py:1133
+#: mainx.py:1218
 msgid "Install Streamlink first"
 msgstr ""
 
-#: plugin.py:1581
+#: mainx.py:1633
 msgid "Ok"
 msgstr ""
 
-#: plugin.py:1605
+#: mainx.py:1660
 msgid "Add Stream IPTV"
 msgstr "Aggiungi Stream IPTV"
 
-#: plugin.py:1611
+#: mainx.py:1665
 msgid "Select the Bouquet and press OK to add"
 msgstr "Selezionare il bouquet e premere OK per aggiungere"
 
-#: plugin.py:1646
+#: mainx.py:1700
 msgid "Enter Name"
 msgstr "Inserire Nome"
 
-#: plugin.py:1692
+#: mainx.py:1746
 msgid "stvcl Config"
-msgstr "Configurazione STVCL"
+msgstr "Configurazione Stvcl"
 
-#: plugin.py:1702
+#: mainx.py:1756
 msgid "Save"
 msgstr "Salva"
 
-#: plugin.py:1703
+#: mainx.py:1757
 msgid "Empty Pic Cache"
 msgstr "Svuota la cache Poster"
 
-#: plugin.py:1742
+#: mainx.py:1791
 msgid "All cache fold are empty!"
 msgstr "Tutte la cache è vuota!!"
 
-#: plugin.py:1747 plugin.py:1763
+#: mainx.py:1796 mainx.py:1812
 msgid "IPTV bouquets location "
-msgstr "Posizione dei bouquet IPTV"
+msgstr "Posizione dei bouquet IPTV "
 
-#: plugin.py:1747 plugin.py:1764
+#: mainx.py:1796 mainx.py:1813
 msgid "Configure position of the bouquets of the converted lists"
 msgstr "Configura la posizione dei Bouquet delle liste convertite"
 
-#: plugin.py:1748 plugin.py:1766
+#: mainx.py:1797 mainx.py:1815
 msgid "Player folder List <.m3u>:"
 msgstr "Elenco cartelle del lettore <.m3u>:"
 
-#: plugin.py:1748 plugin.py:1767
+#: mainx.py:1797 mainx.py:1816
 msgid "Folder path containing the .m3u files"
 msgstr "Percorso della cartella contenente i file .m3u"
 
-#: plugin.py:1749 plugin.py:1772
+#: mainx.py:1798 mainx.py:1821
 msgid "Services Player Reference type"
 msgstr ""
 
-#: plugin.py:1749 plugin.py:1773
+#: mainx.py:1798 mainx.py:1822
 msgid "Configure Service Player Reference"
 msgstr "Configura i Service  Reference per il Player"
 
-#: plugin.py:1750 plugin.py:1769
+#: mainx.py:1799 mainx.py:1818
 msgid "Filter M3U link regex type"
 msgstr "Filtro Ricerca Link M3U in regex"
 
-#: plugin.py:1750 plugin.py:1770
+#: mainx.py:1799 mainx.py:1819
 msgid "Set On for line link m3u full"
 msgstr "'On' per Link m3u full"
 
-#: plugin.py:1751 plugin.py:1775
+#: mainx.py:1800 mainx.py:1824
 msgid "Show thumpics?"
 msgstr "Mostra thumpics?"
 
-#: plugin.py:1751 plugin.py:1776
+#: mainx.py:1800 mainx.py:1825
 msgid "Show Thumbpics ? Enigma restart required"
 msgstr "Mostra miniature ? Necessario il riavvio di Enigma"
 
-#: plugin.py:1753 plugin.py:1778
+#: mainx.py:1802 mainx.py:1827
 msgid "Download thumpics?"
-msgstr "Scarica Poster"
+msgstr "Scarica Poster?"
 
-#: plugin.py:1753 plugin.py:1779
+#: mainx.py:1802 mainx.py:1828
 msgid "Download thumpics in Player M3U (is very Slow)?"
 msgstr "Scarica Poster nel PlayerM3U (molto lento)?"
 
-#: plugin.py:1754 plugin.py:1781
+#: mainx.py:1803 mainx.py:1830
 msgid "Folder Cache for Thumbpics:"
 msgstr "Cache delle cartelle per Thumbpics:"
 
-#: plugin.py:1754 plugin.py:1782
+#: mainx.py:1803 mainx.py:1831
 msgid "Configure position folder for temporary Thumbpics"
 msgstr "Configura la cartella di posizione per Thumbpics temporanei"
 
-#: plugin.py:1755 plugin.py:1784
+#: mainx.py:1804 mainx.py:1833
 msgid "Link in Extensions Menu:"
 msgstr ""
 
-#: plugin.py:1755 plugin.py:1785
+#: mainx.py:1804 mainx.py:1834
 msgid "Show Plugin in Extensions Menu"
 msgstr "Mostra Plugin in Menu Estensioni"
 
-#: plugin.py:1756 plugin.py:1787
+#: mainx.py:1805 mainx.py:1836
 msgid "Link in Main Menu:"
 msgstr ""
 
-#: plugin.py:1756 plugin.py:1788
+#: mainx.py:1805 mainx.py:1837
 msgid "Show Plugin in Main Menu"
 msgstr "Mostra Plugin in Menu Estensioni"
 
-#: plugin.py:1828
+#: mainx.py:1876
 msgid "Choose Directory:"
-msgstr "Scegli Cartella"
+msgstr "Scegli Cartella:"
 
-#: plugin.py:1829
+#: mainx.py:1877
 msgid "Choose Directory"
 msgstr "Scegli Cartella"
 
-#: plugin.py:1852
+#: mainx.py:1900
 msgid "M3u list folder not detected!"
 msgstr "Cartella dell'elenco M3u non rilevata!"
 
-#: plugin.py:1860
+#: mainx.py:1908
 msgid "Settings saved correctly!"
 msgstr "Impostazioni salvate correttamente!"
 
-#: plugin.py:1884
+#: mainx.py:1932
 msgid "Really close without saving the settings?"
 msgstr "Uscire senza salvare le impostazioni?"

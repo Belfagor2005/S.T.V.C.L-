@@ -13,68 +13,75 @@ from __future__ import print_function
 from . import _, paypal
 from . import Utils
 from . import html_conv
-import codecs
+from .Console import Console as xConsole
 from Components.AVSwitch import AVSwitch
-try:
-    from enigma import eAVSwitch
-except Exception as e:
-    print(e)
 from Components.ActionMap import ActionMap
-from Components.config import config, ConfigSubsection
-from Components.config import ConfigSelection, getConfigListEntry
-from Components.config import ConfigDirectory, ConfigYesNo
-from Components.config import configfile, ConfigEnableDisable
+from Components.config import (
+    config,
+    ConfigSubsection,
+    ConfigSelection,
+    getConfigListEntry,
+    ConfigDirectory,
+    ConfigYesNo,
+    configfile,
+    ConfigEnableDisable,
+)
 from Components.Button import Button
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components.MenuList import MenuList
-from Components.MultiContent import MultiContentEntryText
-from Components.MultiContent import MultiContentEntryPixmapAlphaTest
+from Components.MultiContent import (MultiContentEntryText, MultiContentEntryPixmapAlphaTest)
 from Components.Pixmap import Pixmap
 from Components.PluginComponent import plugins
 from Components.ProgressBar import ProgressBar
-from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
+from Components.ServiceEventTracker import (ServiceEventTracker, InfoBarBase)
 from Components.ServiceList import ServiceList
 from Components.Sources.Progress import Progress
 from Components.Sources.StaticText import StaticText
 from Components.Pixmap import Pixmap, MovingPixmap
-from os.path import exists as file_exists
 # from Screens.InfoBar import MoviePlayer
 from PIL import Image, ImageChops, ImageFile
-from Screens.InfoBarGenerics import InfoBarMenu, InfoBarSeek
-from Screens.InfoBarGenerics import InfoBarAudioSelection, InfoBarNotifications
-from Screens.InfoBarGenerics import InfoBarSubtitleSupport
+from Screens.InfoBarGenerics import (
+    InfoBarMenu,
+    InfoBarSeek,
+    InfoBarAudioSelection,
+    InfoBarNotifications,
+    InfoBarSubtitleSupport,
+)
 from Screens.LocationBox import LocationBox
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 from Tools.Directories import SCOPE_PLUGINS, resolveFilename
 from Tools.Downloader import downloadWithProgress
-from enigma import RT_VALIGN_CENTER
-from enigma import RT_HALIGN_LEFT
-from enigma import eListboxPythonMultiContent
-from enigma import eTimer
-from enigma import ePicLoad
-from enigma import eServiceCenter
-from enigma import eServiceReference
-from enigma import loadPNG, gFont
-from enigma import iPlayableService
-from enigma import getDesktop
-from os.path import splitext
+from enigma import (
+    RT_VALIGN_CENTER,
+    RT_HALIGN_LEFT,
+    eListboxPythonMultiContent,
+    eTimer,
+    ePicLoad,
+    eServiceCenter,
+    eServiceReference,
+    loadPNG,
+    gFont,
+    iPlayableService,
+    getDesktop,
+)
+from os.path import splitext, exists as file_exists
 from time import sleep
 from twisted.web.client import downloadPage
-import requests
-
 from requests import get, exceptions
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError as httperror
 from twisted.internet.reactor import callInThread
-
+from datetime import datetime
+import codecs
+import json
 import os
 import re
+import requests
 import six
 import ssl
 import sys
-
 PY3 = False
 
 try:
@@ -82,13 +89,13 @@ try:
     from urllib.parse import urlparse
     from urllib.request import Request
     from urllib.request import urlopen
-    from urllib.error import URLError, HTTPError
+    from urllib.error import URLError
     PY3 = True
 except:
     from urllib import quote
     from urlparse import urlparse
     from urllib2 import Request
-    from urllib2 import urlopen, URLError, HTTPError
+    from urllib2 import urlopen, URLError
 
 if sys.version_info >= (2, 7, 9):
     try:
@@ -135,8 +142,8 @@ def downloadFilest(url, target):
                 output.write(response.read())
             print('response: ', response)
         return True
-    except HTTPError as e:
-        print('HTTP Error code: ', e.code)
+    except httperror:
+        print('HTTP Error code: ', httperror.code)
     except URLError as e:
         print('URL Error: ', e.reason)
 
@@ -145,7 +152,7 @@ def downloadFilest(url, target):
 global Path_Movies, defpic
 # ================
 sessions = []
-currversion = '1.3'
+currversion = '1.4'
 title_plug = 'Smart Tv Channels List'
 name_plug = '..:: Smart Tv Channels List  V.%s ::.. ' % currversion
 plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('stvcl'))
@@ -155,6 +162,8 @@ service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 
 defpic = os.path.join(plugin_path, 'res/pics/default.png')
 dblank = os.path.join(plugin_path, 'res/pics/blankL.png')
 scramble = 'aHR0cHM6Ly9pLm1qaC5uei8='
+installer_url = 'aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0JlbGZhZ29yMjAwNS9TLlQuVi5DLkwtL21haW4vaW5zdGFsbGVyLnNo'
+developer_url = 'aHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9CZWxmYWdvcjIwMDUvUy5ULlYuQy5MLQ=='
 Panel_list = [('S.T.V.C.L.')]
 modechoices = [("4097", _("ServiceMp3(4097)")),
                ("1", _("Hardware(1)"))]
@@ -254,12 +263,12 @@ class tvList(MenuList):
 
 def m3ulistEntry(download):
     res = [download]
-    white = 16777215
-    yellow = 16776960
-    green = 3828297
-    col = 16777215
-    backcol = 0
-    blue = 4282611429
+    # white = 16777215
+    # yellow = 16776960
+    # green = 3828297
+    # col = 16777215
+    # backcol = 0
+    # blue = 4282611429
     png = os.path.join(plugin_path, 'res/pics/setting2.png')
     if screenwidth.width() == 2560:
         res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(50, 50), png=loadPNG(png)))
@@ -336,7 +345,7 @@ class StvclMain(Screen):
         self['list'] = mainList([])
         self.icount = 0
         self['progress'] = ProgressBar()
-        self['progresstext'] = StaticText('')
+        self['progresstext'] = StaticText()
         self["progress"].hide()
         self.downloading = False
         self.setTitle(name_plug)
@@ -344,27 +353,96 @@ class StvclMain(Screen):
         self['Maintainer2'] = Label(Maintainer2)
         self['path'] = Label(_('Folder path %s' % str(Path_Movies)))
         self['key_red'] = Button(_('Exit'))
-        self['key_green'] = Button(_('Select'))
-        self['key_yellow'] = Button(_(''))
+        self['key_green'] = Button()
+        self['key_yellow'] = Button(_('Update'))
         self["key_blue"] = Button(_('Remove'))
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
+        self.Update = False
         self['actions'] = ActionMap(['OkCancelActions',
                                      'ColorActions',
-                                     'MenuActions',
-                                     'ButtonSetupActions',
-                                     'DirectionActions'], {'ok': self.okRun,
-                                                           'menu': self.scsetup,
-                                                           'red': self.exit,
-                                                           # 'green': self.messagereload,
-                                                           'info': self.exit,
-                                                           # 'yellow': self.messagedellist,
-                                                           'blue': self.msgdeleteBouquets,
-                                                           'back': self.exit,
-                                                           'cancel': self.exit}, -1)
-        # self.onFirstExecBegin.append(self.updateMenuList)
+                                     'DirectionActions',
+                                     'HotkeyActions',
+                                     'InfobarEPGActions',
+                                     'ChannelSelectBaseActions',
+                                     'MenuActions'], {'ok': self.okRun,
+                                                      'menu': self.scsetup,
+                                                      'back': self.exit,
+                                                      'cancel': self.exit,
+                                                      'yellow': self.update_me,  # update_me,
+                                                      'green': self.update_dev,
+                                                      'blue': self.msgdeleteBouquets,
+                                                      'yellow_long': self.update_dev,
+                                                      'info_long': self.update_dev,
+                                                      'infolong': self.update_dev,
+                                                      'showEventInfoPlugin': self.update_dev,
+                                                      'red': self.exit}, -1)
+        self.timer = eTimer()
+        if os.path.exists('/var/lib/dpkg/status'):
+            self.timer_conn = self.timer.timeout.connect(self.check_vers)
+        else:
+            self.timer.callback.append(self.check_vers)
+        self.timer.start(500, 1)
         self.onLayoutFinish.append(self.updateMenuList)
+
+    def check_vers(self):
+        remote_version = '0.0'
+        remote_changelog = ''
+        req = Utils.Request(Utils.b64decoder(installer_url), headers={'User-Agent': 'Mozilla/5.0'})
+        page = Utils.urlopen(req).read()
+        if PY3:
+            data = page.decode("utf-8")
+        else:
+            data = page.encode("utf-8")
+        if data:
+            lines = data.split("\n")
+            for line in lines:
+                if line.startswith("version"):
+                    remote_version = line.split("=")
+                    remote_version = line.split("'")[1]
+                if line.startswith("changelog"):
+                    remote_changelog = line.split("=")
+                    remote_changelog = line.split("'")[1]
+                    break
+        self.new_version = remote_version
+        self.new_changelog = remote_changelog
+        # if float(currversion) < float(remote_version):
+        if currversion < remote_version:
+            self.Update = True
+            self['key_yellow'].show()
+            # self['key_green'].show()
+            self.session.open(MessageBox, _('New version %s is available\n\nChangelog: %s\n\nPress info_long or yellow_long button to start force updating.') % (self.new_version, self.new_changelog), MessageBox.TYPE_INFO, timeout=5)
+        # self.update_me()
+
+    def update_me(self):
+        if self.Update is True:
+            self.session.openWithCallback(self.install_update, MessageBox, _("New version %s is available.\n\nChangelog: %s \n\nDo you want to install it now?") % (self.new_version, self.new_changelog), MessageBox.TYPE_YESNO)
+        else:
+            self.session.open(MessageBox, _("Congrats! You already have the latest version..."),  MessageBox.TYPE_INFO, timeout=4)
+
+    def update_dev(self):
+        try:
+            req = Utils.Request(Utils.b64decoder(developer_url), headers={'User-Agent': 'Mozilla/5.0'})
+            page = Utils.urlopen(req).read()
+            data = json.loads(page)
+            remote_date = data['pushed_at']
+            strp_remote_date = datetime.strptime(remote_date, '%Y-%m-%dT%H:%M:%SZ')
+            remote_date = strp_remote_date.strftime('%Y-%m-%d')
+            self.session.openWithCallback(self.install_update, MessageBox, _("Do you want to install update ( %s ) now?") % (remote_date), MessageBox.TYPE_YESNO)
+        except Exception as e:
+            print('error xcons:', e)
+
+    def install_update(self, answer=False):
+        if answer:
+            cmd1 = 'wget -q "--no-check-certificate" ' + Utils.b64decoder(installer_url) + ' -O - | /bin/sh'
+            self.session.open(xConsole, 'Upgrading...', cmdlist=[cmd1], finishedCallback=self.myCallback, closeOnSuccess=False)
+        else:
+            self.session.open(MessageBox, _("Update Aborted!"),  MessageBox.TYPE_INFO, timeout=3)
+
+    def myCallback(self, result=None):
+        print('result:', result)
+        return
 
     def updateMenuList(self):
         self.menu_list = []
@@ -486,7 +564,7 @@ class ListM3u1(Screen):
         self['Maintainer2'] = Label(Maintainer2)
         self['path'] = Label(_('Folder path %s' % str(Path_Movies)))
         self['progress'] = ProgressBar()
-        self['progresstext'] = StaticText('')
+        self['progresstext'] = StaticText()
         self["progress"].hide()
         self.downloading = False
         self.convert = False
@@ -494,8 +572,8 @@ class ListM3u1(Screen):
         self.name = namem3u
         self['key_red'] = Button(_('Back'))
         self['key_green'] = Button(_('Select'))
-        self['key_yellow'] = Button(_(''))
-        self["key_blue"] = Button(_(''))
+        self['key_yellow'] = Button()
+        self["key_blue"] = Button()
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
@@ -590,7 +668,7 @@ class ListM3u(Screen):
         self['Maintainer2'] = Label(Maintainer2)
         self['path'] = Label(_('Folder path %s' % str(Path_Movies)))
         self['progress'] = ProgressBar()
-        self['progresstext'] = StaticText('')
+        self['progresstext'] = StaticText()
         self["progress"].hide()
         self.downloading = False
         self.convert = False
@@ -598,8 +676,8 @@ class ListM3u(Screen):
         self.name = namem3u
         self['key_red'] = Button(_('Back'))
         self['key_green'] = Button(_('Select'))
-        self['key_yellow'] = Button(_(''))
-        self["key_blue"] = Button(_(''))
+        self['key_yellow'] = Button()
+        self["key_blue"] = Button()
         self["key_green"].hide()
         self["key_yellow"].hide()
         self["key_blue"].hide()
@@ -697,7 +775,7 @@ class ChannelList(Screen):
         self['path'] = Label(_('Folder path %s' % str(Path_Movies)))
         service = cfg.services.value
         self['service'] = Label(_('Service Reference used %s') % service)
-        self['live'] = Label('')
+        self['live'] = Label()
         self['poster'] = Pixmap()
         self['key_red'] = Button(_('Back'))
         self['key_green'] = Button(_('Convert ExtePlayer3'))
@@ -707,7 +785,7 @@ class ChannelList(Screen):
         self["key_yellow"].hide()
         self["key_blue"].hide()
         self['progress'] = ProgressBar()
-        self['progresstext'] = StaticText('')
+        self['progresstext'] = StaticText()
         self["progress"].hide()
         self.downloading = False
         self.pin = False
@@ -1549,8 +1627,8 @@ class AddIpvStream(Screen):
         # self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
         self['key_red'] = Button(_('Back'))
         self['key_green'] = Button(_('Ok'))
-        self['key_yellow'] = Button(_(''))
-        self["key_blue"] = Button(_(''))
+        self['key_yellow'] = Button()
+        self["key_blue"] = Button()
         self["key_yellow"].hide()
         self["key_blue"].hide()
         self['actions'] = ActionMap(['OkCancelActions',
@@ -1560,7 +1638,7 @@ class AddIpvStream(Screen):
                                                            'cancel': self.keyCancel,
                                                            'green': self.keyOk,
                                                            'red': self.keyCancel}, -2)
-        self['statusbar'] = Label('')
+        self['statusbar'] = Label()
         self.list = []
         self['list'] = MenuList([])
         self.mutableList = None
@@ -1673,11 +1751,11 @@ class OpenConfig(Screen, ConfigListScreen):
         self['key_red'] = Button(_('Back'))
         self['key_green'] = Button(_('Save'))
         self["key_blue"] = Button(_('Empty Pic Cache'))
-        self['key_yellow'] = Button(_(''))
+        self['key_yellow'] = Button()
         self['key_yellow'].hide()
         # self["key_blue"].hide()
         self['text'] = Label(info)
-        self["description"] = Label('')
+        self["description"] = Label()
         self['actions'] = ActionMap(["SetupActions",
                                      "ColorActions",
                                      'ButtonSetupActions',
@@ -1789,16 +1867,16 @@ class OpenConfig(Screen, ConfigListScreen):
     def openDirectoryBrowser(self, path):
         try:
             self.session.openWithCallback(
-             self.openDirectoryBrowserCB,
-             LocationBox,
-             windowTitle=_('Choose Directory:'),
-             text=_('Choose Directory'),
-             currDir=str(path),
-             bookmarks=config.movielist.videodirs,
-             autoAdd=False,
-             editDir=True,
-             inhibitDirs=['/bin', '/boot', '/dev', '/home', '/lib', '/proc', '/run', '/sbin', '/sys', '/var'],
-             minFree=15)
+                self.openDirectoryBrowserCB,
+                LocationBox,
+                windowTitle=_('Choose Directory:'),
+                text=_('Choose Directory'),
+                currDir=str(path),
+                bookmarks=config.movielist.videodirs,
+                autoAdd=False,
+                editDir=True,
+                inhibitDirs=['/bin', '/boot', '/dev', '/home', '/lib', '/proc', '/run', '/sbin', '/sys', '/var'],
+                minFree=15)
         except Exception as e:
             print('error: ', e)
 
@@ -1868,7 +1946,7 @@ def threadGetPage(url=None, file=None, key=None, success=None, fail=None, *args,
             success(response.content, file, key)
         else:
             success(response.content, file)
-    except HTTPError as httperror:
+    except httperror:
         print('[tivustream][threadGetPage] Http error: ', httperror)
         # fail(error)  # E0602 undefined name 'error'
     except exceptions.RequestException as error:
@@ -1913,11 +1991,6 @@ def getpics(names, pics, tmpfold, picfold):
             print("In getpics fileExists(picf) cmd =", cmd)
             os.system(cmd)
 
-        # test remove this
-        # if os.path.exists(tpicf):
-            # cmd = "rm " + tpicf
-            # os.system(cmd)
-
         if not os.path.exists(picf):
             if plugin_path in url:
                 try:
@@ -1933,9 +2006,6 @@ def getpics(names, pics, tmpfold, picfold):
                     url = url.replace("AxNxD", "&").replace("%0A", "")
                     poster = Utils.checkRedirect(url)
                     if poster:
-                        # if PY3:
-                            # poster = poster.encode()
-
                         if "|" in url:
                             n3 = url.find("|", 0)
                             n1 = url.find("Referer", n3)
@@ -1947,19 +2017,13 @@ def getpics(names, pics, tmpfold, picfold):
                                 f1.write(p)
                         else:
                             try:
-                                # print("Going in urlopen url =", url)
-                                # p = Utils.gettUrl(url)
-                                # with open(tpicf, 'wb') as f1:
-                                    # f1.write(p)
                                 try:
                                     with open(tpicf, 'wb') as f:
                                         f.write(requests.get(url, stream=True, allow_redirects=True).content)
                                     print('=============11111111=================\n')
                                 except Exception as e:
-                                    print("Error: Exception")
+                                    print("Error: Exception", e)
                                     print('===========2222222222=================\n')
-                                    # if PY3:
-                                        # poster = poster.encode()
                                     callInThread(threadGetPage, url=poster, file=tpicf, success=downloadPic, fail=downloadError)
 
                                     '''

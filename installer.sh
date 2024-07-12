@@ -2,7 +2,7 @@
 ##setup command=wget -q "--no-check-certificate" https://raw.githubusercontent.com/Belfagor2005/S.T.V.C.L-/main/installer.sh -O - | /bin/sh
 
 ######### Only This 2 lines to edit with new version ######
-version='4.5'
+version='1.4'
 changelog='\nAdd Locale Language\nFix Upgrade'
 ##############################################################
 
