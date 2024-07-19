@@ -165,6 +165,7 @@ scramble = 'aHR0cHM6Ly9pLm1qaC5uei8='
 installer_url = 'aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0JlbGZhZ29yMjAwNS9TLlQuVi5DLkwtL21haW4vaW5zdGFsbGVyLnNo'
 developer_url = 'aHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9CZWxmYWdvcjIwMDUvUy5ULlYuQy5MLQ=='
 Panel_list = [('S.T.V.C.L.')]
+
 modechoices = [("4097", _("ServiceMp3(4097)")),
                ("1", _("Hardware(1)"))]
 if os.path.exists("/usr/bin/gstplayer"):
@@ -256,7 +257,7 @@ class tvList(MenuList):
             textfont = int(30)
             self.l.setFont(0, gFont('Regular', textfont))
         else:
-            self.l.setItemHeight(50)
+            self.l.setItemHeight(45)
             textfont = int(24)
             self.l.setFont(0, gFont('Regular', textfont))
 
@@ -277,8 +278,8 @@ def m3ulistEntry(download):
         res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(40, 40), png=loadPNG(png)))
         res.append(MultiContentEntryText(pos=(70, 0), size=(1000, 50), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     else:
-        res.append(MultiContentEntryPixmapAlphaTest(pos=(3, 10), size=(40, 40), png=loadPNG(png)))
-        res.append(MultiContentEntryText(pos=(50, 0), size=(500, 50), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+        res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 0), size=(50, 40), png=loadPNG(png)))
+        res.append(MultiContentEntryText(pos=(65, 0), size=(500, 45), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     return res
 
 
@@ -383,7 +384,7 @@ class StvclMain(Screen):
             self.timer_conn = self.timer.timeout.connect(self.check_vers)
         else:
             self.timer.callback.append(self.check_vers)
-        self.timer.start(500, 1)
+        self.timer.start(200, True)
         self.onLayoutFinish.append(self.updateMenuList)
 
     def check_vers(self):
@@ -585,8 +586,14 @@ class ListM3u1(Screen):
         if not os.path.exists(Path_Movies):
             self.mbox = self.session.open(MessageBox, _('Check in your Config Plugin - Path Movie'), MessageBox.TYPE_INFO, timeout=5)
             self.scsetup()
-        self.onFirstExecBegin.append(self.openList)
-        sleep(3)
+        # self.onFirstExecBegin.append(self.openList)
+        # sleep(3)
+        self.timer = eTimer()
+        if os.path.exists('/var/lib/dpkg/status'):
+            self.timer_conn = self.timer.timeout.connect(self.openList)
+        else:
+            self.timer.callback.append(self.openList)
+        self.timer.start(200, True)
         # self.onLayoutFinish.append(self.openList2)
         self.onLayoutFinish.append(self.passing)
 
@@ -689,8 +696,14 @@ class ListM3u(Screen):
         if not os.path.exists(Path_Movies):
             self.mbox = self.session.open(MessageBox, _('Check in your Config Plugin - Path Movie'), MessageBox.TYPE_INFO, timeout=5)
             self.scsetup()
-        self.onFirstExecBegin.append(self.openList)
-        sleep(3)
+        # self.onFirstExecBegin.append(self.openList)
+        # sleep(3)
+        self.timer = eTimer()
+        if os.path.exists('/var/lib/dpkg/status'):
+            self.timer_conn = self.timer.timeout.connect(self.openList)
+        else:
+            self.timer.callback.append(self.openList)
+        self.timer.start(200, True)
         # self.onLayoutFinish.append(self.openList2)
         self.onLayoutFinish.append(self.passing)
 
@@ -823,9 +836,15 @@ class ChannelList(Screen):
                                                            'ShortRecord': self.runRec,
                                                            'ok': self.runChannel}, -2)
         self.currentList = 'list'
-        self.onLayoutFinish.append(self.downlist)
         # self.onFirstExecBegin.append(self.downlist)
         print('ChannelList sleep 4 - 1')
+        self.timer = eTimer()
+        if os.path.exists('/var/lib/dpkg/status'):
+            self.timer_conn = self.timer.timeout.connect(self.downlist)
+        else:
+            self.timer.callback.append(self.downlist)
+        self.timer.start(200, True)
+        # self.onLayoutFinish.append(self.downlist)
         self.onLayoutFinish.append(self.__layoutFinished)
 
     def __layoutFinished(self):

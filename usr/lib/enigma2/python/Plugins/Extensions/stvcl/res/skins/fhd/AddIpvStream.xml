@@ -9,7 +9,7 @@
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sep.png" position="220,130" size="1030,8" zPosition="5" />
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sep.png" position="220,910" size="1030,8" zPosition="5" />
 	<!-- Menu List -->
-	<widget name="list" position="220,155" size="1030,456" itemHeight="50" font="Regular;30" scrollbarMode="showOnDemand" transparent="1" zPosition="5" backgroundColor="#20000000" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColorSelected="#0b2049" selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/sliderb.png" />
+	<widget name="list" position="220,155" size="1030,456" scrollbarMode="showOnDemand" transparent="1" zPosition="5" backgroundColor="#20000000" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColorSelected="#0b2049" />
 	<!-- Colors -->
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_red.png" position="220,945" size="30,30" alphatest="on" zPosition="5" />
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_green.png" position="220,1005" size="30,30" alphatest="on" zPosition="5" />

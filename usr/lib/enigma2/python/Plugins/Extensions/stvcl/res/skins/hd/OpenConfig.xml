@@ -15,7 +15,7 @@
     <widget name="paypal" position="913,390" size="352,305" font="Regular;24" halign="center" foregroundColor="#ffffff" backgroundColor="#101010" transparent="1" zPosition="2"/>
     <eLabel position="904,58" size="373,639" backgroundColor="#80000000" cornerRadius="20" zPosition="1"/>
     <!-- Menu List -->
-    <widget name="config" position="146,103" size="686,304" font="Regular;20" itemHeight="50" scrollbarMode="showOnDemand" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049" selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/hd/sliderb.png"/>
+    <widget name="config" position="146,103" size="686,304" font="Regular;20" itemHeight="50" scrollbarMode="showOnDemand" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049"/>
     <!-- Colors 1220 -->
     <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_red.png" position="146,630" size="20,20" alphatest="on" zPosition="5"/>
     <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/stvcl/res/pics/key_green.png" position="146,670" size="20,20" alphatest="on" zPosition="5"/>
