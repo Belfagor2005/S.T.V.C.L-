@@ -68,12 +68,23 @@ def mainw(session, **kwargs):
         pass
 
 
-def cfgmain(menuid):
+# def cfgmain(menuid):
+    # if menuid == 'mainmenu':
+        # return [(title_plug,
+                 # mainw,
+                 # desc_plugin,
+                 # 44)]
+    # else:
+        # return []
+
+
+def cfgmain(menuid, **kwargs):
     if menuid == 'mainmenu':
+        from Tools.BoundFunction import boundFunction
         return [(title_plug,
-                 mainw,
+                 boundFunction(mainw, showExtentionMenuOption=True),
                  desc_plugin,
-                 44)]
+                 -1)]
     else:
         return []
 
