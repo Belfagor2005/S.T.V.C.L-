@@ -86,7 +86,7 @@ if [ $OSTYPE != "DreamOs" ]; then
 fi
 sleep 2
 
-wget --no-check-certificate --no-cache --no-dns-cache 'https://github.com/Belfagor2005/S.T.V.C.L-/archive/refs/heads/main.tar.gz'
+wget --no-check-certificate 'https://github.com/Belfagor2005/S.T.V.C.L-/archive/refs/heads/main.tar.gz'
 tar -xzf main.tar.gz
 cp -r 'stvcl--main/usr' '/'
 set +e
