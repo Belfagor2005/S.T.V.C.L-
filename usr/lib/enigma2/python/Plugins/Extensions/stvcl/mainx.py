@@ -222,7 +222,7 @@ else:
     skin_path = plugin_path + '/res/skins/hd/'
     defpic = plugin_path + '/res/pics/default.png'
 if os.path.exists('/var/lib/dpkg/status'):
-    skin_path = os.path.join(skin_path, 'dreamOs/')
+    skin_path = os.path.join(skin_path, 'dreamOs')
 
 
 # ================Gui list
@@ -1571,16 +1571,7 @@ class M3uPlay2(
                 self.servicetype = "4097"
         currentindex = 0
         streamtypelist = ["4097"]
-        # if "youtube" in str(self.url):
-            # self.mbox = self.session.open(MessageBox, _('For Stream Youtube coming soon!'), MessageBox.TYPE_INFO, timeout=5)
-            # return
-        # if Utils.isStreamlinkAvailable():
-            # streamtypelist.append("5002")  # ref = '5002:0:1:0:0:0:0:0:0:0:http%3a//127.0.0.1%3a8088/' + url
-            # streaml = True
-        # if os.path.exists("/usr/bin/gstplayer"):
-            # streamtypelist.append("5001")
-        # if os.path.exists("/usr/bin/exteplayer3"):
-            # streamtypelist.append("5002")
+
         if os.path.exists("/usr/bin/apt-get"):
             streamtypelist.append("8193")
         for index, item in enumerate(streamtypelist, start=0):
@@ -1952,11 +1943,9 @@ class OpenConfig(Screen, ConfigListScreen):
 def threadGetPage(url=None, file=None, key=None, success=None, fail=None, *args, **kwargs):
     print('[tivustream][threadGetPage] url, file, key, args, kwargs', url, "   ", file, "   ", key, "   ", args, "   ", kwargs)
     try:
-
         url = url.rstrip('\r\n')
         url = url.rstrip()
         url = url.replace("%0A", "")
-
         response = get(url, verify=False)
         response.raise_for_status()
         if file is None:
