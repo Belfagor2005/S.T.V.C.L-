@@ -362,7 +362,6 @@ class StvclMain(Screen):
         self["key_blue"].hide()
         self.Update = False
         self['actions'] = ActionMap(['OkCancelActions',
-                                     'ColorActions',
                                      'DirectionActions',
                                      'HotkeyActions',
                                      'InfobarEPGActions',
