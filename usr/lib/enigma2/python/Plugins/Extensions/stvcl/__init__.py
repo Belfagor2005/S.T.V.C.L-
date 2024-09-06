@@ -36,3 +36,7 @@ else:
             print(("[%s] fallback to default translation for %s" % (PluginLanguageDomain, txt)))
             return gettext.gettext(txt)
     language.addCallback(localeInit())
+
+scramble = 'aHR0cHM6Ly9pLm1qaC5uei8='
+installer_url = 'aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0JlbGZhZ29yMjAwNS9TLlQuVi5DLkwtL21haW4vaW5zdGFsbGVyLnNo'
+developer_url = 'aHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9CZWxmYWdvcjIwMDUvUy5ULlYuQy5MLQ=='

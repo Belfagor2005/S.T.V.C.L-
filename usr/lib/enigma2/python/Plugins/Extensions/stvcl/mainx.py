@@ -6,14 +6,15 @@ Info http://t.me/tivustream
 ****************************************
 *        coded by Lululla              *
 *                                      *
-*             02/07/2023               *
+*             02/09/2024               *
 ****************************************
 '''
 from __future__ import print_function
-from . import _, paypal
+from . import _, paypal, scramble, installer_url, developer_url
 from . import Utils
 from . import html_conv
 from .Console import Console as xConsole
+
 from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
 from Components.config import (
@@ -31,16 +32,14 @@ from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.MultiContent import (MultiContentEntryText, MultiContentEntryPixmapAlphaTest)
-from Components.Pixmap import Pixmap
+from Components.Pixmap import Pixmap, MovingPixmap
 from Components.PluginComponent import plugins
 from Components.ProgressBar import ProgressBar
 from Components.ServiceEventTracker import (ServiceEventTracker, InfoBarBase)
 from Components.ServiceList import ServiceList
 from Components.Sources.Progress import Progress
 from Components.Sources.StaticText import StaticText
-from Components.Pixmap import Pixmap, MovingPixmap
-# from Screens.InfoBar import MoviePlayer
-from PIL import Image, ImageChops, ImageFile
+from PIL import Image
 from Screens.InfoBarGenerics import (
     InfoBarMenu,
     InfoBarSeek,
@@ -85,17 +84,16 @@ import sys
 PY3 = False
 
 try:
-    from urllib.parse import quote
-    from urllib.parse import urlparse
-    from urllib.request import Request
-    from urllib.request import urlopen
+    from urllib.parse import quote, urlparse
+    from urllib.request import Request, urlopen
     from urllib.error import URLError
     PY3 = True
-except:
+    unicode = str
+except ImportError:
     from urllib import quote
     from urlparse import urlparse
-    from urllib2 import Request
-    from urllib2 import urlopen, URLError
+    from urllib2 import Request, urlopen, URLError
+
 
 if sys.version_info >= (2, 7, 9):
     try:
@@ -132,9 +130,12 @@ def ssl_urlopen(url):
 
 def downloadFilest(url, target):
     try:
+        if isinstance(url, bytes):
+            url = url.decode('utf-8')  # Decodifica se è una byte string
         req = Request(url)
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-        response = ssl_urlopen(req)
+        # response = ssl_urlopen(req)
+        response = urlopen(req, None, 15)
         with open(target, 'w') as output:
             if PY3:
                 output.write(response.read().decode('utf-8'))
@@ -146,6 +147,8 @@ def downloadFilest(url, target):
         print('HTTP Error code: ', httperror.code)
     except URLError as e:
         print('URL Error: ', e.reason)
+    except ValueError as ve:
+        print("Errore di valore:", ve)
 
 
 # ================
@@ -161,9 +164,6 @@ dir_enigma2 = '/etc/enigma2/'
 service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 31) || (type == 134) || (type == 195)'
 defpic = os.path.join(plugin_path, 'res/pics/default.png')
 dblank = os.path.join(plugin_path, 'res/pics/blankL.png')
-scramble = 'aHR0cHM6Ly9pLm1qaC5uei8='
-installer_url = 'aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0JlbGZhZ29yMjAwNS9TLlQuVi5DLkwtL21haW4vaW5zdGFsbGVyLnNo'
-developer_url = 'aHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9CZWxmYWdvcjIwMDUvUy5ULlYuQy5MLQ=='
 Panel_list = [('S.T.V.C.L.')]
 
 modechoices = [("4097", _("ServiceMp3(4097)")),
@@ -180,34 +180,38 @@ if os.path.exists("/usr/bin/apt-get"):
 config.plugins.stvcl = ConfigSubsection()
 cfg = config.plugins.stvcl
 cfg.pthm3uf = ConfigDirectory(default='/media/hdd/movie/')
+cfg.cachefold = ConfigDirectory('/media/hdd/', False)
+cfg.bouquettop = ConfigSelection(default='Bottom', choices=['Bottom', 'Top'])
+cfg.services = ConfigSelection(default='4097', choices=modechoices)
+cfg.filterx = ConfigYesNo(default=False)
+cfg.strtext = ConfigYesNo(default=True)
+cfg.strtmain = ConfigYesNo(default=True)
+cfg.thumb = ConfigYesNo(default=False)
+cfg.thumbpic = ConfigYesNo(default=False)
+
 try:
     from Components.UsageConfig import defaultMoviePath
     downloadpath = defaultMoviePath()
     cfg.pthm3uf = ConfigDirectory(default=downloadpath)
+    # cfg.cachefold = str(cfg.pthm3uf.value)
 except:
     if os.path.exists("/usr/bin/apt-get"):
         cfg.pthm3uf = ConfigDirectory(default='/media/hdd/movie/')
-cfg.bouquettop = ConfigSelection(default='Bottom', choices=['Bottom', 'Top'])
-cfg.services = ConfigSelection(default='4097', choices=modechoices)
-cfg.cachefold = ConfigDirectory(default='/media/hdd/')
-cfg.filter = ConfigYesNo(default=False)
-cfg.strtext = ConfigYesNo(default=True)
-cfg.strtmain = ConfigYesNo(default=True)
-cfg.thumb = ConfigYesNo(default=True)
-cfg.thumbpic = ConfigYesNo(default=False)
-tvstrvl = str(cfg.cachefold.value) + "stvcl"
-tmpfold = str(cfg.cachefold.value) + "stvcl/tmp"
-picfold = str(cfg.cachefold.value) + "stvcl/pic"
+        # cfg.cachefold = str(cfg.pthm3uf.value)
+
+
+# tvstrvl = str(cfg.cachefold.value).replace('movie', 'stvcl')
+tvstrvl = os.path.join(cfg.cachefold.value, "stvcl")
+tmpfold = os.path.join(tvstrvl, "tmp")
+picfold = os.path.join(tvstrvl, "pic")
 
 Path_Movies = str(cfg.pthm3uf.value)
-if not Path_Movies.endswith("/"):
-    Path_Movies = Path_Movies + '/'
-if not os.path.exists(tvstrvl):
-    os.system("mkdir " + tvstrvl)
-if not os.path.exists(tmpfold):
-    os.system("mkdir " + tmpfold)
-if not os.path.exists(picfold):
-    os.system("mkdir " + picfold)
+if not Path_Movies.endswith(os.path.sep):
+    Path_Movies += os.path.sep
+
+for folder in [tvstrvl, tmpfold, picfold]:
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
 
 screenwidth = getDesktop(0).size()
@@ -226,8 +230,6 @@ if os.path.exists('/var/lib/dpkg/status'):
 
 
 # ================Gui list
-
-
 class mainList(MenuList):
     def __init__(self, list):
         MenuList.__init__(self, list, False, eListboxPythonMultiContent)
@@ -264,22 +266,16 @@ class tvList(MenuList):
 
 def m3ulistEntry(download):
     res = [download]
-    # white = 16777215
-    # yellow = 16776960
-    # green = 3828297
-    # col = 16777215
-    # backcol = 0
-    # blue = 4282611429
     png = os.path.join(plugin_path, 'res/pics/setting2.png')
     if screenwidth.width() == 2560:
         res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(50, 50), png=loadPNG(png)))
-        res.append(MultiContentEntryText(pos=(90, 0), size=(1200, 50), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+        res.append(MultiContentEntryText(pos=(90, 0), size=(1200, 50), font=0, text=download, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     elif screenwidth.width() == 1920:
         res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(40, 40), png=loadPNG(png)))
-        res.append(MultiContentEntryText(pos=(70, 0), size=(1000, 50), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+        res.append(MultiContentEntryText(pos=(70, 0), size=(1000, 50), font=0, text=download, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     else:
         res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 0), size=(50, 40), png=loadPNG(png)))
-        res.append(MultiContentEntryText(pos=(65, 0), size=(500, 45), font=0, text=download, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+        res.append(MultiContentEntryText(pos=(65, 0), size=(500, 45), font=0, text=download, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     return res
 
 
@@ -300,23 +296,23 @@ def tvListEntry(name, png):
 
     if screenwidth.width() == 2560:
         res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(320, 450), png=loadPNG(png1)))
-        res.append(MultiContentEntryText(pos=(400, 5), size=(1200, 70), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+        res.append(MultiContentEntryText(pos=(400, 5), size=(1200, 70), font=0, text=name, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     elif screenwidth.width() == 1920:
         res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(250, 370), png=loadPNG(png1)))
-        res.append(MultiContentEntryText(pos=(280, 5), size=(1000, 70), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+        res.append(MultiContentEntryText(pos=(280, 5), size=(1000, 70), font=0, text=name, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     else:
         res.append(MultiContentEntryPixmapAlphaTest(pos=(3, 3), size=(165, 240), png=loadPNG(png2)))
-        res.append(MultiContentEntryText(pos=(175, 3), size=(500, 50), font=0, text=name, color=0xa6d1fe, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
+        res.append(MultiContentEntryText(pos=(175, 3), size=(500, 50), font=0, text=name, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER))
     return res
 
 
 def returnIMDB(text_clear):
     TMDB = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('TMDB'))
     IMDb = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('IMDb'))
+    text = html_conv.html_unescape(text_clear)
     if os.path.exists(TMDB):
         try:
             from Plugins.Extensions.TMBD.plugin import TMBD
-            text = html_conv.html_unescape(text_clear)
             _session.open(TMBD.tmdbScreen, text, 0)
         except Exception as e:
             print("[XCF] Tmdb: ", e)
@@ -324,13 +320,11 @@ def returnIMDB(text_clear):
     elif os.path.exists(IMDb):
         try:
             from Plugins.Extensions.IMDb.plugin import main as imdb
-            text = html_conv.html_unescape(text_clear)
             imdb(_session, text)
         except Exception as e:
             print("[XCF] imdb: ", e)
         return True
     else:
-        text_clear = html_conv.html_unescape(text_clear)
         _session.open(MessageBox, text_clear, MessageBox.TYPE_INFO)
         return True
     return False
@@ -487,7 +481,6 @@ class StvclMain(Screen):
                     elif 'bouquets.tv.bak' in fname:
                         # os.remove(os.path.join(dir_enigma2, fname))
                         Utils.purge(dir_enigma2, fname)
-
                 os.rename(os.path.join(dir_enigma2, 'bouquets.tv'), os.path.join(dir_enigma2, 'bouquets.tv.bak'))
                 tvfile = open(os.path.join(dir_enigma2, 'bouquets.tv'), 'w+')
                 bakfile = open(os.path.join(dir_enigma2, 'bouquets.tv.bak'))
@@ -521,25 +514,46 @@ class StvclMain(Screen):
     def downlist(self, sel, url):
         global in_tmp
         namem3u = str(sel)
-        urlm3u = Utils.checkStr(url.strip())
+        content = Utils.checkStr(url.strip())
         if PY3:
-            urlm3u.encode()
-        print('urlmm33uu ', urlm3u)
+            content.encode()
+
+        # content = url
+        # if PY3:
+            # content = content.encode('utf-8', errors='ignore')  # Assicura la codifica UTF-8 in Python 3
+        # else:
+            # if isinstance(content, unicode):  # Python 2 tratta unicode separatamente
+                # content = content.encode('utf-8', errors='ignore')
+
+        # if sys.version_info.major == 3:
+            # import urllib.request as urllib2
+        # elif sys.version_info.major == 2:
+            # import urllib2
+        # req = urllib2.Request(url)
+        # req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')
+        # r = urllib2.urlopen(req, None, 15)
+        # content = r.read()
+        # r.close()
+        # if str(type(content)).find('bytes') != -1:
+            # try:
+                # content = content.decode("utf-8")
+            # except Exception as e:
+                # print("Error: ", e)
+
+        print('urlmm33uu ', content)
         try:
-            fileTitle = re.sub(r'[\<\>\:\"\/\\\|\?\*\[\]]', '_', namem3u)
-            fileTitle = re.sub(r' ', '_', fileTitle)
-            fileTitle = re.sub(r'_+', '_', fileTitle)
-            fileTitle = fileTitle.replace("(", "_").replace(")", "_").replace("#", "").replace("+", "_").replace("\'", "_").replace("'", "_").replace("!", "_").replace("&", "_")
-            fileTitle = fileTitle.lower()  # + ext
-            in_tmp = str(Path_Movies) + str(fileTitle) + '.m3u'
+            fileTitle = re.sub(r'[<>:"/\\|?*\[\]]', '_', namem3u)  # Sostituisce i caratteri non permessi
+            fileTitle = re.sub(r'[\s\(\)#\'\+\!&]', '_', fileTitle)  # Sostituisce spazi e altri caratteri con underscore
+            fileTitle = re.sub(r'_+', '_', fileTitle)  # Rimuove underscore ripetuti
+            fileTitle = fileTitle.lower()  # Converte tutto in minuscolo
+            in_tmp = os.path.join(Path_Movies, fileTitle + '.m3u')
             if os.path.isfile(in_tmp):
                 os.remove(in_tmp)
-            print('in tmp', in_tmp)
-            downloadFilest(urlm3u, in_tmp)
-            sleep(3)
-            self.session.open(ListM3u1, namem3u, urlm3u)
+            downloadFilest(content, in_tmp)
+            sleep(3)  # Attende il completamento del download
+            self.session.open(ListM3u1, namem3u, content)
         except Exception as e:
-            print('error : ', e)
+            print('Errore: ', e)
 
     def scsetup(self):
         self.session.open(OpenConfig)
@@ -605,6 +619,17 @@ class ListM3u1(Screen):
     def openList(self):
         self.names = []
         self.urls = []
+
+        # self.req_session = requests.Session()
+        # self.req_session.hooks = {
+            # "response": lambda r, *args, **kwargs: r.raise_for_status()
+        # }
+        # self.req_session.headers.update(
+        # {
+            # "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0",
+        # })
+        # r = self.req_session.get(self.url)
+
         if sys.version_info.major == 3:
             import urllib.request as urllib2
         elif sys.version_info.major == 2:
@@ -612,35 +637,47 @@ class ListM3u1(Screen):
         req = urllib2.Request(self.url)
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')
         r = urllib2.urlopen(req, None, 15)
-        link = r.read()
+        content = r.read()
         r.close()
-        content = link
         if str(type(content)).find('bytes') != -1:
             try:
                 content = content.decode("utf-8")
             except Exception as e:
                 print("Error: ", e)
-
-        # content = ReadUrl(self.url)
-        # if six.PY3:
-            # content = six.ensure_str(content)
-        print('content: ', content)
         try:
+            # items = []
+            self.names.append('Adelaide')
+            self.urls.append('https://i.mjh.nz/au/Adelaide/')
+            self.names.append('Brisbane')
+            self.urls.append('https://i.mjh.nz/au/Brisbane')
+            self.names.append('Canberra')
+            self.urls.append('https://i.mjh.nz/au/Canberra')
+            self.names.append('Darwin')
+            self.urls.append('https://i.mjh.nz/au/Darwin')
+            self.names.append('Hobart')
+            self.urls.append('https://i.mjh.nz/au/Hobart')
+            self.names.append('Melbourne')
+            self.urls.append('https://i.mjh.nz/au/Melbourne')
+            self.names.append('Perth')
+            self.urls.append('https://i.mjh.nz/au/Perth')
+            self.names.append('Sydney')
+            self.urls.append('https://i.mjh.nz/au/Sydney')
+            self.names.append('Au All')
+            self.urls.append('https://i.mjh.nz/au/all')
+
             regexvideo = '<a href="(.*?)">'
             match = re.compile(regexvideo, re.DOTALL).findall(content)
-            print('ListM3u match = ', match)
-            # items = []
             for url in match:
                 if '..' in url:
                     continue
                 if 'DONATE' in url:
                     continue
+                if 'SUPPORT' in url:
+                    continue
                 name = url.replace('/', '')
                 url = self.url + url  # + '/'
-                print('ListM3u url-name Items sort: ', url)
                 self.urls.append(Utils.checkStr(url.strip()))
                 self.names.append(Utils.checkStr(name.strip()))
-
             m3ulist(self.names, self['list'])
             self["key_green"].show()
         except Exception as e:
@@ -695,15 +732,13 @@ class ListM3u(Screen):
         if not os.path.exists(Path_Movies):
             self.mbox = self.session.open(MessageBox, _('Check in your Config Plugin - Path Movie'), MessageBox.TYPE_INFO, timeout=5)
             self.scsetup()
-        # self.onFirstExecBegin.append(self.openList)
-        # sleep(3)
+
         self.timer = eTimer()
         if os.path.exists('/var/lib/dpkg/status'):
             self.timer_conn = self.timer.timeout.connect(self.openList)
         else:
             self.timer.callback.append(self.openList)
         self.timer.start(200, True)
-        # self.onLayoutFinish.append(self.openList2)
         self.onLayoutFinish.append(self.passing)
 
     def passing(self):
@@ -730,13 +765,9 @@ class ListM3u(Screen):
                     content = content.decode("utf-8")
                 except Exception as e:
                     print("Error: ", e)
-            # content = ReadUrl(self.url)
-            # if six.PY3:
-                # content = six.ensure_str(content)
-            print('content: ', content)
+
             regexvideo = '<a href="(.*?)">.*?</a>.*?-(.*?)-(.*?) '
             match = re.compile(regexvideo, re.DOTALL).findall(content)
-            print('ListM3u match = ', match)
             items = []
             for url, mm, aa in match:
                 if '.m3u8' in url:
@@ -744,7 +775,6 @@ class ListM3u(Screen):
                     name = name + ' ' + mm + '-' + aa
                     url = self.url + url
                     item = name + "###" + url + '\n'
-                    print('ListM3u url-name Items sort: ', item)
                     items.append(item)
             items.sort()
             for item in items:
@@ -778,8 +808,6 @@ class ChannelList(Screen):
         with codecs.open(skin, "r", encoding="utf-8") as f:
             self.skin = f.read()
         self.list = []
-        # self.picload = ePicLoad()
-        # self.scale = AVSwitch().getFramebufferScale()
         self['list'] = tvList([])
         self.setTitle(title_plug + ' ' + name)
         self['title'] = Label(title_plug + ' ' + name)
@@ -801,7 +829,6 @@ class ChannelList(Screen):
         self["progress"].hide()
         self.downloading = False
         self.pin = False
-        global search_ok
         global in_tmp
         global search_ok
         self.servicx = 'gst'
@@ -835,7 +862,6 @@ class ChannelList(Screen):
                                                            'ShortRecord': self.runRec,
                                                            'ok': self.runChannel}, -2)
         self.currentList = 'list'
-        # self.onFirstExecBegin.append(self.downlist)
         print('ChannelList sleep 4 - 1')
         self.timer = eTimer()
         if os.path.exists('/var/lib/dpkg/status'):
@@ -843,7 +869,6 @@ class ChannelList(Screen):
         else:
             self.timer.callback.append(self.downlist)
         self.timer.start(200, True)
-        # self.onLayoutFinish.append(self.downlist)
         self.onLayoutFinish.append(self.__layoutFinished)
 
     def __layoutFinished(self):
@@ -879,7 +904,6 @@ class ChannelList(Screen):
             try:
                 sleep(3)
                 if os.path.isfile(in_tmp) and os.stat(in_tmp).st_size > 0:
-                    print('ChannelList is_tmp exist in playlist')
                     bqtname = 'userbouquet.stvcl_%s.tv' % namebouquett.lower()
                     desk_tmp = ''
                     in_bouquets = 0
@@ -936,6 +960,7 @@ class ChannelList(Screen):
             text=self.search)
 
     def filterM3u(self, result):
+        global search_ok
         if result:
             self.names = []
             self.urls = []
@@ -949,7 +974,6 @@ class ChannelList(Screen):
                 match = re.compile(regexcat, re.DOTALL).findall(fpage)
                 for name, url in match:
                     if str(search).lower() in name.lower():
-                        global search_ok
                         search_ok = True
                         url = url.replace(" ", "").replace("\\n", "")
                         self.names.append(name)
@@ -996,19 +1020,17 @@ class ChannelList(Screen):
         if result:
             global in_tmp
             try:
-                if self.downloading is True:
+                if self.downloading:
                     idx = self["list"].getSelectionIndex()
                     namem3u = self.names[idx]
                     urlm3u = self.urls[idx]
                     path = urlparse(urlm3u).path
                     ext = splitext(path)[1]
-                    fileTitle = re.sub(r'[\<\>\:\"\/\\\|\?\*\[\]]', '_', namem3u)
-                    fileTitle = re.sub(r' ', '_', fileTitle)
-                    fileTitle = re.sub(r'_+', '_', fileTitle)
-                    fileTitle = fileTitle.replace("(", "_").replace(")", "_").replace("#", "").replace("+", "_")
-                    fileTitle = fileTitle.replace("\'", "_").replace("'", "_").replace("!", "_").replace("&", "_")
-                    fileTitle = fileTitle.lower() + ext
-                    in_tmp = Path_Movies + fileTitle
+                    fileTitle = re.sub(r'[<>:"/\\|?*\[\]]', '_', namem3u)  # Sostituisce i caratteri non permessi
+                    fileTitle = re.sub(r'[\s\(\)#\'\+\!&]', '_', fileTitle)  # Sostituisce spazi e altri caratteri con underscore
+                    fileTitle = re.sub(r'_+', '_', fileTitle)  # Rimuove underscore ripetuti
+                    fileTitle = fileTitle.lower() + ext  # Aggiunge l'estensione al nome del file
+                    in_tmp = os.path.join(Path_Movies, fileTitle)
                     if os.path.isfile(in_tmp):
                         os.remove(in_tmp)
                     self.download = downloadWithProgress(urlm3u, in_tmp)
@@ -1017,10 +1039,9 @@ class ChannelList(Screen):
                 else:
                     self.downloading = False
                     self.session.open(MessageBox, _('Download Failed!!!'), MessageBox.TYPE_INFO, timeout=5)
-                    pass
-                return
             except Exception as e:
-                print('error m3u', e)
+                print('Errore m3u:', e)
+        return
 
     def downloadProgress(self, recvbytes, totalbytes):
         self["progress"].show()
@@ -1049,29 +1070,31 @@ class ChannelList(Screen):
         urlm3u = self.url
         if PY3:
             urlm3u = six.ensure_str(urlm3u)
+        else:
+            if isinstance(urlm3u, unicode):
+                urlm3u = urlm3u.encode('utf-8')
         print('urlmm33uu ', urlm3u)
         try:
-            fileTitle = re.sub(r'[\<\>\:\"\/\\\|\?\*\[\]]', '_', namem3u)
-            fileTitle = re.sub(r' ', '_', fileTitle)
-            fileTitle = re.sub(r'_+', '_', fileTitle)
-            fileTitle = fileTitle.replace("(", "_").replace(")", "_").replace("#", "").replace("+", "_").replace("\'", "_").replace("'", "_").replace("!", "_").replace("&", "_")
-            fileTitle = fileTitle.lower()
-            in_tmp = Path_Movies + fileTitle + '.m3u'
+            fileTitle = re.sub(r'[<>:"/\\|?*\[\]]', '_', namem3u)  # Sostituisce i caratteri non permessi
+            fileTitle = re.sub(r'[\s\(\)#\'\+\!&]', '_', fileTitle)  # Sostituisce spazi e altri caratteri con underscore
+            fileTitle = re.sub(r'_+', '_', fileTitle)  # Rimuove underscore ripetuti
+            fileTitle = fileTitle.lower()  # Converte tutto in minuscolo
+            in_tmp = os.path.join(Path_Movies, fileTitle + '.m3u')
+            # Rimozione del file se esiste già
             if os.path.isfile(in_tmp):
                 os.remove(in_tmp)
-            print('path tmp : ', in_tmp)
             if PY3:
-                urlm3u.encode()
-            print('url m3u : ', urlm3u)
+                urlm3u = urlm3u.encode('utf-8')  # Codifica UTF-8 in Python 3
             downloadFilest(urlm3u, in_tmp)
-            sleep(3)
+            sleep(3)  # Attende il completamento del download
             self.playList()
+            # Codice opzionale per il download con progresso (commentato)
             # self.download = downloadWithProgress(urlm3u, in_tmp)
             # self.download.addProgress(self.downloadProgress)
             # self.download.start().addCallback(self.check).addErrback(self.showError)
-            print('ChannelList Downlist sleep 3 - 2')        # return
+            print('ChannelList Downlist sleep 3 - 2')
         except Exception as e:
-            print('error: ', e)
+            print('Errore: ', e)
             # self.mbox = self.session.open(MessageBox, _('DOWNLOAD ERROR'), MessageBox.TYPE_INFO, timeout=5)
         return
 
@@ -1082,7 +1105,6 @@ class ChannelList(Screen):
         self.urls = []
         self.pics = []
         items = []
-        # pic = resolveFilename(SCOPE_PLUGINS, "Extensions/stvcl/res/pics/{}".format('default.png'))
         pic = plugin_path + "/res/pics/default.png"
         try:
             if os.path.isfile(in_tmp) and os.stat(in_tmp).st_size > 0:
@@ -1090,9 +1112,7 @@ class ChannelList(Screen):
                 f1 = open(in_tmp, 'r+')
                 fpage = f1.read()
                 # fpage.seek(0)
-                # if "#EXTM3U" and 'tvg-logo' in fpage:
                 if 'tvg-logo="http' in fpage:
-                    print('tvg-logo in fpage: True')
                     # #EXTINF:-1 tvg-id="externallinearfeed-04-21-2020-213519853-04-21-2020" tvg-logo="https://3gz8cg829c.execute-api.us-west-2.amazonaws.com/prod/image-renderer/16x9/full/600/center/90/5086119a-3424-4a9d-afc9-07cdcd962d4b-large16x9_STIRR_0721_EPG_MavTV_1920x1080.png?1625778769447?cb=c4ca4238a0b923820dcc509a6f75849b",MavTv
                     regexcat = 'EXTINF.*?tvg-logo="(.*?)".*?,(.*?)\\n(.*?)\\n'
                     match = re.compile(regexcat, re.DOTALL).findall(fpage)
@@ -1101,18 +1121,16 @@ class ChannelList(Screen):
                             url = url.replace(' ', '%20')
                             url = url.replace('\\n', '')
                             url = url.replace('%0A', '')
-                            if 'samsung' in self.url.lower() or cfg.filter.value is True:
+                            if 'samsung' in self.url.lower() or cfg.filterx.value is True:
                                 regexcat = '(.*?).m3u8'
                                 match = re.compile(regexcat, re.DOTALL).findall(url)
                                 for url in match:
                                     url = url + '.m3u8'
-                            # if pic.startswith('http'):
                             if pic.endswith('.png') or pic.endswith('.jpg'):
                                 pic = pic
                             else:
                                 pic = pic + '.png'
                             item = name + "###" + url + "###" + pic  # + '\n'
-                            print('url-name Items sort: ', item)
                             items.append(item)
                     items.sort()
                     for item in items:
@@ -1131,14 +1149,13 @@ class ChannelList(Screen):
                             url = url.replace(' ', '%20')
                             url = url.replace('\\n', '')
                             url = url.replace('%0A', '')
-                            if 'samsung' in self.url.lower() or cfg.filter.value is True:
+                            if 'samsung' in self.url.lower() or cfg.filterx.value is True:
                                 regexcat = '(.*?).m3u8'
                                 match = re.compile(regexcat, re.DOTALL).findall(url)
                                 for url in match:
                                     url = url + '.m3u8'
                             pic = pic
                             item = name + "###" + url + "###" + pic  # + '\n'
-                            print('url-name Items sort: ', item)
                             items.append(item)
                     items.sort()
                     for item in items:
@@ -1165,11 +1182,9 @@ class ChannelList(Screen):
                 self["live"].setText('N.' + str(len(self.names)) + " Stream")
             # if cfg.thumb.value is False:
                 self.load_poster()
-
                 self["key_green"].show()
                 self["key_yellow"].show()
                 self["key_blue"].show()
-
         except Exception as e:
             print('error: ', e)
 
@@ -1221,7 +1236,6 @@ class ChannelList(Screen):
             name = self.names[idx]
             url = self.urls[idx]
             url = url.replace(':', '%3a')
-            print('In revolution url =', url)
             ref = '5002:0:1:0:0:0:0:0:0:0:' + 'http%3a//127.0.0.1%3a8088/' + str(url)
             sref = eServiceReference(ref)
             print('SREF: ', sref)
@@ -1616,7 +1630,6 @@ class M3uPlay2(
                 self.setAspect(self.init_aspect)
             except:
                 pass
-        streaml = False
         self.close()
 
     def leavePlayer(self):
@@ -1789,7 +1802,7 @@ class OpenConfig(Screen, ConfigListScreen):
         self.setTitle(self.setup_title)
 
     def cachedel(self):
-        fold = cfg.cachefold.value + "stvcl"
+        fold = tvstrvl  # cfg.cachefold.value + "stvcl"
         cmd = "rm -rf " + tvstrvl + "/*"
         if os.path.exists(fold):
             os.system(cmd)
@@ -1801,7 +1814,7 @@ class OpenConfig(Screen, ConfigListScreen):
         self.list.append(getConfigListEntry(_('IPTV bouquets location '), cfg.bouquettop, _("Configure position of the bouquets of the converted lists")))
         self.list.append(getConfigListEntry(_('Player folder List <.m3u>:'), cfg.pthm3uf, _("Folder path containing the .m3u files")))
         self.list.append(getConfigListEntry(_('Services Player Reference type'), cfg.services, _("Configure Service Player Reference")))
-        self.list.append(getConfigListEntry(_('Filter M3U link regex type'), cfg.filter, _("Set On for line link m3u full")))
+        self.list.append(getConfigListEntry(_('Filter M3U link regex type'), cfg.filterx, _("Set On for line link m3u full")))
         self.list.append(getConfigListEntry(_('Show thumpics?'), cfg.thumb,  _("Show Thumbpics ? Enigma restart required")))
         if cfg.thumb.value is True:
             self.list.append(getConfigListEntry(_('Download thumpics?'), cfg.thumbpic, _("Download thumpics in Player M3U (is very Slow)?")))
@@ -1894,6 +1907,7 @@ class OpenConfig(Screen, ConfigListScreen):
             if self.setting == 'pthm3uf':
                 cfg.pthm3uf.setValue(path)
             elif self.setting == 'cachefold':
+                path = os.path.join(path, 'stvcl')
                 cfg.cachefold.setValue(path)
         return
 
@@ -2143,6 +2157,7 @@ def savePoster(dwn_poster, url_poster):
 
 class GridMain(Screen):
     def __init__(self, session, names, urls, pics=[]):
+        from Components.Sources.List import List
         Screen.__init__(self, session)
         self.session = session
         global _session
@@ -2153,66 +2168,60 @@ class GridMain(Screen):
         self['title'] = Label('..:: S.T.V.C.L. ::..')
         self.pos = []
 
-        if screenwidth.width() == 2560:
-            self.pos.append([180, 80])
-            self.pos.append([658, 80])
-            self.pos.append([1134, 80])
-            self.pos.append([1610, 80])
-            self.pos.append([2084, 80])
-            self.pos.append([180, 720])
-            self.pos.append([658, 720])
-            self.pos.append([1134, 720])
-            self.pos.append([1610, 720])
-            self.pos.append([2084, 720])
+        def add_positions(coords):
+            for coord in coords:
+                self.pos.append(coord)
 
-        elif screenwidth.width() == 1920:
-            self.pos.append([122, 42])
-            self.pos.append([478, 42])
-            self.pos.append([834, 42])
-            self.pos.append([1190, 42])
-            self.pos.append([1546, 42])
-            self.pos.append([122, 522])
-            self.pos.append([478, 522])
-            self.pos.append([834, 522])
-            self.pos.append([1190, 522])
-            self.pos.append([1546, 522])
+        if screenwidth.width == 2560:
+            positions = [
+                [180, 80], [658, 80], [1134, 80], [1610, 80], [2084, 80],
+                [180, 720], [658, 720], [1134, 720], [1610, 720], [2084, 720]
+            ]
+            add_positions(positions)
+
+        elif screenwidth.width == 1920:
+            positions = [
+                [122, 42], [478, 42], [834, 42], [1190, 42], [1546, 42],
+                [122, 522], [478, 522], [834, 522], [1190, 522], [1546, 522]
+            ]
+            add_positions(positions)
+
         else:
-            self.pos.append([81, 28])
-            self.pos.append([319, 28])
-            self.pos.append([556, 28])
-            self.pos.append([793, 28])
-            self.pos.append([1031, 28])
-            self.pos.append([81, 348])
-            self.pos.append([319, 348])
-            self.pos.append([556, 348])
-            self.pos.append([793, 348])
-            self.pos.append([1031, 348])
-        tmpfold = os.path.join(str(cfg.cachefold.value), "stvcl/tmp")
-        picfold = os.path.join(str(cfg.cachefold.value), "stvcl/pic")
+            positions = [
+                [81, 28], [319, 28], [556, 28], [793, 28], [1031, 28],
+                [81, 348], [319, 348], [556, 348], [793, 348], [1031, 348]
+            ]
+            add_positions(positions)
+
+        tmpfold = tvstrvl + "/tmp"  # os.path.join(str(cfg.cachefold.value), "stvcl/tmp")
+        picfold = tvstrvl + " /pic"  # os.path.join(str(cfg.cachefold.value), "stvcl/pic")
         picx = getpics(names, pics, tmpfold, picfold)
-        print("In Gridmain pics = ", pics)
+        # print("In Gridmain pics = ", pics)
         self.urls = urls
         self.pics = picx
         self.name = "stvcl"
         self.names = names
         self["info"] = Label()
-        list = []
-        list = names
-        from Components.Sources.List import List
-        self["menu"] = List(list)
-        for x in list:
+        menu_list = []
+        menu_list = names
+        for x in menu_list:
             print("x in list =", x)
+
+        self["menu"] = List(menu_list)
         self["frame"] = MovingPixmap()
+
+        self.PIXMAPS_PER_PAGE = 10
         i = 0
-        while i < 20:
+        while i < self.PIXMAPS_PER_PAGE:
             self["label" + str(i + 1)] = StaticText()
             self["pixmap" + str(i + 1)] = Pixmap()
             i += 1
+        self.npics = len(self.names)
+        self.npage = int(float(self.npics // self.PIXMAPS_PER_PAGE)) + 1
         self.index = 0
+        self.maxentry = len(menu_list) - 1
         self.ipage = 1
-        ln = len(self.names)
-        self.npage = int(float(ln / 10)) + 1
-        print("self.npage =", self.npage)
+
         self["actions"] = ActionMap(["OkCancelActions", "EPGSelectActions", "MenuActions", 'ButtonSetupActions', "DirectionActions", "NumberActions"], {
             "ok": self.okClicked,
             "cancel": self.cancel,
@@ -2225,6 +2234,125 @@ class GridMain(Screen):
         self.onLayoutFinish.append(self.openTest)
         # self.onShown.append(self.openTest)
 
+    def paintFrame(self):
+        try:
+            # If the index exceeds the maximum number of items, it returns to the first item
+            if self.index > self.maxentry:
+                self.index = self.minentry
+            self.idx = self.index
+            name = self.names[self.idx]
+            self['info'].setText(str(name))
+            ifr = self.index - (self.PIXMAPS_PER_PAGE * (self.ipage - 1))
+            ipos = self.pos[ifr]
+            self["frame"].moveTo(ipos[0], ipos[1], 1)
+            self["frame"].startMoving()
+        except Exception as e:
+            print('Error in paintFrame: ', e)
+
+    def openTest(self):
+        if self.ipage < self.npage:
+            self.maxentry = (self.PIXMAPS_PER_PAGE * self.ipage) - 1
+            self.minentry = (self.ipage - 1) * self.PIXMAPS_PER_PAGE
+
+        elif self.ipage == self.npage:
+            self.maxentry = len(self.pics) - 1
+            self.minentry = (self.ipage - 1) * self.PIXMAPS_PER_PAGE
+            i1 = 0
+            while i1 < self.PIXMAPS_PER_PAGE:
+                self["label" + str(i1 + 1)].setText(" ")
+                self["pixmap" + str(i1 + 1)].instance.setPixmapFromFile(dblank)
+                i1 += 1
+        self.npics = len(self.pics)
+        i = 0
+        i1 = 0
+        self.picnum = 0
+        ln = self.maxentry - (self.minentry - 1)
+        while i < ln:
+            idx = self.minentry + i
+            # self["label" + str(i + 1)].setText(self.names[idx])  # this show label to bottom of png pixmap
+            pic = self.pics[idx]
+            if not os.path.exists(self.pics[idx]):
+                pic = dblank
+            self["pixmap" + str(i + 1)].instance.setPixmapFromFile(pic)
+            i += 1
+        self.index = self.minentry
+        self.paintFrame()
+
+    def key_left(self):
+        # Decrement the index only if we are not at the first pixmap
+        if self.index >= 0:
+            self.index -= 1
+        else:
+            # If we are at the first pixmap, go back to the last pixmap of the last page
+            self.ipage = self.npage
+            self.index = self.npics - 1
+        # Check if we need to change pages
+        if self.index < self.minentry:
+            self.ipage -= 1
+            if self.ipage < 1:  # If we go beyond the first page
+                self.ipage = self.npage
+                self.index = self.npics - 1  # Back to the last pixmap of the last page
+            self.openTest()
+        else:
+            self.paintFrame()
+
+    def key_right(self):
+        # Increment the index only if we are not at the last pixmap
+        if self.index < self.npics - 1:
+            self.index += 1
+        else:
+            # If we are at the last pixmap, go back to the first pixmap of the first page
+            self.index = 0
+            self.ipage = 1
+            self.openTest()
+        # Check if we need to change pages
+        if self.index > self.maxentry:
+            self.ipage += 1
+            if self.ipage > self.npage:  # If we exceed the number of pages
+                self.index = 0
+                self.ipage = 1  # Back to first page
+            self.openTest()
+        else:
+            self.paintFrame()
+
+    def key_up(self):
+        if self.index >= 5:
+            self.index -= 5
+        else:
+            if self.ipage > 1:
+                self.ipage -= 1
+                self.index = self.maxentry  # Back to the last line of the previous page
+                self.openTest()
+            else:
+                # If we are on the first page, go back to the last pixmap of the last page
+                self.ipage = self.npage
+                self.index = self.npics - 1
+                self.openTest()
+        self.paintFrame()
+
+    def key_down(self):
+        if self.index <= self.maxentry - 5:
+            self.index += 5
+        else:
+            if self.ipage < self.npage:
+                self.ipage += 1
+                self.index = self.minentry  # Back to the top of the next page
+                self.openTest()
+            else:
+                # If we are on the last page, go back to the first pixmap of the first page
+                self.index = 0
+                self.ipage = 1
+                self.openTest()
+
+        self.paintFrame()
+
+    def okClicked(self):
+        itype = self.index
+        url = self.urls[itype]
+        name = self.names[itype]
+        self.session.open(M3uPlay2, name, url)
+        return
+
     def cancel(self):
         self.close()
 
@@ -2233,7 +2361,6 @@ class GridMain(Screen):
 
     def info(self):
         itype = self.index
-
         self.inf = self.names[itype]
         # self.inf = ''
         try:
@@ -2248,133 +2375,3 @@ class GridMain(Screen):
                 self["info"].setText('')
                 # print('except info')
         print("In GridMain infos =", self.inf)
-
-    def paintFrame(self):
-        # print("In paintFrame self.index, self.minentry, self.maxentry =", self.index, self.minentry, self.maxentry)
-        # print("In paintFrame self.ipage = ", self.ipage)
-        try:
-            ifr = self.index - (10 * (self.ipage - 1))
-            # print("ifr =", ifr)
-            ipos = self.pos[ifr]
-            # print("ipos =", ipos)
-            self["frame"].moveTo(ipos[0], ipos[1], 1)
-            self["frame"].startMoving()
-            self.info()
-        except Exception as e:
-            print('error  in paintframe: ', e)
-
-    def openTest(self):
-        print("self.index, openTest self.ipage, self.npage =", self.index, self.ipage, self.npage)
-        if self.ipage < self.npage:
-            self.maxentry = (10 * self.ipage) - 1
-            self.minentry = (self.ipage - 1) * 10
-            print("self.ipage , self.minentry, self.maxentry =", self.ipage, self.minentry, self.maxentry)
-        elif self.ipage == self.npage:
-            print("self.ipage , len(self.pics) =", self.ipage, len(self.pics))
-            self.maxentry = len(self.pics) - 1
-            self.minentry = (self.ipage - 1) * 10
-            print("self.ipage , self.minentry, self.maxentry B=", self.ipage, self.minentry, self.maxentry)
-            i1 = 0
-            blpic = dblank
-            while i1 < 12:
-                self["label" + str(i1 + 1)].setText(" ")
-                self["pixmap" + str(i1 + 1)].instance.setPixmapFromFile(blpic)
-                i1 += 1
-        print("len(self.pics), self.minentry, self.maxentry =", len(self.pics), self.minentry, self.maxentry)
-        self.npics = len(self.pics)
-        i = 0
-        i1 = 0
-        self.picnum = 0
-        ln = self.maxentry - (self.minentry - 1)
-        while i < ln:
-            idx = self.minentry + i
-            self["label" + str(i + 1)].setText(self.names[idx])
-            pic = self.pics[idx]
-            if os.path.exists(pic):
-                print("pic path exists")
-            else:
-                print("pic path not exists")
-            picd = defpic
-
-            file_name, file_extension = os.path.splitext(pic)
-
-            if file_extension != ".png":
-                pic = str(file_name) + ".png"
-
-            if self["pixmap" + str(i + 1)].instance:
-                try:
-                    self["pixmap" + str(i + 1)].instance.setPixmapFromFile(pic)  # ok
-                except Exception as e:
-                    print(e)
-                    self["pixmap" + str(i + 1)].instance.setPixmapFromFile(picd)
-            i += 1
-        self.index = self.minentry
-        # print("self.minentry, self.index =", self.minentry, self.index)
-        self.paintFrame()
-
-    def key_left(self):
-        self.index -= 1
-        if self.index < 0:
-            self.index = self.maxentry
-            self.key_up()
-        else:
-            self.paintFrame()
-
-    def key_right(self):
-        i = self.npics - 1
-        if self.index == i:
-            self.index = 0
-            self.ipage = 1
-            self.openTest()
-        self.index += 1
-        if self.index > self.maxentry:
-            self.index = 0
-            self.key_down()
-        else:
-            self.paintFrame()
-
-    def key_up(self):
-        # print("keyup self.index, self.minentry = ", self.index, self.minentry)
-        self.index = self.index - 5
-        # print("keyup self.index, self.minentry 2 = ", self.index, self.minentry)
-        # print("keyup self.ipage = ", self.ipage)
-        if self.index < (self.minentry):
-            if self.ipage > 1:
-                self.ipage = self.ipage - 1
-                self.openTest()
-            elif self.ipage == 1:
-                return
-            else:
-                self.index = 0
-            self.paintFrame()
-        else:
-            self.paintFrame()
-
-    def key_down(self):
-        # print("keydown self.index, self.maxentry = ", self.index, self.maxentry)
-        self.index = self.index + 5
-        # print("keydown self.index, self.maxentry 2= ", self.index, self.maxentry)
-        # print("keydown self.ipage = ", self.ipage)
-        if self.index > (self.maxentry):
-            if self.ipage < self.npage:
-                self.ipage = self.ipage + 1
-                self.openTest()
-
-            elif self.ipage == self.npage:
-                self.index = 0
-                self.ipage = 1
-                self.openTest()
-
-            else:
-                # print("keydown self.index, self.maxentry 3= ", self.index, self.maxentry)
-                self.index = 0
-            self.paintFrame()
-        else:
-            self.paintFrame()
-
-    def okClicked(self):
-        itype = self.index
-        url = self.urls[itype]
-        name = self.names[itype]
-        self.session.open(M3uPlay2, name, url)
-        return
