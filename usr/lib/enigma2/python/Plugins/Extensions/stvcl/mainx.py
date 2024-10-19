@@ -308,6 +308,7 @@ def tvListEntry(name, png):
 
 def returnIMDB(text_clear):
     TMDB = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('TMDB'))
+    tmdb = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('tmdb'))
     IMDb = resolveFilename(SCOPE_PLUGINS, "Extensions/{}".format('IMDb'))
     text = html_conv.html_unescape(text_clear)
     if os.path.exists(TMDB):
@@ -315,17 +316,26 @@ def returnIMDB(text_clear):
             from Plugins.Extensions.TMBD.plugin import TMBD
             _session.open(TMBD.tmdbScreen, text, 0)
         except Exception as e:
-            print("[XCF] Tmdb: ", e)
+            print("[XCF] Tmdb: ", str(e))
         return True
+
+    elif os.path.exists(tmdb):
+        try:
+            from Plugins.Extensions.tmdb.plugin import tmdb
+            _session.open(tmdb.tmdbScreen, text, 0)
+        except Exception as e:
+            print("[XCF] Tmdb: ", str(e))
+        return True
+
     elif os.path.exists(IMDb):
         try:
             from Plugins.Extensions.IMDb.plugin import main as imdb
             imdb(_session, text)
         except Exception as e:
-            print("[XCF] imdb: ", e)
+            print("[XCF] imdb: ", str(e))
         return True
     else:
-        _session.open(MessageBox, text_clear, MessageBox.TYPE_INFO)
+        _session.open(MessageBox, text, MessageBox.TYPE_INFO)
         return True
     return False
 
@@ -517,29 +527,6 @@ class StvclMain(Screen):
         content = Utils.checkStr(url.strip())
         if PY3:
             content.encode()
-
-        # content = url
-        # if PY3:
-            # content = content.encode('utf-8', errors='ignore')  # Assicura la codifica UTF-8 in Python 3
-        # else:
-            # if isinstance(content, unicode):  # Python 2 tratta unicode separatamente
-                # content = content.encode('utf-8', errors='ignore')
-
-        # if sys.version_info.major == 3:
-            # import urllib.request as urllib2
-        # elif sys.version_info.major == 2:
-            # import urllib2
-        # req = urllib2.Request(url)
-        # req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')
-        # r = urllib2.urlopen(req, None, 15)
-        # content = r.read()
-        # r.close()
-        # if str(type(content)).find('bytes') != -1:
-            # try:
-                # content = content.decode("utf-8")
-            # except Exception as e:
-                # print("Error: ", e)
-
         print('urlmm33uu ', content)
         try:
             fileTitle = re.sub(r'[<>:"/\\|?*\[\]]', '_', namem3u)  # Sostituisce i caratteri non permessi
@@ -619,16 +606,6 @@ class ListM3u1(Screen):
     def openList(self):
         self.names = []
         self.urls = []
-
-        # self.req_session = requests.Session()
-        # self.req_session.hooks = {
-            # "response": lambda r, *args, **kwargs: r.raise_for_status()
-        # }
-        # self.req_session.headers.update(
-        # {
-            # "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0",
-        # })
-        # r = self.req_session.get(self.url)
 
         if sys.version_info.major == 3:
             import urllib.request as urllib2
