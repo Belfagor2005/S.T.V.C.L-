@@ -1748,7 +1748,7 @@ class OpenConfig(Screen, ConfigListScreen):
         self["paypal"] = Label()
         # self['path'] = Label(_('Folder path %s'% str(Path_Movies)))
         self['key_red'] = Button(_('Back'))
-        self['key_green'] = Button(_('Save'))
+        self['key_green'] = Button(_('- - - -'))
         self["key_blue"] = Button(_('Empty Pic Cache'))
         self['key_yellow'] = Button()
         self['key_yellow'].hide()
@@ -1833,6 +1833,7 @@ class OpenConfig(Screen, ConfigListScreen):
         return
 
     def changedEntry(self):
+        self['key_green'].instance.setText(_('Save') if self['config'].isChanged() else '- - - -')
         for x in self.onChangedEntry:
             x()
         try:
